@@ -26,9 +26,9 @@ wchich consists of:
 2. Execution of expenses
 3. Execution of savings
 
-First stage will allow manual input of transactions
-Second stage will allow to import bank account operations from csv files from multiple bank account
-Third stage will allow integration of transactional data via bank account API.
+First stage will allow manual input of transactions.
+Second stage will allow to import bank account operations from csv files for multiple bank accounts.
+Third stage will allow to import transactional data via bank account API.
 
 This project is a final programming bootcamp project.
 It's purpose is to demonstrate the ability to apply acquired programming knowledge
