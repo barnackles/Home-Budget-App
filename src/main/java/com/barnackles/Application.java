@@ -15,9 +15,5 @@ public class Application {
 		SpringApplication.run(Application.class, args);
 	}
 
-	@GetMapping("/test")
-	public String test() {
-		return "test";
-	}
 
 }
