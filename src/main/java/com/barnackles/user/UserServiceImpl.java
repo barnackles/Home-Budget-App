@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 import java.util.Arrays;
 import java.util.HashSet;
 @Service
-@RequiredArgsConstructor
+//@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
@@ -18,13 +18,13 @@ public class UserServiceImpl implements UserService {
     private final BCryptPasswordEncoder passwordEncoder;
 
 
-//    public UserServiceImpl(UserRepository userRepository,
-//                           RoleRepository roleRepository,
-//                           BCryptPasswordEncoder bCryptPasswordEncoder) {
-//        this.userRepository = userRepository;
-//        this.roleRepository = roleRepository;
-//        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
-//    }
+    public UserServiceImpl(UserRepository userRepository,
+                           RoleRepository roleRepository,
+                           BCryptPasswordEncoder passwordEncoder) {
+        this.userRepository = userRepository;
+        this.roleRepository = roleRepository;
+        this.passwordEncoder = passwordEncoder;
+    }
 
     public User findUserByEmail(String email) {
         return userRepository.findUserByEmail(email);

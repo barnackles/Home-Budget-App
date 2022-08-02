@@ -2,9 +2,7 @@ package com.barnackles.user;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
 @RequestMapping("/user")
@@ -18,9 +16,9 @@ public class UserController {
 //    public String add() {
 //
 //        User user = new User();
-//        user.setUserName("tester");
-//        user.setEmail("test60@gmail.com");
-//        user.setPassword("sometest!");
+//        user.setUserName("tester2");
+//        user.setEmail("test2@gmail.com");
+//        user.setPassword("testtest");
 //        user.setActive(true);
 //        userService.saveUser(user);
 //

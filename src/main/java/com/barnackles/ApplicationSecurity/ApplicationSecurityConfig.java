@@ -1,20 +1,21 @@
 package com.barnackles.ApplicationSecurity;
 
 import com.barnackles.user.SpringDataUserDetailsService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
+
+
 @Configuration
-@RequiredArgsConstructor
-public class ApplicationSecurityConfig {
-
-
+@EnableWebSecurity
+public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -23,36 +24,102 @@ public class ApplicationSecurityConfig {
     @Bean
     public SpringDataUserDetailsService userDetailsService() {
         return new SpringDataUserDetailsService();
+
+    }
+
+    @Override
+    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+        auth
+                .userDetailsService(userDetailsService())
+                .passwordEncoder(passwordEncoder());
     }
 
 
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+
         http.
                 authorizeRequests()
                 .antMatchers("/home").permitAll()
                 .antMatchers("/login").permitAll()
                 .antMatchers("/registration").permitAll()
-                .antMatchers("/admin/**").hasAuthority("ADMIN").anyRequest()
+//                .antMatchers("/admin/**").hasRole("ADMIN")
+                .antMatchers("/user/**").hasAnyRole("USER", "ADMIN").anyRequest()
                 .authenticated().and().csrf().disable().formLogin()
-                .loginPage("/login").failureUrl("/login?error=true")
-                .defaultSuccessUrl("/admin/home")
-                .usernameParameter("user_name")
+                .loginPage("/login")//loginProcessingUrl("/perform_login")
+                .defaultSuccessUrl("/user/home")
+                .failureUrl("/login?error=true")
+                .usernameParameter("userLogin")
                 .passwordParameter("password")
                 .and().logout()
                 .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
                 .logoutSuccessUrl("/login").and().exceptionHandling()
                 .accessDeniedPage("/access-denied");
-
-        return http.build();
     }
 
-    @Bean
-    public WebSecurityCustomizer webSecurityCustomizer() {
-        return (web) -> web.ignoring().antMatchers("/resources/**", "/static/**", "/css/**", "/js/**", "/images/**");
+    @Override
+    public void configure(WebSecurity web) throws Exception {
+        web
+                .ignoring()
+                .antMatchers("/resources/**", "/static/**", "/css/**", "/js/**", "/images/**");
     }
-
 
 }
+
+
+//
+//@Configuration
+//@RequiredArgsConstructor
+//public class ApplicationSecurityConfig {
+//
+////    private final AuthenticationConfiguration authenticationConfiguration;
+//
+//    @Bean
+//    public BCryptPasswordEncoder passwordEncoder() {
+//        return new BCryptPasswordEncoder();
+//    }
+//
+//    @Bean
+//    public SpringDataUserDetailsService userDetailsService() {
+//        return new SpringDataUserDetailsService();
+//
+//    }
+//
+//    @Bean
+//    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+//        http.
+//                authorizeRequests()
+//                .antMatchers("/home").permitAll()
+//                .antMatchers("/login").permitAll()
+//                .antMatchers("/registration").permitAll()
+////                .antMatchers("/admin/**").hasRole("ADMIN")
+//                .antMatchers("/user/**").hasAnyRole("USER", "ADMIN").anyRequest()
+//                .authenticated().and().csrf().disable().formLogin()
+//                //.loginPage("/login") //loginProcessingUrl("/login-perform")
+//                .defaultSuccessUrl("/user/home")
+//                .failureUrl("/login?error=true")
+//                .usernameParameter("user_name")
+//                .passwordParameter("password")
+//                .and().logout()
+//                .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
+//                .logoutSuccessUrl("/login").and().exceptionHandling()
+//                .accessDeniedPage("/access-denied");
+//
+//        return http.build();
+//    }
+//
+//    @Bean
+//    public WebSecurityCustomizer webSecurityCustomizer() {
+//        return (web) -> web.ignoring().antMatchers("/resources/**", "/static/**", "/css/**", "/js/**", "/images/**");
+//    }
+//
+////    @Bean
+////    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+////        return authenticationConfiguration.getAuthenticationManager();
+////    }
+//
+//
+//
+//}
 
 

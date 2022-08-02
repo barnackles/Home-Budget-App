@@ -21,7 +21,7 @@ public class SpringDataUserDetailsService implements UserDetailsService {
 
 
     @Autowired
-    public void setUserRepository(UserService userService) {
+    public void setUserRepository(UserServiceImpl userService) {
         this.userService = userService;
     }
 
@@ -30,7 +30,8 @@ public class SpringDataUserDetailsService implements UserDetailsService {
         User user;
         if (isLoginUserNameOrEmail(login)) {
             user = userService.findUserByEmail(login);
-        } else {
+        }
+        else {
             user = userService.findUserByUserName(login);
         }
         if (user == null) {
@@ -50,12 +51,16 @@ public class SpringDataUserDetailsService implements UserDetailsService {
     }
 
     private UserDetails buildUserForAuthentication(User user, List<GrantedAuthority> authorities) {
-        return new org.springframework.security.core.userdetails.User(user.getUserName(), user.getPassword(),
-                user.getActive(), true, true, true, authorities);
+//        return new org.springframework.security.core.userdetails.User(user.getUserName(), user.getPassword(),
+//                user.getActive(), true, true, true, authorities);
+        return new CurrentUser(user.getUserName(), user.getPassword(), authorities, user);
     }
 
-    private boolean isLoginUserNameOrEmail(String login) {
-        return login.matches("^[a-zA-Z0-9_+&*-] + (?:\\\\.[a-zA-Z0-9_+&*-] + )*@(?:[a-zA-Z0-9-]+\\\\.) + [a-zA-Z]{2,7}$");
+    public boolean isLoginUserNameOrEmail(String login) {
+        return login.matches("^[a-zA-Z0-9_!#$%&'*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$");
     }
+
+
+
 
 }
