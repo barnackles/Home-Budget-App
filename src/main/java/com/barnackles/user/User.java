@@ -6,6 +6,7 @@ import org.hibernate.validator.constraints.Length;
 import javax.persistence.*;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Pattern;
 import java.util.Set;
 @Data
 @Builder
@@ -21,6 +22,7 @@ public class User {
     private int id;
     @Column(unique = true)
     @Length(min = 5, message = "*Your user name must have at least 5 characters")
+    @Pattern(regexp = "^[A-Za-z][A-Za-z0-9_]{4,29}$")
     @NotBlank(message = "*Please provide a user name")
     private String userName;
     @Column(unique = true)
