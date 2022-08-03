@@ -13,8 +13,8 @@
 <div class="container">
     <form action="<c:url value = "/login"/>" method="POST">
         <br/>
-        Login : <input type="text" name="userLogin" class="form-control"/>
-        Password: <input type="password" name="password" class="form-control"/>
+        Login : <input type="text" name="userLogin" />
+        Password: <input type="password" name="password" />
         <input type="submit" value="Sign In"/>
         <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
     </form>

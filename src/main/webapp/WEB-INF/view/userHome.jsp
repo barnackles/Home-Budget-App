@@ -6,6 +6,8 @@
 </head>
 <body>
 <h1>Hello ${customUserName}</h1>
+<br>
+<a href="<c:url value = "/logout" />" >Sign out</a> <br>
 
 <%--<table border="1">--%>
 <%--    <tr>--%>

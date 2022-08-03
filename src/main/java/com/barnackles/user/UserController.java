@@ -2,7 +2,12 @@ package com.barnackles.user;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.validation.BindingResult;
+
+
+import javax.validation.Valid;
 
 @Controller
 @RequestMapping("/user")
@@ -11,20 +16,15 @@ public class UserController {
 
     private final UserServiceImpl userService;
 
-//    @RequestMapping("/add")
-//    @ResponseBody
-//    public String add() {
-//
-//        User user = new User();
-//        user.setUserName("tester2");
-//        user.setEmail("test2@gmail.com");
-//        user.setPassword("testtest");
-//        user.setActive(true);
-//        userService.saveUser(user);
-//
-//        return user.toString();
-//    }
 
+    @PostMapping("/save")
+    public String save(@Valid User user, BindingResult result) {
+        if(result.hasErrors()) {
+            return "/registration";
+        }
+        userService.saveUser(user);
+        return "redirect:/login";
+    }
 
 
 }

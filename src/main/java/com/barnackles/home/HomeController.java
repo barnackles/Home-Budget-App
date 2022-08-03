@@ -4,7 +4,9 @@ import com.barnackles.user.CurrentUser;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
 public class HomeController {
@@ -17,10 +19,16 @@ public class HomeController {
 //        return entityUser.toString();
 //    }
 
-    @RequestMapping("/home")
+    @RequestMapping("/")
     public String home() {
 
         return "home";
+    }
+
+    @GetMapping("/test")
+    @ResponseBody
+    public String test() {
+        return "test";
     }
 
 //    @RequestMapping("/user/home")

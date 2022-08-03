@@ -6,6 +6,11 @@
 </head>
 <body>
 <h1>HOME!</h1>
+
+<a href="<c:url value = "/login" />" >Sign in</a> <br>
+<a href="<c:url value = "/registration" />" >Register</a> <br>
+<a href="<c:url value = "/test" />" >TEST</a>
+
 <%--<table border="1">--%>
 <%--    <tr>--%>
 <%--        <td>Tytuł</td>--%>

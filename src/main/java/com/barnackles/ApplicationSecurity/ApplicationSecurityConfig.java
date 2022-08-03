@@ -40,12 +40,13 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
 
         http.
                 authorizeRequests()
-                .antMatchers("/home").permitAll()
+                .antMatchers("/").permitAll()
+                .antMatchers("/test").permitAll()
                 .antMatchers("/login").permitAll()
                 .antMatchers("/registration").permitAll()
 //                .antMatchers("/admin/**").hasRole("ADMIN")
                 .antMatchers("/user/**").hasAnyRole("USER", "ADMIN").anyRequest()
-                .authenticated().and().formLogin()//csrf().disable()
+                .authenticated().and().csrf().disable().formLogin()
                 .usernameParameter("userLogin")
                 .passwordParameter("password")
                 .loginPage("/login")//.loginProcessingUrl("/process-login")
@@ -53,7 +54,7 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
                 .failureUrl("/login?error=true")
                 .and().logout()
                 .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
-                .logoutSuccessUrl("/login").and().exceptionHandling()
+                .logoutSuccessUrl("/").and().exceptionHandling()
                 .accessDeniedPage("/access-denied");
     }
 
