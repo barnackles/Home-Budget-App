@@ -16,13 +16,14 @@ import java.util.Set;
 @Table(name = "users")
 public class User {
 
+    private static final String USERNAME_PATTERN = "^[A-Za-z][A-Za-z0-9_]{4,29}$";
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
     private int id;
     @Column(unique = true)
     @Length(min = 5, message = "*Your user name must have at least 5 characters")
-    @Pattern(regexp = "^[A-Za-z][A-Za-z0-9_]{4,29}$")
+    @Pattern(regexp = USERNAME_PATTERN, message = "*Your user name must comprise only of letters, digits and underscore")
     @NotBlank(message = "*Please provide a user name")
     private String userName;
     @Column(unique = true)
