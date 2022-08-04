@@ -2,8 +2,6 @@ package com.barnackles.user;
 
 import com.barnackles.role.Role;
 import com.barnackles.role.RoleRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -34,11 +32,12 @@ public class UserServiceImpl implements UserService {
         return userRepository.findUserByUserName(userName);
     }
 
-    public void saveUser(User user) {
+    public User saveUser(User user) {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setActive(true);
         Role userRole = roleRepository.findByRole("ROLE_USER");
         user.setRoles(new HashSet<Role>(Arrays.asList(userRole)));
         userRepository.save(user);
+        return user;
     }
 }
