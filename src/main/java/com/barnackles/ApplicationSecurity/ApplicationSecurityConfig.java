@@ -9,7 +9,6 @@ import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 
 
@@ -40,22 +39,23 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
 
         http.
                 authorizeRequests()
-                .antMatchers("/").permitAll()
-                .antMatchers("/test").permitAll()
-                .antMatchers("/login").permitAll()
-                .antMatchers("/registration").permitAll()
+                .antMatchers("/api/register").permitAll()
+                .antMatchers("/api/test").permitAll()
+//                .antMatchers("/api/home").permitAll()
+////                .antMatchers("/api/login").permitAll()
+                .antMatchers("/roles/**").permitAll()
 //                .antMatchers("/admin/**").hasRole("ADMIN")
-                .antMatchers("/user/**").hasAnyRole("USER", "ADMIN").anyRequest()
-                .authenticated().and().csrf().disable().formLogin()
-                .usernameParameter("userLogin")
-                .passwordParameter("password")
-                .loginPage("/login")//.loginProcessingUrl("/process-login")
-                .defaultSuccessUrl("/user/home")
-                .failureUrl("/login?error=true")
-                .and().logout()
-                .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
-                .logoutSuccessUrl("/").and().exceptionHandling()
-                .accessDeniedPage("/access-denied");
+                .antMatchers("api/user/**").hasAnyRole("USER", "ADMIN").anyRequest()
+                .authenticated().and().csrf().disable().httpBasic();   //.formLogin()
+//                .usernameParameter("userLogin")
+//                .passwordParameter("password")
+//                .loginPage("/login")//.loginProcessingUrl("/process-login")
+//                .defaultSuccessUrl("/user/home")
+//                .failureUrl("/login?error=true")
+//                .and().logout()
+//                .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
+//                .logoutSuccessUrl("/").and().exceptionHandling()
+//                .accessDeniedPage("/access-denied");
     }
 
     @Override
