@@ -19,8 +19,9 @@ public class UserRestController {
 
 
     @PostMapping("/register")
-    public ResponseEntity<User> save(@Valid @RequestBody User user) {
-        User createdUser = userService.saveUser(user);
+    public ResponseEntity<UserDto> save(@Valid @RequestBody User user) {
+        userService.saveUser(user);
+        UserDto createdUser = user.userToResponseEntity();
         return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
     }
 
