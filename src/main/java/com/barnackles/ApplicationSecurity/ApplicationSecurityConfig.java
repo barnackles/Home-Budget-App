@@ -11,7 +11,6 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 
-
 @Configuration
 @EnableWebSecurity
 public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
@@ -33,29 +32,14 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
                 .passwordEncoder(passwordEncoder());
     }
 
-
     @Override
     protected void configure(HttpSecurity http) throws Exception {
 
         http.
                 authorizeRequests()
                 .antMatchers("/user/register").permitAll()
-                .antMatchers("/api/test").permitAll()
-//                .antMatchers("/api/home").permitAll()
-////                .antMatchers("/api/login").permitAll()
-                .antMatchers("/roles/**").permitAll()
-//                .antMatchers("/admin/**").hasRole("ADMIN")
-                .antMatchers("api/user/**").hasAnyRole("USER", "ADMIN").anyRequest()
-                .authenticated().and().csrf().disable().httpBasic();   //.formLogin()
-//                .usernameParameter("userLogin")
-//                .passwordParameter("password")
-//                .loginPage("/login")//.loginProcessingUrl("/process-login")
-//                .defaultSuccessUrl("/user/home")
-//                .failureUrl("/login?error=true")
-//                .and().logout()
-//                .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
-//                .logoutSuccessUrl("/").and().exceptionHandling()
-//                .accessDeniedPage("/access-denied");
+                .antMatchers("api/**").hasAnyRole("USER", "ADMIN").anyRequest()
+                .authenticated().and().csrf().disable().httpBasic();
     }
 
     @Override
