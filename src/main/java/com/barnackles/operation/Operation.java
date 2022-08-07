@@ -22,5 +22,9 @@ public class Operation {
     private OperationType operationType;
     private BigDecimal amount;
     private LocalDateTime operationDateTime;
+    private int actualOrPlanned;
+    private int fixedOrVariable;
+    private Frequency frequency;
+
 
 }
