@@ -25,5 +25,14 @@ public class UserRestController {
         return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
     }
 
+    @PostMapping("/first")
+    public void firstUser() {
+        User firstUser = new User();
+        firstUser.setUserName("James_Bond");
+        firstUser.setEmail("oo7@gmail.com");
+        firstUser.setPassword("testtest");
+        userService.saveUser(firstUser);
+    }
+
 
 }

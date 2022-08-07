@@ -26,6 +26,7 @@ public class User {
     private static final String USERNAME_PATTERN = "^[A-Za-z][A-Za-z0-9_]{4,29}$";
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "user_id")
     private Long id;
     @Column(unique = true)
     @Length(min = 5, message = "Your user name must have at least 5 characters")
