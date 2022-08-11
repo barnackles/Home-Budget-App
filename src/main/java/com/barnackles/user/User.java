@@ -7,6 +7,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.validator.constraints.Length;
 
 import javax.persistence.*;
@@ -20,10 +22,12 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@DynamicInsert
+@DynamicUpdate
 @Table(name = "users")
 public class User {
 
-    private static final String USERNAME_PATTERN = "^[A-Za-z][A-Za-z0-9_]{4,29}$";
+    public static final String USERNAME_PATTERN = "^[A-Za-z][A-Za-z0-9_]{4,29}$";
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
@@ -51,20 +55,21 @@ public class User {
     @JoinColumn(name = "asset_id")
     private List<Asset> assets;
 
-    public UserDto userToResponseEntity() {
-        UserDto userDto = new UserDto();
-        userDto.setUserName(userName);
-        userDto.setEmail(email);
-        return userDto;
+    public UserResponseDto userToResponseDto() {
+        UserResponseDto userResponseDto = new UserResponseDto();
+        userResponseDto.setId(id);
+        userResponseDto.setUserName(userName);
+        userResponseDto.setEmail(email);
+        return userResponseDto;
     }
 
 
-    public UserDto userToUserDto() {
-        UserDto userDto = new UserDto();
-        userDto.setUserName(userName);
-        userDto.setEmail(email);
-        return userDto;
-    }
+//    public UserResponseDto userToUserDto() {
+//        UserResponseDto userDto = new UserResponseDto();
+//        userDto.setUserName(userName);
+//        userDto.setEmail(email);
+//        return userDto;
+//    }
 
 }
 

@@ -3,13 +3,17 @@ package com.barnackles.user;
 import com.barnackles.role.Role;
 import com.barnackles.role.RoleRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
@@ -18,11 +22,21 @@ public class UserServiceImpl implements UserService {
 
 
     public User findUserByEmail(String email) {
+        log.info("User found: {}", email);
         return userRepository.findUserByEmail(email);
     }
 
     public User findUserByUserName(String userName) {
         return userRepository.findUserByUserName(userName);
+    }
+
+    public User findUserById(Long id) {
+        return userRepository.findUserById(id);
+    }
+
+    @Override
+    public List<User> findAll() {
+        return userRepository.findAll();
     }
 
     public User saveUser(User user) {
@@ -33,4 +47,15 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
         return user;
     }
+
+    public User updateUser(User user) {
+        User userToUpdate = userRepository.findUserById(user.getId());
+
+        String userName = user.getUserName();
+        String setEmail(user.getEmail());
+        userToUpdate.setPassword(passwordEncoder.encode(user.getPassword()));
+        userRepository.save(user);
+        return user;
+    }
+
 }
