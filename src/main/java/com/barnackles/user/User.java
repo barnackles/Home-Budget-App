@@ -3,10 +3,7 @@ package com.barnackles.user;
 import com.barnackles.asset.Asset;
 import com.barnackles.budget.Budget;
 import com.barnackles.role.Role;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.validator.constraints.Length;
 
 import javax.persistence.*;
@@ -16,6 +13,7 @@ import javax.validation.constraints.Pattern;
 import java.util.List;
 import java.util.Set;
 @Data
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -25,6 +23,7 @@ public class User {
 
     public static final String USERNAME_PATTERN = "^[A-Za-z][A-Za-z0-9_]{4,29}$";
     @Id
+    @EqualsAndHashCode.Include()
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
     private Long id;
@@ -50,22 +49,6 @@ public class User {
     @OneToMany
     @JoinColumn(name = "asset_id")
     private List<Asset> assets;
-
-    public UserResponseDto userToResponseDto() {
-        UserResponseDto userResponseDto = new UserResponseDto();
-        userResponseDto.setId(id);
-        userResponseDto.setUserName(userName);
-        userResponseDto.setEmail(email);
-        return userResponseDto;
-    }
-
-
-//    public UserResponseDto userToUserDto() {
-//        UserResponseDto userDto = new UserResponseDto();
-//        userDto.setUserName(userName);
-//        userDto.setEmail(email);
-//        return userDto;
-//    }
 
 }
 

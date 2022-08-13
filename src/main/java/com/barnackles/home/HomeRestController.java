@@ -6,7 +6,6 @@ import com.barnackles.user.UserServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -22,18 +21,13 @@ public class HomeRestController {
 //        return entityUser.toString();
 //    }
 
-    @RequestMapping("/api/home")
-    public String home() {
-
-        return "home";
-    }
 
     @GetMapping("/api/test")
     public String test() {
         return "test";
     }
 
-    @RequestMapping("/user/home")
+    @GetMapping("/user/home")
     public User home(@AuthenticationPrincipal CurrentUser customUser) {
         return customUser.getUser();
     }
