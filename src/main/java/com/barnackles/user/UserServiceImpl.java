@@ -29,15 +29,18 @@ public class UserServiceImpl implements UserService {
     }
 
     public User findUserByUserName(String userName) {
+        log.info("User found: {}", userName);
         return userRepository.findUserByUserName(userName);
     }
 
     public User findUserById(Long id) {
+        log.info("User found: {}", id);
         return userRepository.findUserById(id);
     }
 
     @Override
     public List<User> findAll() {
+        log.info("All users found");
         return userRepository.findAll();
     }
 
@@ -46,13 +49,21 @@ public class UserServiceImpl implements UserService {
         user.setActive(true);
         Role userRole = roleRepository.findByRole("ROLE_USER");
         user.setRoles(new HashSet<Role>(Arrays.asList(userRole)));
+        log.info("User saved: {}", user);
         userRepository.save(user);
         return user;
     }
 
     public User updateUser(User user) {
+        log.info("User updated: {}", user);
         userRepository.save(user);
         return user;
+    }
+
+
+    public void deleteUser(User user) {
+        log.info("User deleted: {}", user.getUserName());
+        userRepository.deleteUserById(user.getId());
     }
 
 }

@@ -31,6 +31,11 @@ public class UserRestController {
          return new ResponseEntity<>(users, HttpStatus.OK);
     }
 
+    /**
+     * @param userCreateDto
+     * @return ResponseEntity<UserResponseDto>
+     */
+
     @PostMapping("/user")
     public ResponseEntity<UserResponseDto> save(@Valid @RequestBody UserCreateDto userCreateDto) {
 
@@ -46,9 +51,13 @@ public class UserRestController {
         return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
     }
 
+    /**
+     * @param userUpdateDto
+     * @return ResponseEntity<UserResponseDto>
+     */
     //password change via separate controller
     @PutMapping("/user")
-    public ResponseEntity<UserResponseDto> updateUser(@Valid @RequestBody UserUpdateDto userUpdateDto) {
+    public ResponseEntity<UserResponseDto> UpdateUser(@Valid @RequestBody UserUpdateDto userUpdateDto) {
         User user;
         try {
             user = convertUpdateDtoToUser(userUpdateDto);
@@ -67,24 +76,23 @@ public class UserRestController {
         return new ResponseEntity<>(updatedUser, HttpStatus.OK);
     }
 
-//    @PutMapping("/user")
-//    public ResponseEntity<UserResponseDto> updateUser(@Valid @RequestBody User user) {
-//        userService.updateUser(user);
-//        UserResponseDto updatedUser = user.userToResponseDto();
-//        return new ResponseEntity<>(updatedUser, HttpStatus.OK);
-//    }
+    /**
+     * @param id
+     * @return ResponseEntity
+     *
+     */
+    //Admin only + on account delete
+    //add confirmation
 
-
-
-
-    @PostMapping("/test")
-    public void firstUser() {
-        User firstUser = new User();
-        firstUser.setUserName("thorsten");
-        firstUser.setEmail("throsten@gmail.com");
-        firstUser.setPassword("testtest");
-        userService.saveUser(firstUser);
+    @DeleteMapping("/user/{id}")
+    public ResponseEntity<String> deleteUser(@PathVariable Long id) {
+        User user = userService.findUserById(id);
+        String message = String.format("User: %s successfully deleted ", user.getUserName());
+        userService.deleteUser(user);
+        return new ResponseEntity<>(message, HttpStatus.OK);
     }
+
+
 
     /**
      * @param user
@@ -107,23 +115,25 @@ public class UserRestController {
         return modelMapper.map(userCreateDto, User.class);
     }
 
+    /**
+     * @param userUpdateDto
+     * @return User
+     * UpdateDTO to Entity conversion
+     */
+
     private User convertUpdateDtoToUser(UserUpdateDto userUpdateDto) throws ParseException {
         return modelMapper.map(userUpdateDto, User.class);
     }
 
 
-    //    private User convertResponseDtoToUser(UserResponseDto userResponseDto) throws ParseException {
-//        return modelMapper.map(userResponseDto, User.class);
+
+//    @PostMapping("/test")
+//    public void firstUser() {
+//        User firstUser = new User();
+//        firstUser.setUserName("thorsten");
+//        firstUser.setEmail("throsten@gmail.com");
+//        firstUser.setPassword("testtest");
+//        userService.saveUser(firstUser);
 //    }
-
-
-//    public UserResponseDto userToResponseDto() {
-//        UserResponseDto userResponseDto = new UserResponseDto();
-//        userResponseDto.setId(id);
-//        userResponseDto.setUserName(userName);
-//        userResponseDto.setEmail(email);
-//        return userResponseDto;
-//    }
-
 
 }
