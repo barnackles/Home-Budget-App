@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,6 +21,8 @@ public class UserRestController {
 
     private final UserServiceImpl userService;
     private final ModelMapper modelMapper;
+
+    private final PasswordEncoder passwordEncoder;
 
     /**
      * admin only
@@ -58,22 +61,48 @@ public class UserRestController {
     //password change via separate controller
     @PutMapping("/user")
     public ResponseEntity<UserResponseDto> UpdateUser(@Valid @RequestBody UserUpdateDto userUpdateDto) {
+        User persistentUser = userService.findUserById(userUpdateDto.getId());
+        UserResponseDto responseUser = convertToResponseDto(persistentUser);
+        HttpStatus httpStatus = HttpStatus.PRECONDITION_FAILED;
+
         User user;
         try {
             user = convertUpdateDtoToUser(userUpdateDto);
+            user.setPassword(persistentUser.getPassword());
+            user.setActive(persistentUser.getActive());
+            user.setRoles(persistentUser.getRoles());
+            user.setBudgets(persistentUser.getBudgets());
+            user.setAssets(persistentUser.getAssets());
+            userService.updateUser(user);
+            responseUser = convertToResponseDto(user);
+            httpStatus = HttpStatus.OK;
         } catch (ParseException e) {
-            throw new RuntimeException(e);
+//            throw new RuntimeException(e);
+            log.error("unable to parse dto to entity error", e.getMessage());
         }
-        User persistentUser = userService.findUserById(userUpdateDto.getId());
-        user.setPassword(persistentUser.getPassword());
-        user.setActive(persistentUser.getActive());
-        user.setRoles(persistentUser.getRoles());
-        user.setBudgets(persistentUser.getBudgets());
-        user.setAssets(persistentUser.getAssets());
+        return new ResponseEntity<>(responseUser, httpStatus);
+    }
 
-        userService.updateUser(user);
-        UserResponseDto updatedUser = convertToResponseDto(user);
-        return new ResponseEntity<>(updatedUser, HttpStatus.OK);
+    /**
+     * @param userPasswordUpdateDto
+     * @return ResponseEntity<UserResponseDto>
+     */
+    @PutMapping("/user-password")
+    public ResponseEntity<String> UpdateUserPassword
+    (@Valid @RequestBody UserPasswordUpdateDto userPasswordUpdateDto) {
+
+        User user = userService.findUserById(userPasswordUpdateDto.getId());
+
+        String response = "Incorrect password";
+        HttpStatus httpStatus = HttpStatus.PRECONDITION_FAILED;
+
+        if (passwordEncoder.matches(userPasswordUpdateDto.getCurrentPassword(), user.getPassword())) {
+                user.setPassword(userPasswordUpdateDto.getNewPassword());
+                userService.updateUserPassword(user);
+                response = "Password updated successfully";
+                httpStatus = HttpStatus.OK;
+        }
+        return new ResponseEntity<>(response, httpStatus);
     }
 
     /**

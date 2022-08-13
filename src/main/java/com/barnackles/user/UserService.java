@@ -17,4 +17,8 @@ public interface UserService  {
 
     User updateUser(User user);
 
+    User updateUserPassword(User user);
+    void deleteUser(User user);
+
+
 }

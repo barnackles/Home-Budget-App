@@ -60,6 +60,11 @@ public class UserServiceImpl implements UserService {
         return user;
     }
 
+    public User updateUserPassword(User user) {
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        log.info("Password for user: {} successfully updated", user.getUserName());
+        return user;
+    }
 
     public void deleteUser(User user) {
         log.info("User deleted: {}", user.getUserName());
