@@ -37,7 +37,7 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
 
         http.
                 authorizeRequests()
-                .antMatchers("api/user/register").permitAll()
+                .antMatchers("api/user/user").permitAll()
                 .antMatchers("api/user/first").permitAll()
                 .antMatchers("api/**").hasAnyRole("USER", "ADMIN").anyRequest()
                 .authenticated().and().csrf().disable().httpBasic();

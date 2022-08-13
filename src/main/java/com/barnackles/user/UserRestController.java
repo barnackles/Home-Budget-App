@@ -23,31 +23,41 @@ public class UserRestController {
          return new ResponseEntity<>(users, HttpStatus.OK);
     }
 
-    @PutMapping("/user")
-    public ResponseEntity<UserResponseDto> updateUser(@Valid @RequestBody User user) {
-        userService.updateUser(user);
-
-        UserResponseDto updatedUser = user.userToResponseDto();
-        return new ResponseEntity<>(updatedUser, HttpStatus.OK);
-    }
-
-    @PostMapping("/register")
-    public ResponseEntity<UserResponseDto> save(@Valid @RequestBody User user) {
+    @PostMapping("/user")
+    public ResponseEntity<UserResponseDto> save(@Valid @RequestBody UserCreateDto userCreateDto) {
+        User user = userCreateDto.toUserToCreate();
         userService.saveUser(user);
         UserResponseDto createdUser = user.userToResponseDto();
         return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
     }
 
+    //password change via separate controller
+    @PutMapping("/user")
+    public ResponseEntity<UserResponseDto> updateUser(@Valid @RequestBody UserCreateDto userCreateDto) {
+        User user = userCreateDto.toUserToUpdate();
+        userService.updateUser(user);
+        UserResponseDto updatedUser = user.userToResponseDto();
+        return new ResponseEntity<>(updatedUser, HttpStatus.OK);
+    }
 
-
-//    @PostMapping("/test")
-//    public void firstUser() {
-//        User firstUser = new User();
-//        firstUser.setUserName("James_Bond");
-//        firstUser.setEmail("oo7@gmail.com");
-//        firstUser.setPassword("testtest");
-//        userService.saveUser(firstUser);
+//    @PutMapping("/user")
+//    public ResponseEntity<UserResponseDto> updateUser(@Valid @RequestBody User user) {
+//        userService.updateUser(user);
+//        UserResponseDto updatedUser = user.userToResponseDto();
+//        return new ResponseEntity<>(updatedUser, HttpStatus.OK);
 //    }
+
+
+
+
+    @PostMapping("/test")
+    public void firstUser() {
+        User firstUser = new User();
+        firstUser.setUserName("thorsten");
+        firstUser.setEmail("throsten@gmail.com");
+        firstUser.setPassword("testtest");
+        userService.saveUser(firstUser);
+    }
 
 
 }
