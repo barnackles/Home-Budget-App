@@ -7,9 +7,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,4 +37,23 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
         return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler(EntityNotFoundException.class)
+    protected ResponseEntity<Object> handleEntityNotFound(EntityNotFoundException ex) {
+        Map<String, String> body = new HashMap<>();
+        String error = ex.getMessage();
+        body.put("error", error);
+
+        return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
+    }
+
+
+//    @ExceptionHandler(EntityActionVetoException.class)
+//    protected ResponseEntity<Object> handleEntityNotFound(EntityNotFoundException e) {
+//        ApiError apiError = new ApiError(NOT_FOUND);
+//        epiError.setMessage(e.getMessage());
+//        return buildResponseEntity(apiError);
+//    }
+
+
 }
