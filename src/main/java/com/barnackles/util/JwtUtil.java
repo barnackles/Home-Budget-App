@@ -5,6 +5,7 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
@@ -23,16 +24,32 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @Data
 public class JwtUtil {
 
-    private Algorithm algorithm = Algorithm.HMAC256("secret".getBytes()); // nie powinno się przechowywać secretu w kodzie
+
+    private final String secret;
+    private Date tokenExpirationTime;
+    private Date refreshTokenActivationTime;
+    private Date refreshTokenExpirationTime;
+    private Algorithm algorithm;
+
+    public JwtUtil(@Value("${jwt.secret") String secret) {
+        this.secret = secret;
+        this.tokenExpirationTime = new Date(System.currentTimeMillis() + (3600000 / 6));
+        this.refreshTokenActivationTime = tokenExpirationTime;
+        this.refreshTokenExpirationTime = new Date(System.currentTimeMillis() + (3600000));
+        this.algorithm = Algorithm.HMAC512(secret.getBytes());
+    }
+
+
+
     public Map<String, String> generateTokens(User user, HttpServletRequest request, HttpServletResponse response) {
 
-        String access_token = JWT.create().withSubject(user.getUsername()).withExpiresAt(new Date(System.currentTimeMillis() + (3600000 / 6) )) //10 min
+        String access_token = JWT.create().withSubject(user.getUsername()).withExpiresAt(tokenExpirationTime) //10 min
                 .withIssuer(request.getRequestURL().toString()).withClaim("roles", user.getAuthorities()
                         .stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()))
                 .sign(algorithm);
 
-        String refresh_token = JWT.create().withSubject(user.getUsername()).withExpiresAt(new Date(System.currentTimeMillis() + (3600000 / 6) ))
-                .withIssuer(request.getRequestURL().toString()).withClaim("roles", user.getAuthorities()
+        String refresh_token = JWT.create().withSubject(user.getUsername()).withExpiresAt(refreshTokenExpirationTime)
+                .withIssuer(request.getRequestURL().toString()).withNotBefore(refreshTokenActivationTime).withClaim("roles", user.getAuthorities()
                         .stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()))
                 .sign(algorithm);
 
