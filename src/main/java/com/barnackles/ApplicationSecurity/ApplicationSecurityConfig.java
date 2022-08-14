@@ -41,14 +41,32 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
 
-        http.
-                authorizeRequests()
-                .antMatchers("api/user/user").permitAll()
-                .antMatchers("api/user/first").permitAll()
-                .antMatchers("api/**").hasAnyRole("USER", "ADMIN").anyRequest()
-                .authenticated().and().csrf().disable().httpBasic();
+     
+        CustomAuthenticationFilter customAuthenticationFilter = new CustomAuthenticationFilter(authenticationManagerBean(), new JwtUtil());
+        customAuthenticationFilter.setFilterProcessesUrl("/api/login");
+
+            http.csrf().disable();
+            http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+            http.authorizeRequests().antMatchers("/api/login").permitAll()
+            .antMatchers("api/**").hasAnyRole("USER", "ADMIN").anyRequest()
+            .authenticated();//permitAll()
+            http.addFilter(customAuthenticationFilter);
+            http.addFilterBefore(new CustomAuthorizationFilter(new JwtUtil()), UsernamePasswordAuthenticationFilter.class);
+
+        //        http.
+//                authorizeRequests()
+//                .antMatchers("/user/register").permitAll()
+//                .antMatchers("/user/first").permitAll()
+//                .antMatchers("api/**").hasAnyRole("USER", "ADMIN").anyRequest()
+//                .authenticated().and().csrf().disable().httpBasic();
     }
 
+    @Bean
+    @Override
+    public AuthenticationManager authenticationManagerBean() throws Exception {
+        return super.authenticationManagerBean();
+    }
+    
     @Override
     public void configure(WebSecurity web) throws Exception {
         web
