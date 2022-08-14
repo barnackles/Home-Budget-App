@@ -48,12 +48,4 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
 
-//    @ExceptionHandler(EntityActionVetoException.class)
-//    protected ResponseEntity<Object> handleEntityNotFound(EntityNotFoundException e) {
-//        ApiError apiError = new ApiError(NOT_FOUND);
-//        epiError.setMessage(e.getMessage());
-//        return buildResponseEntity(apiError);
-//    }
-
-
 }
