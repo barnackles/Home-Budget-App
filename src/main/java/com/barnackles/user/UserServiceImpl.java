@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -23,19 +24,34 @@ public class UserServiceImpl implements UserService {
     private final BCryptPasswordEncoder passwordEncoder;
 
 
-    public User findUserByEmail(String email) {
+    public User findUserByEmail(String email) throws EntityNotFoundException {
         log.info("User found: {}", email);
-        return userRepository.findUserByEmail(email);
+        return userRepository.findUserByEmail(email).orElseThrow(
+                () -> {
+                    log.error("entity not found with email: {} not found", email);
+                    throw new EntityNotFoundException("entity not found");
+                }
+        );
     }
 
-    public User findUserByUserName(String userName) {
+    public User findUserByUserName(String userName) throws EntityNotFoundException {
         log.info("User found: {}", userName);
-        return userRepository.findUserByUserName(userName);
+        return userRepository.findUserByUserName(userName).orElseThrow(
+                () -> {
+                    log.error("entity not found with userName: {} not found", userName);
+                    throw new EntityNotFoundException("entity not found");
+                }
+        );
     }
 
-    public User findUserById(Long id) {
+    public User findUserById(Long id) throws EntityNotFoundException {
         log.info("User found: {}", id);
-        return userRepository.findUserById(id);
+        return userRepository.findUserById(id).orElseThrow(
+                () -> {
+                    log.error("entity not found with id: {} not found", id);
+                    throw new EntityNotFoundException("entity not found");
+                }
+        );
     }
 
     @Override
