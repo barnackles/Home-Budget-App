@@ -35,6 +35,18 @@ public class UserRestController {
     }
 
     /**
+     * @return ResponseEntity<List<User>>
+     */
+    @GetMapping("/user/{id}")
+    public ResponseEntity<UserResponseDto> findUserById(@PathVariable Long id) {
+
+        User user = userService.findUserById(id);
+        UserResponseDto userResponseDto = convertToResponseDto(user);
+        return new ResponseEntity<>(userResponseDto, HttpStatus.OK);
+    }
+
+
+    /**
      * @param userCreateDto
      * @return ResponseEntity<UserResponseDto>
      */
