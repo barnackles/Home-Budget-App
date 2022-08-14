@@ -1,6 +1,7 @@
 package com.barnackles.ApplicationSecurity;
 
 import com.barnackles.user.SpringDataUserDetailsService;
+import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -14,6 +15,11 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 @Configuration
 @EnableWebSecurity
 public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
+
+    @Bean
+    public ModelMapper modelMapper() {
+        return new ModelMapper();
+    }
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -37,8 +43,8 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
 
         http.
                 authorizeRequests()
-                .antMatchers("/user/register").permitAll()
-                .antMatchers("/user/first").permitAll()
+                .antMatchers("api/user/user").permitAll()
+                .antMatchers("api/user/first").permitAll()
                 .antMatchers("api/**").hasAnyRole("USER", "ADMIN").anyRequest()
                 .authenticated().and().csrf().disable().httpBasic();
     }

@@ -3,10 +3,7 @@ package com.barnackles.user;
 import com.barnackles.asset.Asset;
 import com.barnackles.budget.Budget;
 import com.barnackles.role.Role;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.validator.constraints.Length;
 
 import javax.persistence.*;
@@ -16,6 +13,7 @@ import javax.validation.constraints.Pattern;
 import java.util.List;
 import java.util.Set;
 @Data
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -23,8 +21,9 @@ import java.util.Set;
 @Table(name = "users")
 public class User {
 
-    private static final String USERNAME_PATTERN = "^[A-Za-z][A-Za-z0-9_]{4,29}$";
+    public static final String USERNAME_PATTERN = "^[A-Za-z][A-Za-z0-9_]{4,29}$";
     @Id
+    @EqualsAndHashCode.Include()
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
     private Long id;
@@ -41,30 +40,15 @@ public class User {
     @NotBlank(message = "Please provide your password")
     private String password;
     private Boolean active;
-    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @ManyToMany(cascade = CascadeType.MERGE, fetch = FetchType.EAGER)
     @JoinTable(name = "user_role", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles;
-    @ManyToMany
+    @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(name = "user_budget", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "budget_id"))
     private List<Budget> budgets;
-    @OneToMany
+    @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "asset_id")
     private List<Asset> assets;
-
-    public UserDto userToResponseEntity() {
-        UserDto userDto = new UserDto();
-        userDto.setUserName(userName);
-        userDto.setEmail(email);
-        return userDto;
-    }
-
-
-    public UserDto userToUserDto() {
-        UserDto userDto = new UserDto();
-        userDto.setUserName(userName);
-        userDto.setEmail(email);
-        return userDto;
-    }
 
 }
 
