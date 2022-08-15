@@ -5,12 +5,13 @@ import com.barnackles.filter.CustomAuthorizationFilter;
 import com.barnackles.user.SpringDataUserDetailsService;
 import com.barnackles.util.JwtUtil;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -21,6 +22,15 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableWebSecurity
 public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
+
+
+    private final String secret;
+    private final String secret2;
+
+    public ApplicationSecurityConfig(@Value("${jwt.secret") String secret, @Value("${jwt.secret2") String secret2) {
+        this.secret = secret;
+        this.secret2 = secret2;
+    }
 
     @Bean
     public ModelMapper modelMapper() {
@@ -48,23 +58,46 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
 
      
-        CustomAuthenticationFilter customAuthenticationFilter = new CustomAuthenticationFilter(authenticationManagerBean(), new JwtUtil());
-        customAuthenticationFilter.setFilterProcessesUrl("/api/login");
+        CustomAuthenticationFilter customAuthenticationFilter = new CustomAuthenticationFilter(authenticationManagerBean(),
+                new JwtUtil(secret, secret2));
 
             http.csrf().disable();
             http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-            http.authorizeRequests().antMatchers("/api/login").permitAll()
-            .antMatchers("api/**").hasAnyRole("USER", "ADMIN").anyRequest()
-            .authenticated();//permitAll()
-            http.addFilter(customAuthenticationFilter);
-            http.addFilterBefore(new CustomAuthorizationFilter(new JwtUtil()), UsernamePasswordAuthenticationFilter.class);
+            http.authorizeRequests().antMatchers(
+                    "/login",
+                    "/user/token/refresh",
+                    "/swagger-ui/**",
+                    "/swagger-resources/**",
+                    "/v2/api-docs").permitAll();
 
-        //        http.
-//                authorizeRequests()
-//                .antMatchers("/user/register").permitAll()
-//                .antMatchers("/user/first").permitAll()
-//                .antMatchers("api/**").hasAnyRole("USER", "ADMIN").anyRequest()
-//                .authenticated().and().csrf().disable().httpBasic();
+            http.authorizeRequests().antMatchers(HttpMethod.POST, "/user/user").permitAll();
+            http.authorizeRequests().antMatchers("/**").hasAnyRole("USER", "ADMIN")
+                .anyRequest().authenticated();
+
+            http.addFilter(customAuthenticationFilter);
+            http.addFilterBefore(new CustomAuthorizationFilter(new JwtUtil(secret, secret2)),
+                    UsernamePasswordAuthenticationFilter.class);
+
+
+//            http.csrf().disable();
+//            http
+//                .authorizeRequests()
+////                .antMatchers("/api/swagger-ui/**").permitAll()
+////                .antMatchers("/api/v2/api-docs").permitAll()
+////                .antMatchers("/api/token/refresh").permitAll()
+////                .antMatchers("api/**").hasAnyRole("USER", "ADMIN")
+//                .anyRequest()
+////                .permitAll()
+//               .authenticated()
+//                .and()
+//                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+//                .and()
+//                .addFilter(customAuthenticationFilter)
+//                .addFilterBefore(new CustomAuthorizationFilter(new JwtUtil(secret, secret2)),
+//                            UsernamePasswordAuthenticationFilter.class);
+
+
+
     }
 
     @Bean
@@ -73,12 +106,7 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
         return super.authenticationManagerBean();
     }
     
-    @Override
-    public void configure(WebSecurity web) throws Exception {
-        web
-                .ignoring()
-                .antMatchers("/resources/**", "/static/**", "/css/**", "/js/**", "/images/**");
-    }
+
 
 
 

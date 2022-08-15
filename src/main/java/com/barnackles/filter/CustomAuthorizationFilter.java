@@ -30,35 +30,44 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @Slf4j
 @RequiredArgsConstructor
-public class CustomAuthorizationFilter extends OncePerRequestFilter {
+public class CustomAuthorizationFilter extends OncePerRequestFilter {  //OncePerRequestFilter
 
     private final JwtUtil jwtUtil;
+    public static final String TOKEN_PREFIX = "Bearer ";
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-        if("/api/login".equals(request.getServletPath())) {
+        if(("/login".equals(request.getServletPath()))
+    || ("/user/token/refresh".equals(request.getServletPath()))
+    || ("/swagger-ui/**".equals(request.getServletPath()))
+    || ("/swagger-resources/**".equals(request.getServletPath()))
+    || ("/v2/api-docs".equals(request.getServletPath()))
+    || ("/user/user".equals(request.getServletPath()))
+        ) {
             filterChain.doFilter(request, response);
         } else {
             String authorizationHeader = request.getHeader(AUTHORIZATION);
-            if(authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+            if(authorizationHeader != null && authorizationHeader.startsWith(TOKEN_PREFIX)) {
                 try {
-                    String token = authorizationHeader.substring("Bearer ".length());
+                    String token = authorizationHeader.substring(TOKEN_PREFIX.length());
                     JWTVerifier verifier = JWT.require(jwtUtil.getAlgorithm()).build();
                     DecodedJWT decodedJWT = verifier.verify(token);
                     String userName = decodedJWT.getSubject();
                     String[] roles = decodedJWT.getClaim("roles").asArray(String.class);
                     Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
                     stream(roles).forEach(role -> authorities.add(new SimpleGrantedAuthority(role)));
-                    UsernamePasswordAuthenticationToken authenticationToken
-                            = new UsernamePasswordAuthenticationToken(userName, null, authorities);
-                    SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+                    if (userName != null) {
+                        UsernamePasswordAuthenticationToken authenticationToken
+                                = new UsernamePasswordAuthenticationToken(userName,
+                                null, authorities);
+                        SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+                    }
                     filterChain.doFilter(request, response);
                 } catch (Exception e) {
-                    log.error("Error: {}", e.getMessage());
+                    log.error("Error: {}", "Authorization Filter Error");
                     response.setHeader("error", e.getMessage());
                     response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-//                    response.sendError(HttpServletResponse.SC_FORBIDDEN);
                     Map<String, String> tokens = new HashMap<>();
                     tokens.put("error_message", e.getMessage());
                     response.setContentType(APPLICATION_JSON_VALUE);

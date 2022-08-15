@@ -22,7 +22,7 @@ public class HomeRestController {
 //    }
 
 
-    @GetMapping("/api/test")
+    @GetMapping("/test")
     public String test() {
         return "test";
     }
