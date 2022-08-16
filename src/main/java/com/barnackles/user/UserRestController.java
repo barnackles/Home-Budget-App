@@ -142,6 +142,7 @@ public class UserRestController {
      * @param userPasswordUpdateDto
      * @return ResponseEntity<UserResponseDto>
      */
+    @PreAuthorize("hasRole('ROLE_USER')")
     @PutMapping("/user-password")
     public ResponseEntity<String> UpdateUserPassword
     (@Valid @RequestBody UserPasswordUpdateDto userPasswordUpdateDto) {

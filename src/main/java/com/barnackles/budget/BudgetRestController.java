@@ -8,7 +8,6 @@ import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -38,33 +37,36 @@ public class BudgetRestController {
         return new ResponseEntity<>(listOfBudgetResponseDtos, HttpStatus.OK);
     }
 
-//    @GetMapping("/budget")
-//    public ResponseEntity<BudgetResponseDto> findBudgetByBudgetName() {
-//
-//       Authentication authentication = authenticationFacade.getAuthentication();
-//
-//        String currentPrincipalName = authentication.getName();
-//        Long userId = userService.findUserByUserName(currentPrincipalName).getId();
-//
-//        BudgetResponseDto budgets = budgetService.findBudgetByBudgetName(budgetName);
-//        List<BudgetResponseDto> listOfBudgetResponseDtos = budgets
-//                .stream()
-//                .map(this::convertBudgetResponseDto)
-//                .toList();
-//        return new ResponseEntity<>(listOfBudgetResponseDtos, HttpStatus.OK);
-//    }
+    @GetMapping("/budgets/current-user")
+    public ResponseEntity<List<BudgetResponseDto>> findAllUserBudgets() {
+
+       Authentication authentication = authenticationFacade.getAuthentication();
+
+       List<Budget> userBudgetList = userService.findUserByUserName(authentication.getName()).getBudgets();
+       List<BudgetResponseDto> listOfBudgetResponseDtos = userBudgetList
+                .stream()
+                .map(this::convertBudgetResponseDto)
+                .toList();
+        return new ResponseEntity<>(listOfBudgetResponseDtos, HttpStatus.OK);
+    }
 
 
     @PostMapping("/budget")
     public ResponseEntity<BudgetResponseDto> createBudget(@RequestBody BudgetCreateDto budgetCreateDto) {
         Budget budget = convertCreateDtoToBudget(budgetCreateDto);
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String currentPrincipalName = authentication.getName();
-        User user = userService.findUserByUserName(currentPrincipalName);
+        Authentication authentication = authenticationFacade.getAuthentication();
+
+        User user = userService.findUserByUserName(authentication.getName());
+
         List<User> usersList = new ArrayList<>();
         usersList.add(user);
         budget.setUsers(usersList);
         budgetService.save(budget);
+
+        List<Budget> budgetList = user.getBudgets();
+        budgetList.add(budget);
+        user.setBudgets(budgetList);
+        userService.saveUser(user);
 
         BudgetResponseDto budgetResponseDto = convertBudgetResponseDto(budget);
         return new ResponseEntity<>(budgetResponseDto, HttpStatus.CREATED);
