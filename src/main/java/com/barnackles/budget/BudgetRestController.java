@@ -1,5 +1,6 @@
 package com.barnackles.budget;
 
+import com.barnackles.ApplicationSecurity.IAuthenticationFacade;
 import com.barnackles.user.User;
 import com.barnackles.user.UserService;
 import lombok.RequiredArgsConstructor;
@@ -8,10 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,9 +24,35 @@ public class BudgetRestController {
 
     private final UserService userService;
 
+    private final IAuthenticationFacade authenticationFacade;
 
 
+    //admin only
+    @GetMapping("/budgets/all")
+    public ResponseEntity<List<BudgetResponseDto>> findAll() {
+        List<Budget> budgets = budgetService.findAll();
+        List<BudgetResponseDto> listOfBudgetResponseDtos = budgets
+                .stream()
+                .map(this::convertBudgetResponseDto)
+                .toList();
+        return new ResponseEntity<>(listOfBudgetResponseDtos, HttpStatus.OK);
+    }
 
+//    @GetMapping("/budget")
+//    public ResponseEntity<BudgetResponseDto> findBudgetByBudgetName() {
+//
+//       Authentication authentication = authenticationFacade.getAuthentication();
+//
+//        String currentPrincipalName = authentication.getName();
+//        Long userId = userService.findUserByUserName(currentPrincipalName).getId();
+//
+//        BudgetResponseDto budgets = budgetService.findBudgetByBudgetName(budgetName);
+//        List<BudgetResponseDto> listOfBudgetResponseDtos = budgets
+//                .stream()
+//                .map(this::convertBudgetResponseDto)
+//                .toList();
+//        return new ResponseEntity<>(listOfBudgetResponseDtos, HttpStatus.OK);
+//    }
 
 
     @PostMapping("/budget")

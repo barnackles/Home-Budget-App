@@ -5,7 +5,6 @@ import lombok.Data;
 import org.hibernate.validator.constraints.Length;
 
 import javax.persistence.Column;
-import javax.persistence.Id;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
@@ -14,8 +13,7 @@ import static com.barnackles.user.User.USERNAME_PATTERN;
 
 @Data
 public class UserUpdateDto {
-    @Id
-    Long id;
+
     @Column(unique = true)
     @Length(min = 5, message = "Your user name must have at least 5 characters")
     @Pattern(regexp = USERNAME_PATTERN, message = "Your user name must comprise only of letters, digits and underscore")

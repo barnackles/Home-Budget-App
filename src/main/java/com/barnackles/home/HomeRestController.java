@@ -1,10 +1,10 @@
 package com.barnackles.home;
 
-import com.barnackles.user.CurrentUser;
+import com.barnackles.ApplicationSecurity.IAuthenticationFacade;
 import com.barnackles.user.User;
-import com.barnackles.user.UserServiceImpl;
+import com.barnackles.user.UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -12,14 +12,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class HomeRestController {
 
-    private final UserServiceImpl userService;
+    private final IAuthenticationFacade authenticationFacade;
+    private final UserService userService;
 
-//    @RequestMapping("/home")
-//    @ResponseBody
-//    public String home(@AuthenticationPrincipal CurrentUser customUser) {
-//        User entityUser = customUser.getUser();
-//        return entityUser.toString();
-//    }
+
+
+
 
 
     @GetMapping("/test")
@@ -28,14 +26,13 @@ public class HomeRestController {
     }
 
     @GetMapping("/user/home")
-    public User home(@AuthenticationPrincipal CurrentUser customUser) {
-        return customUser.getUser();
+    public User home() {
+
+        Authentication authentication = authenticationFacade.getAuthentication();
+
+        return userService.findUserByUserName(authentication.getName());
     }
 
-//    @RequestMapping("/user/home/{username}")
-//    public User home(@PathVariable String username) {
-//        return userService.findUserByUserName(username);
-//    }
 
 
 }
