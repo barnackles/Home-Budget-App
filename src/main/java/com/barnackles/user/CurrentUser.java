@@ -8,10 +8,12 @@ import java.util.Collection;
 public class CurrentUser extends User {
 
     private final com.barnackles.user.User user;
+    private final Long id;
 
     public CurrentUser(String userName, String password, Collection<? extends GrantedAuthority> authorities,
-                       com.barnackles.user.User user) {
+                       com.barnackles.user.User user, Long id) {
         super(userName, password, authorities);
+        this.id = id;
         this.user = user;
     }
 
@@ -19,4 +21,7 @@ public class CurrentUser extends User {
         return user;
     }
 
+    public Long getId() {
+        return id;
+    }
 }

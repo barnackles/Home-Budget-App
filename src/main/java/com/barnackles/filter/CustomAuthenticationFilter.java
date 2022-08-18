@@ -43,7 +43,8 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
 
 
     @Override
-    protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication auth) throws IOException, ServletException {
+    protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
+                                            Authentication auth) throws IOException, ServletException {
         User user = (User) auth.getPrincipal();
 
         new ObjectMapper().writeValue(response.getOutputStream(), jwtUtil.generateTokens(user, request, response));

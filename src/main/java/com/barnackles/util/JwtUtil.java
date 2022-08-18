@@ -23,8 +23,9 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @Data
 public class JwtUtil {
 
+    private static final Date TEN_MINUTES_IN_MILLISECONDS = new Date(System.currentTimeMillis() + (3600000 / 6));
+    private static final Date ONE_HOUR_IN_MILLISECONDS = new Date(System.currentTimeMillis() + (3600000));
     private final String secret;
-
     private final String secret2;
     private Date tokenExpirationTime;
     private Date refreshTokenActivationTime;
@@ -37,13 +38,12 @@ public class JwtUtil {
     public JwtUtil(@Value("${jwt.secret") String secret, @Value("${jwt.secret2") String secret2) {
         this.secret = secret;
         this.secret2 = secret2;
-        this.tokenExpirationTime = new Date(System.currentTimeMillis() + (3600000 / 6));
+        this.tokenExpirationTime = TEN_MINUTES_IN_MILLISECONDS;
         this.refreshTokenActivationTime = tokenExpirationTime;
-        this.refreshTokenExpirationTime = new Date(System.currentTimeMillis() + (3600000));
+        this.refreshTokenExpirationTime = ONE_HOUR_IN_MILLISECONDS;
         this.algorithm = Algorithm.HMAC512(secret.getBytes());
         this.algorithm2 = Algorithm.HMAC512(secret2.getBytes());
     }
-
 
 
     public Map<String, String> generateTokens(User user, HttpServletRequest request, HttpServletResponse response) {

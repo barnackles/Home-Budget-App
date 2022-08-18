@@ -3,6 +3,7 @@ package com.barnackles.user;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.barnackles.ApplicationSecurity.IAuthenticationFacade;
 import com.barnackles.util.JwtUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +11,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -36,13 +39,19 @@ public class UserRestController {
     private final UserServiceImpl userService;
     private final ModelMapper modelMapper;
     private final PasswordEncoder passwordEncoder;
+    private final IAuthenticationFacade authenticationFacade;
+
+
 
     private final JwtUtil jwtUtil;
+
+
 
     /**
      * admin only
      * @return ResponseEntity<List<User>>
      */
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/users")
     public ResponseEntity<List<User>> findAllUsers() {
          List<User> users = userService.findAll();
@@ -50,8 +59,9 @@ public class UserRestController {
     }
 
     /**
-     * @return ResponseEntity<List<User>>
+     * @return ResponseEntity<User>
      */
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/user/{id}")
     public ResponseEntity<UserResponseDto> findUserById(@PathVariable Long id) {
 
@@ -60,6 +70,19 @@ public class UserRestController {
         return new ResponseEntity<>(userResponseDto, HttpStatus.OK);
     }
 
+    /**
+     * @return ResponseEntity<User>
+     */
+    @PreAuthorize("hasRole('ROLE_USER')")
+    @GetMapping("/user/current")
+    public ResponseEntity<UserResponseDto> findCurrentUser() {
+        Authentication authentication = authenticationFacade.getAuthentication();
+        String userName = authentication.getName();
+
+        User user = userService.findUserByUserName(userName);
+        UserResponseDto userResponseDto = convertToResponseDto(user);
+        return new ResponseEntity<>(userResponseDto, HttpStatus.OK);
+    }
 
 
     /**
@@ -76,7 +99,7 @@ public class UserRestController {
         } catch (ParseException e) {
             throw new RuntimeException(e);
         }
-
+        // check if exists
         userService.saveUser(user);
         UserResponseDto createdUser = convertToResponseDto(user);
         return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
@@ -86,16 +109,20 @@ public class UserRestController {
      * @param userUpdateDto
      * @return ResponseEntity<UserResponseDto>
      */
-    //password change via separate controller
     @PutMapping("/user")
     public ResponseEntity<UserResponseDto> UpdateUser(@Valid @RequestBody UserUpdateDto userUpdateDto) {
-        User persistentUser = userService.findUserById(userUpdateDto.getId());
+        Authentication authentication = authenticationFacade.getAuthentication();
+
+        User persistentUser = userService.findUserByUserName(authentication.getName());
         UserResponseDto responseUser = convertToResponseDto(persistentUser);
         HttpStatus httpStatus = HttpStatus.PRECONDITION_FAILED;
+
+        // check if username / email are not already in the database
 
         User user;
         try {
             user = convertUpdateDtoToUser(userUpdateDto);
+            user.setId(persistentUser.getId());
             user.setPassword(persistentUser.getPassword());
             user.setActive(persistentUser.getActive());
             user.setRoles(persistentUser.getRoles());
@@ -106,7 +133,7 @@ public class UserRestController {
             httpStatus = HttpStatus.OK;
         } catch (ParseException e) {
 //            throw new RuntimeException(e);
-            log.error("unable to parse dto to entity error", e.getMessage());
+            log.error("unable to parse dto to entity error: {}", e.getMessage());
         }
         return new ResponseEntity<>(responseUser, httpStatus);
     }
@@ -115,11 +142,13 @@ public class UserRestController {
      * @param userPasswordUpdateDto
      * @return ResponseEntity<UserResponseDto>
      */
+    @PreAuthorize("hasRole('ROLE_USER')")
     @PutMapping("/user-password")
     public ResponseEntity<String> UpdateUserPassword
     (@Valid @RequestBody UserPasswordUpdateDto userPasswordUpdateDto) {
 
-        User user = userService.findUserById(userPasswordUpdateDto.getId());
+        Authentication authentication = authenticationFacade.getAuthentication();
+        User user = userService.findUserByUserName(authentication.getName());
 
         String response = "Incorrect password";
         HttpStatus httpStatus = HttpStatus.PRECONDITION_FAILED;
@@ -138,12 +167,26 @@ public class UserRestController {
      * @return ResponseEntity
      *
      */
-    //Admin only + on account delete
-    //add confirmation
+    //Admin only
+    //add confirmation // secure unintentional deletion
 
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping("/user/{id}")
     public ResponseEntity<String> deleteUser(@PathVariable Long id) {
         User user = userService.findUserById(id);
+        String message = String.format("User: %s successfully deleted ", user.getUserName());
+        userService.deleteUser(user);
+        return new ResponseEntity<>(message, HttpStatus.OK);
+
+
+    }
+    // secure unintentional deletion
+    @PreAuthorize("hasRole('ROLE_USER')")
+    @DeleteMapping("/user/current")
+    public ResponseEntity<String> deleteUser() {
+        Authentication authentication = authenticationFacade.getAuthentication();
+        User user = userService.findUserByUserName(authentication.getName());
+
         String message = String.format("User: %s successfully deleted ", user.getUserName());
         userService.deleteUser(user);
         return new ResponseEntity<>(message, HttpStatus.OK);
@@ -191,7 +234,7 @@ public class UserRestController {
      */
     private UserResponseDto convertToResponseDto(User user) {
         UserResponseDto userResponseDto = modelMapper.map(user, UserResponseDto.class);
-        userResponseDto.setId(userService.findUserById(user.getId()).getId());
+//        userResponseDto.setId(userService.findUserById(user.getId()).getId());
         return userResponseDto;
     }
 
