@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,7 +27,7 @@ public class BudgetRestController {
     private final IAuthenticationFacade authenticationFacade;
 
 
-    //admin only
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/budgets/all")
     public ResponseEntity<List<BudgetResponseDto>> findAll() {
         List<Budget> budgets = budgetService.findAll();
@@ -36,7 +37,7 @@ public class BudgetRestController {
                 .toList();
         return new ResponseEntity<>(listOfBudgetResponseDtos, HttpStatus.OK);
     }
-
+    @PreAuthorize("hasRole('ROLE_USER')")
     @GetMapping("/budgets/current-user")
     public ResponseEntity<List<BudgetResponseDto>> findAllUserBudgets() {
 
@@ -51,6 +52,7 @@ public class BudgetRestController {
     }
 
     //findbudgetbyname
+    @GetMapping()
 
 
     @PostMapping("/budget")

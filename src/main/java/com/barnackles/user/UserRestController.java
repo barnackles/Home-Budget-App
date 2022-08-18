@@ -53,9 +53,14 @@ public class UserRestController {
      */
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/users")
-    public ResponseEntity<List<User>> findAllUsers() {
+    public ResponseEntity<List<UserAdminResponseDto>> findAllUsers() {
          List<User> users = userService.findAll();
-         return new ResponseEntity<>(users, HttpStatus.OK);
+         List<UserAdminResponseDto> userAdminResponseDtos = users
+                 .stream()
+                 .map(this::convertToAdminResponseDto)
+                 .toList();
+
+         return new ResponseEntity<>(userAdminResponseDtos, HttpStatus.OK);
     }
 
     /**
@@ -234,8 +239,17 @@ public class UserRestController {
      */
     private UserResponseDto convertToResponseDto(User user) {
         UserResponseDto userResponseDto = modelMapper.map(user, UserResponseDto.class);
-//        userResponseDto.setId(userService.findUserById(user.getId()).getId());
         return userResponseDto;
+    }
+
+    /**
+     * @param user
+     * @return UserAdminResponseDto
+     * Entity to DTO conversion
+     */
+    private UserAdminResponseDto convertToAdminResponseDto(User user) {
+        UserAdminResponseDto userAdminResponseDto = modelMapper.map(user, UserAdminResponseDto.class);
+        return userAdminResponseDto;
     }
 
     /**

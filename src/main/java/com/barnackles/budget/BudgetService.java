@@ -28,7 +28,7 @@ public class BudgetService {
     public Budget findBudgetByBudgetId(Long id) throws EntityNotFoundException {
         log.info("Budget found: {}", id);
         return budgetRepository.findBudgetById(id).orElseThrow(() -> {
-                    log.error("entity with id: {} not found", id);
+                    log.error("entity with budget id: {} not found", id);
                     throw new EntityNotFoundException("entity not found");
                 }
         );
