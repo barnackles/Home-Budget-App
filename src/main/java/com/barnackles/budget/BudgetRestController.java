@@ -50,6 +50,8 @@ public class BudgetRestController {
         return new ResponseEntity<>(listOfBudgetResponseDtos, HttpStatus.OK);
     }
 
+    //findbudgetbyname
+
 
     @PostMapping("/budget")
     public ResponseEntity<BudgetResponseDto> createBudget(@RequestBody BudgetCreateDto budgetCreateDto) {
