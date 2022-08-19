@@ -1,4 +1,4 @@
-package com.barnackles.user;
+package com.barnackles.user.admin;
 
 
 import com.barnackles.asset.Asset;

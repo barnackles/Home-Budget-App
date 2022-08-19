@@ -25,10 +25,11 @@ public class UserServiceImpl implements UserService {
 
 
     public User findUserByEmail(String email) throws EntityNotFoundException {
-        log.info("User found: {}", email);
-        return userRepository.findUserByEmail(email).orElseThrow(
+        String emailToLowerCase = email.toLowerCase();
+        log.info("User found: {}", emailToLowerCase);
+        return userRepository.findUserByEmail(emailToLowerCase).orElseThrow(
                 () -> {
-                    log.error("entity not found with email: {} not found", email);
+                    log.error("entity not found with email: {} not found", emailToLowerCase);
                     throw new EntityNotFoundException("entity not found");
                 }
         );
@@ -62,6 +63,7 @@ public class UserServiceImpl implements UserService {
 
     public User saveUser(User user) {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setEmail(user.getEmail().toLowerCase());
         user.setActive(true);
         Role userRole = roleRepository.findByRole("ROLE_USER");
         user.setRoles(new HashSet<Role>(Arrays.asList(userRole)));
@@ -71,6 +73,7 @@ public class UserServiceImpl implements UserService {
     }
 
     public User updateUser(User user) {
+        user.setEmail(user.getEmail().toLowerCase());
         log.info("User updated: {}", user);
         userRepository.save(user);
         return user;
