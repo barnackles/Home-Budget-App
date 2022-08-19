@@ -23,7 +23,6 @@ import javax.validation.Valid;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import static com.barnackles.filter.CustomAuthorizationFilter.TOKEN_PREFIX;
@@ -48,37 +47,9 @@ public class UserRestController {
 
 
     /**
-     * admin only
-     * @return ResponseEntity<List<User>>
-     */
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @GetMapping("/users")
-    public ResponseEntity<List<UserAdminResponseDto>> findAllUsers() {
-         List<User> users = userService.findAll();
-         List<UserAdminResponseDto> userAdminResponseDtos = users
-                 .stream()
-                 .map(this::convertToAdminResponseDto)
-                 .toList();
-
-         return new ResponseEntity<>(userAdminResponseDtos, HttpStatus.OK);
-    }
-
-    /**
      * @return ResponseEntity<User>
      */
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @GetMapping("/user/{id}")
-    public ResponseEntity<UserResponseDto> findUserById(@PathVariable Long id) {
-
-        User user = userService.findUserById(id);
-        UserResponseDto userResponseDto = convertToResponseDto(user);
-        return new ResponseEntity<>(userResponseDto, HttpStatus.OK);
-    }
-
-    /**
-     * @return ResponseEntity<User>
-     */
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
     @GetMapping("/user/current")
     public ResponseEntity<UserResponseDto> findCurrentUser() {
         Authentication authentication = authenticationFacade.getAuthentication();
@@ -94,7 +65,7 @@ public class UserRestController {
      * @param userCreateDto
      * @return ResponseEntity<UserResponseDto>
      */
-
+    //email confirmation
     @PostMapping("/user")
     public ResponseEntity<UserResponseDto> save(@Valid @RequestBody UserCreateDto userCreateDto) {
 
@@ -104,7 +75,7 @@ public class UserRestController {
         } catch (ParseException e) {
             throw new RuntimeException(e);
         }
-        // check if exists
+
         userService.saveUser(user);
         UserResponseDto createdUser = convertToResponseDto(user);
         return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
@@ -114,6 +85,7 @@ public class UserRestController {
      * @param userUpdateDto
      * @return ResponseEntity<UserResponseDto>
      */
+    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
     @PutMapping("/user")
     public ResponseEntity<UserResponseDto> UpdateUser(@Valid @RequestBody UserUpdateDto userUpdateDto) {
         Authentication authentication = authenticationFacade.getAuthentication();
@@ -122,7 +94,7 @@ public class UserRestController {
         UserResponseDto responseUser = convertToResponseDto(persistentUser);
         HttpStatus httpStatus = HttpStatus.PRECONDITION_FAILED;
 
-        // check if username / email are not already in the database
+
 
         User user;
         try {
@@ -147,7 +119,7 @@ public class UserRestController {
      * @param userPasswordUpdateDto
      * @return ResponseEntity<UserResponseDto>
      */
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
     @PutMapping("/user-password")
     public ResponseEntity<String> UpdateUserPassword
     (@Valid @RequestBody UserPasswordUpdateDto userPasswordUpdateDto) {
@@ -167,26 +139,9 @@ public class UserRestController {
         return new ResponseEntity<>(response, httpStatus);
     }
 
-    /**
-     * @param id
-     * @return ResponseEntity
-     *
-     */
-    //Admin only
-    //add confirmation // secure unintentional deletion
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @DeleteMapping("/user/{id}")
-    public ResponseEntity<String> deleteUser(@PathVariable Long id) {
-        User user = userService.findUserById(id);
-        String message = String.format("User: %s successfully deleted ", user.getUserName());
-        userService.deleteUser(user);
-        return new ResponseEntity<>(message, HttpStatus.OK);
-
-
-    }
     // secure unintentional deletion
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
     @DeleteMapping("/user/current")
     public ResponseEntity<String> deleteUser() {
         Authentication authentication = authenticationFacade.getAuthentication();
@@ -197,7 +152,7 @@ public class UserRestController {
         return new ResponseEntity<>(message, HttpStatus.OK);
     }
 
-
+    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
     @GetMapping("/token/refresh")
     public void refreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
@@ -242,15 +197,6 @@ public class UserRestController {
         return userResponseDto;
     }
 
-    /**
-     * @param user
-     * @return UserAdminResponseDto
-     * Entity to DTO conversion
-     */
-    private UserAdminResponseDto convertToAdminResponseDto(User user) {
-        UserAdminResponseDto userAdminResponseDto = modelMapper.map(user, UserAdminResponseDto.class);
-        return userAdminResponseDto;
-    }
 
     /**
      * @param userCreateDto
@@ -271,16 +217,5 @@ public class UserRestController {
     private User convertUpdateDtoToUser(UserUpdateDto userUpdateDto) throws ParseException {
         return modelMapper.map(userUpdateDto, User.class);
     }
-
-
-
-//    @PostMapping("/test")
-//    public void firstUser() {
-//        User firstUser = new User();
-//        firstUser.setUserName("thorsten");
-//        firstUser.setEmail("throsten@gmail.com");
-//        firstUser.setPassword("testtest");
-//        userService.saveUser(firstUser);
-//    }
 
 }

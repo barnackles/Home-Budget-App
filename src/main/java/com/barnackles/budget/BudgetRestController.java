@@ -27,16 +27,7 @@ public class BudgetRestController {
     private final IAuthenticationFacade authenticationFacade;
 
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @GetMapping("/budgets/all")
-    public ResponseEntity<List<BudgetResponseDto>> findAll() {
-        List<Budget> budgets = budgetService.findAll();
-        List<BudgetResponseDto> listOfBudgetResponseDtos = budgets
-                .stream()
-                .map(this::convertBudgetResponseDto)
-                .toList();
-        return new ResponseEntity<>(listOfBudgetResponseDtos, HttpStatus.OK);
-    }
+
     @PreAuthorize("hasRole('ROLE_USER')")
     @GetMapping("/budgets/current-user")
     public ResponseEntity<List<BudgetResponseDto>> findAllUserBudgets() {
@@ -46,12 +37,24 @@ public class BudgetRestController {
        List<Budget> userBudgetList = userService.findUserByUserName(authentication.getName()).getBudgets();
        List<BudgetResponseDto> listOfBudgetResponseDtos = userBudgetList
                 .stream()
-                .map(this::convertBudgetResponseDto)
+                .map(this::convertBudgetToResponseDto)
                 .toList();
         return new ResponseEntity<>(listOfBudgetResponseDtos, HttpStatus.OK);
     }
 
-    //findbudgetbyname
+    @PreAuthorize("hasRole('ROLE_USER')")
+    @GetMapping("/budget/{budgetName}")
+    public ResponseEntity<BudgetResponseDto> findUserBudgetByName(@PathVariable String budgetName) {
+
+        Authentication authentication = authenticationFacade.getAuthentication();
+
+        User user = userService.findUserByUserName(authentication.getName());
+        Budget budget = budgetService.findBudgetByBudgetNameAndUserId(budgetName, user);
+
+        BudgetResponseDto budgetResponseDto = convertBudgetToResponseDto(budget);
+
+        return new ResponseEntity<>(budgetResponseDto, HttpStatus.OK);
+    }
 
     @PostMapping("/budget")
     public ResponseEntity<BudgetResponseDto> createBudget(@RequestBody BudgetCreateDto budgetCreateDto) {
@@ -70,7 +73,7 @@ public class BudgetRestController {
         user.setBudgets(budgetList);
         userService.updateUser(user);
 
-        BudgetResponseDto budgetResponseDto = convertBudgetResponseDto(budget);
+        BudgetResponseDto budgetResponseDto = convertBudgetToResponseDto(budget);
         return new ResponseEntity<>(budgetResponseDto, HttpStatus.CREATED);
     }
 
@@ -79,7 +82,7 @@ public class BudgetRestController {
         return modelMapper.map(budgetCreateDto, Budget.class);
     }
 
-    private BudgetResponseDto convertBudgetResponseDto(Budget budget) {
+    private BudgetResponseDto convertBudgetToResponseDto(Budget budget) {
         return modelMapper.map(budget, BudgetResponseDto.class);
     }
 
