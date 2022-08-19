@@ -11,7 +11,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -62,10 +61,7 @@ public class BudgetRestController {
         Authentication authentication = authenticationFacade.getAuthentication();
 
         User user = userService.findUserByUserName(authentication.getName());
-
-        List<User> usersList = new ArrayList<>();
-        usersList.add(user);
-        budget.setUsers(usersList);
+        budget.setUser(user);
         budgetService.save(budget);
 
         List<Budget> budgetList = user.getBudgets();
@@ -84,7 +80,7 @@ public class BudgetRestController {
         Authentication authentication = authenticationFacade.getAuthentication();
         User user = userService.findUserByUserName(authentication.getName());
 
-        String message = String.format("User: %s successfully deleted ", user.getUserName());
+        String message = String.format("Budget: %s successfully deleted ", budgetName);
         budgetService.delete(budgetService.findBudgetByBudgetNameAndUserEquals(budgetName, user));
         return new ResponseEntity<>(message, HttpStatus.OK);
     }

@@ -13,7 +13,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -44,10 +43,7 @@ public class BudgetAdminRestController {
 
 
         User user = userService.findUserById(id);
-
-        List<User> usersList = new ArrayList<>();
-        usersList.add(user);
-        budget.setUsers(usersList);
+        budget.setUser(user);
         budgetService.save(budget);
 
         List<Budget> budgetList = user.getBudgets();

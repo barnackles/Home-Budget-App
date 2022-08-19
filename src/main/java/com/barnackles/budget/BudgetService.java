@@ -37,7 +37,7 @@ public class BudgetService {
 
     public Budget findBudgetByBudgetNameAndUserEquals(String budgetName, User user) throws EntityNotFoundException {
         log.info("Budget found: {}", budgetName);
-        return budgetRepository.findBudgetByBudgetNameAndUsersEquals(budgetName, user).orElseThrow(() -> {
+        return budgetRepository.findBudgetByBudgetNameAndUserEquals(budgetName, user).orElseThrow(() -> {
                     log.error("entity with budget name: {} not found", budgetName);
                     throw new EntityNotFoundException("entity not found");
                 }
