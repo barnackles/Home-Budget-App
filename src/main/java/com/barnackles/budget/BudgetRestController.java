@@ -68,7 +68,7 @@ public class BudgetRestController {
         List<Budget> budgetList = user.getBudgets();
         budgetList.add(budget);
         user.setBudgets(budgetList);
-        userService.saveUser(user);
+        userService.updateUser(user);
 
         BudgetResponseDto budgetResponseDto = convertBudgetResponseDto(budget);
         return new ResponseEntity<>(budgetResponseDto, HttpStatus.CREATED);
