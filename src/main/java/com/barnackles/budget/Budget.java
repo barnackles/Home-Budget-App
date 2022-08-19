@@ -19,7 +19,7 @@ public class Budget {
     @OneToMany
     @JoinColumn(name = "operation_id")
     private List<Operation> operations;
-    @ManyToMany(mappedBy = "budgets", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private List<User> users;
 
 }
