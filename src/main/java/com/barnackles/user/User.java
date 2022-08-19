@@ -3,8 +3,6 @@ package com.barnackles.user;
 import com.barnackles.asset.Asset;
 import com.barnackles.budget.Budget;
 import com.barnackles.role.Role;
-import com.barnackles.validator.UniqueEmail;
-import com.barnackles.validator.UniqueUserName;
 import lombok.*;
 import org.hibernate.validator.constraints.Length;
 
@@ -33,12 +31,12 @@ public class User {
     @Length(min = 5, max = 50, message = "Your user name must have at least 5 characters and not more than 50 characters")
     @Pattern(regexp = USERNAME_PATTERN, message = "Your user name must comprise only of letters, digits and underscore")
     @NotBlank(message = "Please provide a user name")
-    @UniqueUserName
+//    @UniqueUserName
     private String userName;
     @Column(unique = true)
     @Email(message = "Please provide a valid Email")
     @NotBlank(message = "Please provide an email")
-    @UniqueEmail
+//    @UniqueEmail
     private String email;
     @Length(min = 8, message = "Your password must have at least 8 characters")
     @NotBlank(message = "Please provide your password")

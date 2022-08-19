@@ -75,7 +75,7 @@ public class UserRestController {
         } catch (ParseException e) {
             throw new RuntimeException(e);
         }
-        // check if exists
+
         userService.saveUser(user);
         UserResponseDto createdUser = convertToResponseDto(user);
         return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
@@ -94,7 +94,7 @@ public class UserRestController {
         UserResponseDto responseUser = convertToResponseDto(persistentUser);
         HttpStatus httpStatus = HttpStatus.PRECONDITION_FAILED;
 
-        // check if username / email are not already in the database
+
 
         User user;
         try {

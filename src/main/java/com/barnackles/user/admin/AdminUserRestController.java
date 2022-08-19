@@ -71,7 +71,7 @@ public class AdminUserRestController {
         } catch (ParseException e) {
             throw new RuntimeException(e);
         }
-        // check if exists
+
         userService.saveUser(user);
         UserAdminResponseDto userAdminResponseDto = convertToAdminResponseDto(user);
         return new ResponseEntity<>(userAdminResponseDto, HttpStatus.CREATED);
@@ -88,8 +88,6 @@ public class AdminUserRestController {
         User persistentUser = userService.findUserById(id);
         UserAdminResponseDto userAdminResponseDto = convertToAdminResponseDto(persistentUser);
         HttpStatus httpStatus = HttpStatus.PRECONDITION_FAILED;
-
-        // check if username / email are not already in the database
 
         User user;
         try {
