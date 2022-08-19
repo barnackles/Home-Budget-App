@@ -1,5 +1,6 @@
 package com.barnackles.budget;
 
+import com.barnackles.user.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -29,6 +30,15 @@ public class BudgetService {
         log.info("Budget found: {}", id);
         return budgetRepository.findBudgetById(id).orElseThrow(() -> {
                     log.error("entity with budget id: {} not found", id);
+                    throw new EntityNotFoundException("entity not found");
+                }
+        );
+    }
+
+    public Budget findBudgetByBudgetNameAndUserId(String budgetName, User user) throws EntityNotFoundException {
+        log.info("Budget found: {}", budgetName);
+        return budgetRepository.findBudgetByBudgetNameAndUsersEquals(budgetName, user).orElseThrow(() -> {
+                    log.error("entity with budget name: {} not found", budgetName);
                     throw new EntityNotFoundException("entity not found");
                 }
         );
