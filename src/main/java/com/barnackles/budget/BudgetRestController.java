@@ -28,7 +28,7 @@ public class BudgetRestController {
 
 
 
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
     @GetMapping("/budgets/current-user")
     public ResponseEntity<List<BudgetResponseDto>> findAllUserBudgets() {
 
@@ -42,20 +42,20 @@ public class BudgetRestController {
         return new ResponseEntity<>(listOfBudgetResponseDtos, HttpStatus.OK);
     }
 
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
     @GetMapping("/budget/{budgetName}")
     public ResponseEntity<BudgetResponseDto> findUserBudgetByName(@PathVariable String budgetName) {
 
         Authentication authentication = authenticationFacade.getAuthentication();
 
         User user = userService.findUserByUserName(authentication.getName());
-        Budget budget = budgetService.findBudgetByBudgetNameAndUserId(budgetName, user);
+        Budget budget = budgetService.findBudgetByBudgetNameAndUserEquals(budgetName, user);
 
         BudgetResponseDto budgetResponseDto = convertBudgetToResponseDto(budget);
 
         return new ResponseEntity<>(budgetResponseDto, HttpStatus.OK);
     }
-
+    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
     @PostMapping("/budget")
     public ResponseEntity<BudgetResponseDto> createBudget(@RequestBody BudgetCreateDto budgetCreateDto) {
         Budget budget = convertCreateDtoToBudget(budgetCreateDto);
@@ -75,6 +75,18 @@ public class BudgetRestController {
 
         BudgetResponseDto budgetResponseDto = convertBudgetToResponseDto(budget);
         return new ResponseEntity<>(budgetResponseDto, HttpStatus.CREATED);
+    }
+
+
+    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
+    @DeleteMapping("/budget/{budgetName}")
+    public ResponseEntity<String> deleteBudget(String budgetName) {
+        Authentication authentication = authenticationFacade.getAuthentication();
+        User user = userService.findUserByUserName(authentication.getName());
+
+        String message = String.format("User: %s successfully deleted ", user.getUserName());
+        budgetService.delete(budgetService.findBudgetByBudgetNameAndUserEquals(budgetName, user));
+        return new ResponseEntity<>(message, HttpStatus.OK);
     }
 
 

@@ -35,7 +35,7 @@ public class BudgetService {
         );
     }
 
-    public Budget findBudgetByBudgetNameAndUserId(String budgetName, User user) throws EntityNotFoundException {
+    public Budget findBudgetByBudgetNameAndUserEquals(String budgetName, User user) throws EntityNotFoundException {
         log.info("Budget found: {}", budgetName);
         return budgetRepository.findBudgetByBudgetNameAndUsersEquals(budgetName, user).orElseThrow(() -> {
                     log.error("entity with budget name: {} not found", budgetName);
@@ -44,11 +44,17 @@ public class BudgetService {
         );
     }
 
+
+
     public List<Budget> findAll() {
         return budgetRepository.findAll();
     }
 
     public Budget save(Budget budget) {
         return budgetRepository.save(budget);
+    }
+
+    public void delete(Budget budget) {
+        budgetRepository.delete(budget);
     }
 }

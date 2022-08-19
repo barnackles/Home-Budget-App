@@ -39,7 +39,7 @@ public class BudgetAdminRestController {
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping("/budget/{id}")
-    public ResponseEntity<BudgetResponseDto> createBudget(@RequestBody BudgetCreateDto budgetCreateDto, @PathVariable Long id) {
+    public ResponseEntity<BudgetResponseDto> createBudgetForUser(@RequestBody BudgetCreateDto budgetCreateDto, @PathVariable Long id) {
         Budget budget = convertCreateDtoToBudget(budgetCreateDto);
 
 
