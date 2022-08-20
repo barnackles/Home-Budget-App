@@ -7,10 +7,12 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
+import javax.persistence.EntityExistsException;
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -26,17 +28,8 @@ public class BudgetRestController {
     private final IAuthenticationFacade authenticationFacade;
 
 
-    //admin only
-    @GetMapping("/budgets/all")
-    public ResponseEntity<List<BudgetResponseDto>> findAll() {
-        List<Budget> budgets = budgetService.findAll();
-        List<BudgetResponseDto> listOfBudgetResponseDtos = budgets
-                .stream()
-                .map(this::convertBudgetResponseDto)
-                .toList();
-        return new ResponseEntity<>(listOfBudgetResponseDtos, HttpStatus.OK);
-    }
 
+    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
     @GetMapping("/budgets/current-user")
     public ResponseEntity<List<BudgetResponseDto>> findAllUserBudgets() {
 
@@ -45,33 +38,73 @@ public class BudgetRestController {
        List<Budget> userBudgetList = userService.findUserByUserName(authentication.getName()).getBudgets();
        List<BudgetResponseDto> listOfBudgetResponseDtos = userBudgetList
                 .stream()
-                .map(this::convertBudgetResponseDto)
+                .map(this::convertBudgetToResponseDto)
                 .toList();
         return new ResponseEntity<>(listOfBudgetResponseDtos, HttpStatus.OK);
     }
 
-    //findbudgetbyname
+    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
+    @GetMapping("/budget/{budgetName}")
+    public ResponseEntity<BudgetResponseDto> findUserBudgetByName(@PathVariable String budgetName) {
 
+        Authentication authentication = authenticationFacade.getAuthentication();
 
+        User user = userService.findUserByUserName(authentication.getName());
+        Budget budget = budgetService.findBudgetByBudgetNameAndUserEquals(budgetName, user);
+
+        BudgetResponseDto budgetResponseDto = convertBudgetToResponseDto(budget);
+
+        return new ResponseEntity<>(budgetResponseDto, HttpStatus.OK);
+    }
+    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
     @PostMapping("/budget")
     public ResponseEntity<BudgetResponseDto> createBudget(@RequestBody BudgetCreateDto budgetCreateDto) {
         Budget budget = convertCreateDtoToBudget(budgetCreateDto);
         Authentication authentication = authenticationFacade.getAuthentication();
-
         User user = userService.findUserByUserName(authentication.getName());
 
-        List<User> usersList = new ArrayList<>();
-        usersList.add(user);
-        budget.setUsers(usersList);
-        budgetService.save(budget);
+        if (!budgetService.checkIfUserHasBudgetWithGivenName(budget.getBudgetName(), user)) {
+            budget.setUser(user);
+            budgetService.save(budget);
 
-        List<Budget> budgetList = user.getBudgets();
-        budgetList.add(budget);
-        user.setBudgets(budgetList);
-        userService.saveUser(user);
+            List<Budget> budgetList = user.getBudgets();
+            budgetList.add(budget);
+            user.setBudgets(budgetList);
+            userService.updateUser(user);
+            BudgetResponseDto budgetResponseDto = convertBudgetToResponseDto(budget);
 
-        BudgetResponseDto budgetResponseDto = convertBudgetResponseDto(budget);
+
+            return new ResponseEntity<>(budgetResponseDto, HttpStatus.CREATED);
+        }
+
+        throw new EntityExistsException("Budget with this name already exists.");
+    }
+
+    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
+    @PutMapping("/budget")
+    public ResponseEntity<BudgetResponseDto> updateBudget(@Valid @RequestBody BudgetUpdateDto budgetUpdateDto) {
+
+        Authentication authentication = authenticationFacade.getAuthentication();
+        User user = userService.findUserByUserName(authentication.getName());
+
+        Budget budget = budgetService.findBudgetByBudgetNameAndUserEquals(budgetUpdateDto.getCurrentBudgetName(), user);
+        budget.setBudgetName(budgetUpdateDto.getNewBudgetName());
+        budgetService.update(budget);
+
+        BudgetResponseDto budgetResponseDto = convertBudgetToResponseDto(budget);
         return new ResponseEntity<>(budgetResponseDto, HttpStatus.CREATED);
+
+    }
+
+    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
+    @DeleteMapping("/budget/{budgetName}")
+    public ResponseEntity<String> deleteBudget(@PathVariable String budgetName) {
+        Authentication authentication = authenticationFacade.getAuthentication();
+        User user = userService.findUserByUserName(authentication.getName());
+
+        String message = String.format("Budget: %s successfully deleted ", budgetName);
+        budgetService.delete(budgetService.findBudgetByBudgetNameAndUserEquals(budgetName, user));
+        return new ResponseEntity<>(message, HttpStatus.OK);
     }
 
 
@@ -79,7 +112,7 @@ public class BudgetRestController {
         return modelMapper.map(budgetCreateDto, Budget.class);
     }
 
-    private BudgetResponseDto convertBudgetResponseDto(Budget budget) {
+    private BudgetResponseDto convertBudgetToResponseDto(Budget budget) {
         return modelMapper.map(budget, BudgetResponseDto.class);
     }
 

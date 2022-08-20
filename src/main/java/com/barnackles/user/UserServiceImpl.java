@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityManager;
 import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
 import java.util.Arrays;
@@ -23,12 +24,17 @@ public class UserServiceImpl implements UserService {
     private final RoleRepository roleRepository;
     private final BCryptPasswordEncoder passwordEncoder;
 
+    private final EntityManager entityManager;
+
+//    private EntityManagerFactory emf = null;
+
 
     public User findUserByEmail(String email) throws EntityNotFoundException {
-        log.info("User found: {}", email);
-        return userRepository.findUserByEmail(email).orElseThrow(
+        String emailToLowerCase = email.toLowerCase();
+        log.info("User found: {}", emailToLowerCase);
+        return userRepository.findUserByEmail(emailToLowerCase).orElseThrow(
                 () -> {
-                    log.error("entity not found with email: {} not found", email);
+                    log.error("entity with email: {} not found", emailToLowerCase);
                     throw new EntityNotFoundException("entity not found");
                 }
         );
@@ -38,7 +44,7 @@ public class UserServiceImpl implements UserService {
         log.info("User found: {}", userName);
         return userRepository.findUserByUserName(userName).orElseThrow(
                 () -> {
-                    log.error("entity not found with userName: {} not found", userName);
+                    log.error("entity with userName: {} not found", userName);
                     throw new EntityNotFoundException("entity not found");
                 }
         );
@@ -54,6 +60,7 @@ public class UserServiceImpl implements UserService {
         );
     }
 
+
     @Override
     public List<User> findAll() {
         log.info("All users found");
@@ -62,16 +69,18 @@ public class UserServiceImpl implements UserService {
 
     public User saveUser(User user) {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setEmail(user.getEmail().toLowerCase());
         user.setActive(true);
         Role userRole = roleRepository.findByRole("ROLE_USER");
         user.setRoles(new HashSet<Role>(Arrays.asList(userRole)));
-        log.info("User saved: {}", user);
+        log.info("User saved: {}", user.getUserName());
         userRepository.save(user);
         return user;
     }
 
     public User updateUser(User user) {
-        log.info("User updated: {}", user);
+        user.setEmail(user.getEmail().toLowerCase());
+        log.info("User updated: {}", user.getUserName());
         userRepository.save(user);
         return user;
     }
@@ -86,5 +95,6 @@ public class UserServiceImpl implements UserService {
         log.info("User deleted: {}", user.getUserName());
         userRepository.deleteUserById(user.getId());
     }
+
 
 }
