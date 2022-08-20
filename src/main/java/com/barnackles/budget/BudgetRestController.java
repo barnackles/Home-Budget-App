@@ -11,6 +11,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import javax.persistence.EntityExistsException;
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -59,24 +61,44 @@ public class BudgetRestController {
     public ResponseEntity<BudgetResponseDto> createBudget(@RequestBody BudgetCreateDto budgetCreateDto) {
         Budget budget = convertCreateDtoToBudget(budgetCreateDto);
         Authentication authentication = authenticationFacade.getAuthentication();
-
         User user = userService.findUserByUserName(authentication.getName());
-        budget.setUser(user);
-        budgetService.save(budget);
 
-        List<Budget> budgetList = user.getBudgets();
-        budgetList.add(budget);
-        user.setBudgets(budgetList);
-        userService.updateUser(user);
+        if (!budgetService.checkIfUserHasBudgetWithGivenName(budget.getBudgetName(), user)) {
+            budget.setUser(user);
+            budgetService.save(budget);
+
+            List<Budget> budgetList = user.getBudgets();
+            budgetList.add(budget);
+            user.setBudgets(budgetList);
+            userService.updateUser(user);
+            BudgetResponseDto budgetResponseDto = convertBudgetToResponseDto(budget);
+
+
+            return new ResponseEntity<>(budgetResponseDto, HttpStatus.CREATED);
+        }
+
+        throw new EntityExistsException("Budget with this name already exists.");
+    }
+
+    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
+    @PutMapping("/budget")
+    public ResponseEntity<BudgetResponseDto> updateBudget(@Valid @RequestBody BudgetUpdateDto budgetUpdateDto) {
+
+        Authentication authentication = authenticationFacade.getAuthentication();
+        User user = userService.findUserByUserName(authentication.getName());
+
+        Budget budget = budgetService.findBudgetByBudgetNameAndUserEquals(budgetUpdateDto.getCurrentBudgetName(), user);
+        budget.setBudgetName(budgetUpdateDto.getNewBudgetName());
+        budgetService.update(budget);
 
         BudgetResponseDto budgetResponseDto = convertBudgetToResponseDto(budget);
         return new ResponseEntity<>(budgetResponseDto, HttpStatus.CREATED);
-    }
 
+    }
 
     @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
     @DeleteMapping("/budget/{budgetName}")
-    public ResponseEntity<String> deleteBudget(String budgetName) {
+    public ResponseEntity<String> deleteBudget(@PathVariable String budgetName) {
         Authentication authentication = authenticationFacade.getAuthentication();
         User user = userService.findUserByUserName(authentication.getName());
 

@@ -1,6 +1,5 @@
 package com.barnackles.user;
 
-import com.barnackles.asset.Asset;
 import com.barnackles.budget.Budget;
 import com.barnackles.role.Role;
 import lombok.*;
@@ -45,12 +44,9 @@ public class User {
     @ManyToMany(cascade = CascadeType.MERGE, fetch = FetchType.EAGER)
     @JoinTable(name = "user_role", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles;
-    @OneToMany(cascade = {CascadeType.ALL}) //CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE
-    @JoinTable(name = "user_budget", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "budget_id"))
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "user", fetch = FetchType.LAZY) //CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE
+//    @JoinTable(name = "user_budget", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "budget_id"))
     private List<Budget> budgets;
-    @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "asset_id")
-    private List<Asset> assets;
 
 }
 

@@ -1,6 +1,9 @@
 package com.barnackles.user.admin;
 
-import com.barnackles.user.*;
+import com.barnackles.budget.Budget;
+import com.barnackles.user.User;
+import com.barnackles.user.UserCreateDto;
+import com.barnackles.user.UserServiceImpl;
 import com.barnackles.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,7 +17,9 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.text.ParseException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Controller
 @Slf4j
@@ -42,6 +47,15 @@ public class AdminUserRestController {
                  .map(this::convertToAdminResponseDto)
                  .toList();
 
+         userAdminResponseDtos.forEach(
+                 userAdminResponseDto -> userAdminResponseDto.setBudgets
+                         (getBudgetsMapFromUsersList(
+                         users, userAdminResponseDto.getId()
+                         )
+                 )
+         );
+
+
          return new ResponseEntity<>(userAdminResponseDtos, HttpStatus.OK);
     }
 
@@ -53,7 +67,10 @@ public class AdminUserRestController {
     public ResponseEntity<UserAdminResponseDto> findUserById(@PathVariable Long id) {
 
         User user = userService.findUserById(id);
+
         UserAdminResponseDto userAdminResponseDto = convertToAdminResponseDto(user);
+                userAdminResponseDto.setBudgets(getBudgetsMap(user));
+
         return new ResponseEntity<>(userAdminResponseDto, HttpStatus.OK);
     }
 
@@ -159,6 +176,29 @@ public class AdminUserRestController {
         return modelMapper.map(userAdminUpdateDto, User.class);
     }
 
+    private HashMap<Long, String> getBudgetsMap(User user) {
+        List<Budget> budgets = user.getBudgets();
+
+        return (HashMap<Long, String>) budgets
+                .stream()
+                .collect(Collectors.toMap(Budget::getId, Budget::getBudgetName));
+    }
+
+
+    private HashMap<Long, String> getBudgetsMapFromUsersList(List<User> users, Long id) {
+
+        for (User user : users) {
+            if (id.equals(user.getId())) {
+
+                List<Budget> budgets = user.getBudgets();
+
+                return (HashMap<Long, String>) budgets
+                        .stream()
+                        .collect(Collectors.toMap(Budget::getId, Budget::getBudgetName));
+            }
+        }
+        return null;
+    }
 
 
 //    @PostMapping("/test")

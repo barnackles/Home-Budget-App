@@ -92,7 +92,7 @@ public class UserRestController {
 
         User persistentUser = userService.findUserByUserName(authentication.getName());
         UserResponseDto responseUser = convertToResponseDto(persistentUser);
-        HttpStatus httpStatus = HttpStatus.PRECONDITION_FAILED;
+        HttpStatus httpStatus = HttpStatus.CONFLICT;
 
 
 
@@ -104,7 +104,7 @@ public class UserRestController {
             user.setActive(persistentUser.getActive());
             user.setRoles(persistentUser.getRoles());
             user.setBudgets(persistentUser.getBudgets());
-            user.setAssets(persistentUser.getAssets());
+//            user.setAssets(persistentUser.getAssets());
             userService.updateUser(user);
             responseUser = convertToResponseDto(user);
             httpStatus = HttpStatus.OK;

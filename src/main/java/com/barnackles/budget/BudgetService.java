@@ -45,12 +45,23 @@ public class BudgetService {
     }
 
 
+    public boolean checkIfUserHasBudgetWithGivenName (String budgetName, User user) {
+        boolean userHasBudget = budgetRepository.findBudgetByBudgetNameAndUserEquals(budgetName, user).isPresent();
+        log.info("User has budget with {}: {}", budgetName, userHasBudget);
+        return userHasBudget;
+    }
+
+
 
     public List<Budget> findAll() {
         return budgetRepository.findAll();
     }
 
     public Budget save(Budget budget) {
+        return budgetRepository.save(budget);
+    }
+
+    public Budget update(Budget budget) {
         return budgetRepository.save(budget);
     }
 

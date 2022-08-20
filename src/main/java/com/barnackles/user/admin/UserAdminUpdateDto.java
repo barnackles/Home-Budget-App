@@ -1,7 +1,6 @@
 package com.barnackles.user.admin;
 
 
-import com.barnackles.asset.Asset;
 import com.barnackles.budget.Budget;
 import com.barnackles.role.Role;
 import lombok.Data;
@@ -35,6 +34,6 @@ public class UserAdminUpdateDto {
     private Boolean active;
     private Set<Role> roles;
     private List<Budget> budgets;
-    private List<Asset> assets;
+
 
 }

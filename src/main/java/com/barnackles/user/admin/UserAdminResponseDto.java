@@ -1,12 +1,10 @@
 package com.barnackles.user.admin;
 
 
-import com.barnackles.asset.Asset;
-import com.barnackles.budget.Budget;
 import com.barnackles.role.Role;
 import lombok.Data;
 
-import java.util.List;
+import java.util.HashMap;
 import java.util.Set;
 
 @Data
@@ -17,10 +15,7 @@ public class UserAdminResponseDto {
     private String email;
     private Boolean active;
     private Set<Role> roles;
-    private List<Budget> budgets;
-    private List<Asset> assets;
-
-
+    private HashMap<Long, String> budgets;
 
 
 }
