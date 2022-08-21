@@ -18,12 +18,11 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
     @Override
     Page<Category> findAll(Pageable pageable);
 
-    Optional<Category> findCategoryByCategoryId(Long id);
+    Optional<Category> findCategoryById(Long id);
 
-    Optional<Category> findCategoryByCategoryName(String Name);
+    Optional<Category> findCategoryByName(String Name);
 
-    @Override
-    boolean existsById(Long id);
+    boolean existsByName(String name);
 
     @Override
     long count();

@@ -44,7 +44,7 @@ public class CategoryService {
 
     public Category findCategoryByCategoryName(String categoryName) throws EntityNotFoundException {
         log.info("Category found: {}", categoryName);
-        return categoryRepository.findCategoryByCategoryName(categoryName).orElseThrow(() -> {
+        return categoryRepository.findCategoryByName(categoryName).orElseThrow(() -> {
                     log.error("entity with category name: {} not found", categoryName);
                     throw new EntityNotFoundException("entity not found");
                 }
@@ -52,7 +52,7 @@ public class CategoryService {
     }
     public Category findCategoryByCategoryId(Long id) throws EntityNotFoundException {
         log.info("Category found: {}", id);
-        return categoryRepository.findCategoryByCategoryId(id).orElseThrow(() -> {
+        return categoryRepository.findCategoryById(id).orElseThrow(() -> {
                     log.error("entity with budget id: {} not found", id);
                     throw new EntityNotFoundException("entity not found");
                 }
@@ -71,6 +71,11 @@ public class CategoryService {
     public void delete(Category category) {
         categoryRepository.delete(category);
     }
+
+    public boolean existsByName(String name){
+        return categoryRepository.existsByName(name);
+    }
+
     public Long showNumberOfCategories(){
         return categoryRepository.count();
     }

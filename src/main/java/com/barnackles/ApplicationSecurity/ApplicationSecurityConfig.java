@@ -75,7 +75,9 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
                     "/v2/api-docs").permitAll();
 
             http.authorizeRequests().antMatchers(HttpMethod.POST, "/user/user").permitAll();
-            http.authorizeRequests().antMatchers("/**").hasAnyRole("USER", "ADMIN")
+            http.authorizeRequests()
+                    .antMatchers("admin/**").hasRole( "ADMIN")
+                    .antMatchers("/**").hasAnyRole("USER", "ADMIN")
                 .anyRequest().authenticated();
 
             http.addFilter(customAuthenticationFilter);

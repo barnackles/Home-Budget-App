@@ -1,4 +1,4 @@
-package com.barnackles.category;
+package com.barnackles.category.admin;
 
 import lombok.Data;
 import org.hibernate.validator.constraints.Length;
