@@ -39,9 +39,13 @@ public class AdminUserRestController {
      * @return ResponseEntity<List<UserAdminResponseDto>>
      */
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @GetMapping("/users")
-    public ResponseEntity<List<UserAdminResponseDto>> findAllUsers() {
-         List<User> users = userService.findAll();
+    @GetMapping("/users/{pageNumber}/{pageSize}/{sortBy}")
+    public ResponseEntity<List<UserAdminResponseDto>> findAllUsers(
+            @PathVariable int pageNumber, @PathVariable int pageSize, @PathVariable String sortBy
+    ) {
+
+
+         List<User> users = userService.findAll(pageNumber, pageSize, sortBy);
          List<UserAdminResponseDto> userAdminResponseDtos = users
                  .stream()
                  .map(this::convertToAdminResponseDto)

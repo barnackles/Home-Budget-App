@@ -11,7 +11,9 @@ public interface UserService  {
 
     User findUserById(Long id);
 
-    List<User> findAll();
+//    List<User> findAll();
+
+    List<User> findAll(int pageNumber, int pageSize, String sortBy);
 
     User saveUser(User user);
 
@@ -19,6 +21,7 @@ public interface UserService  {
 
     User updateUserPassword(User user);
     void deleteUser(User user);
+
 
 
 
