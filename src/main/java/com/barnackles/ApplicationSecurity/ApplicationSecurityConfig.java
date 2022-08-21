@@ -27,13 +27,12 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
     private final String secret;
     private final String secret2;
 
-//    private final UserRepository userRepository;
 
 
     public ApplicationSecurityConfig(@Value("${jwt.secret") String secret, @Value("${jwt.secret2") String secret2) {
         this.secret = secret;
         this.secret2 = secret2;
-//        this.userRepository = userRepository;
+
     }
 
     @Bean
@@ -75,7 +74,9 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
                     "/v2/api-docs").permitAll();
 
             http.authorizeRequests().antMatchers(HttpMethod.POST, "/user/user").permitAll();
-            http.authorizeRequests().antMatchers("/**").hasAnyRole("USER", "ADMIN")
+            http.authorizeRequests()
+//                    .antMatchers("admin/**").hasRole( "ADMIN")
+                    .antMatchers("/**").hasAnyRole("USER", "ADMIN")
                 .anyRequest().authenticated();
 
             http.addFilter(customAuthenticationFilter);

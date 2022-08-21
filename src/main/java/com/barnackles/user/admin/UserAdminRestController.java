@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @RequestMapping("/admin/user")
 @RequiredArgsConstructor
-public class AdminUserRestController {
+public class UserAdminRestController {
 
     private final UserServiceImpl userService;
     private final ModelMapper modelMapper;

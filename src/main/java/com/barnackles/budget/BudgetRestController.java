@@ -58,7 +58,7 @@ public class BudgetRestController {
     }
     @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
     @PostMapping("/budget")
-    public ResponseEntity<BudgetResponseDto> createBudget(@RequestBody BudgetCreateDto budgetCreateDto) {
+    public ResponseEntity<BudgetResponseDto> createBudget(@Valid @RequestBody BudgetCreateDto budgetCreateDto) {
         Budget budget = convertCreateDtoToBudget(budgetCreateDto);
         Authentication authentication = authenticationFacade.getAuthentication();
         User user = userService.findUserByUserName(authentication.getName());
