@@ -11,7 +11,7 @@ public interface UserService  {
 
     User findUserById(Long id);
 
-//    List<User> findAll();
+    List<User> findAll();
 
     List<User> findAll(int pageNumber, int pageSize, String sortBy);
 

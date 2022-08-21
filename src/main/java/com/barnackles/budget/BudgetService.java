@@ -3,10 +3,15 @@ package com.barnackles.budget;
 import com.barnackles.user.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -57,7 +62,21 @@ public class BudgetService {
         return budgetRepository.findAll();
     }
 
+    public List<Budget> findAll(int pageNumber, int pageSize, String sortBy) {
 
+        pageNumber -= 1;
+        Pageable paging = PageRequest.of(pageNumber, pageSize, Sort.by(sortBy));
+        Page<Budget> pagedResult = budgetRepository.findAll(paging);
+
+        if(pagedResult.hasContent()) {
+            log.info("Budgets for pageNumber: {}, pageSize: {}, sorted by: {} found", pageNumber, pageSize, sortBy);
+            return pagedResult.getContent();
+        } else {
+            log.info("No results found.");
+            return new ArrayList<>();
+        }
+
+        }
 
     public Budget save(Budget budget) {
         return budgetRepository.save(budget);

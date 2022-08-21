@@ -60,22 +60,22 @@ public class UserServiceImpl implements UserService {
         );
     }
 
-
-//    @Override
-//    public List<User> findAll() {
-//        log.info("All users found");
-//        return userRepository.findAll();
-//    }
+    @Override
+    public List<User> findAll() {
+        log.info("All users found");
+        return userRepository.findAll();
+    }
 
     @Override
     public List<User> findAll(int pageNumber, int pageSize, String sortBy) {
         pageNumber -= 1;
         Pageable paging = PageRequest.of(pageNumber, pageSize, Sort.by(sortBy));
-        log.info("All users found");
         Page<User> pagedResult = userRepository.findAll(paging);
         if(pagedResult.hasContent()) {
+            log.info("Users for pageNumber: {}, pageSize: {}, sorted by: {} found.", pageNumber, pageSize, sortBy);
             return pagedResult.getContent();
         } else {
+            log.info("No results found.");
             return new ArrayList<>();
         }
 
