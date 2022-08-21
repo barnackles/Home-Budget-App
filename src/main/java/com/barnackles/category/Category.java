@@ -1,6 +1,7 @@
 package com.barnackles.category;
 
 import lombok.Data;
+import org.hibernate.validator.constraints.Length;
 
 import javax.persistence.*;
 
@@ -12,5 +13,6 @@ public class Category {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+    @Length(max = 100)
     private String name;
 }

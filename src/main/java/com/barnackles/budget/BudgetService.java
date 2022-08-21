@@ -59,6 +59,7 @@ public class BudgetService {
 
 
     public List<Budget> findAll() {
+        log.info("Budgets found.");
         return budgetRepository.findAll();
     }
 
@@ -76,7 +77,7 @@ public class BudgetService {
             return new ArrayList<>();
         }
 
-        }
+    }
 
     public Budget save(Budget budget) {
         return budgetRepository.save(budget);

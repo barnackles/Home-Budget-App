@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import javax.transaction.Transactional;
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -13,14 +14,13 @@ import java.util.Optional;
 public interface CategoryRepository extends JpaRepository<Category, Long> {
 
 
+    List<Category> findAll();
     @Override
     Page<Category> findAll(Pageable pageable);
 
-    @Override
-    <S extends Category> S save(S entity);
+    Optional<Category> findCategoryByCategoryId(Long id);
 
-    @Override
-    Optional<Category> findById(Long id);
+    Optional<Category> findCategoryByCategoryName(String Name);
 
     @Override
     boolean existsById(Long id);
@@ -28,6 +28,4 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
     @Override
     long count();
 
-    @Override
-    void deleteById(Long id);
 }
