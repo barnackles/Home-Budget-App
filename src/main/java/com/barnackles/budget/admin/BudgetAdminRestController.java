@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import javax.persistence.EntityExistsException;
 import javax.validation.Valid;
 import java.util.List;
 
@@ -24,11 +25,12 @@ public class BudgetAdminRestController {
     private final ModelMapper modelMapper;
     private final UserService userService;
 
-    //add pagination
+
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @GetMapping("/budgets/all")
-    public ResponseEntity<List<BudgetAdminResponseDto>> findAll() {
-        List<Budget> budgets = budgetService.findAll();
+    @GetMapping("/budgets/all/{pageNumber}/{pageSize}/{sortBy}")
+    public ResponseEntity<List<BudgetAdminResponseDto>> findAll(@PathVariable int pageNumber, @PathVariable int pageSize, @PathVariable String sortBy) {
+
+        List<Budget> budgets = budgetService.findAll(pageNumber, pageSize, sortBy);
         List<BudgetAdminResponseDto> listOfBudgetAdminResponseDtos = budgets
                 .stream()
                 .map(this::convertToBudgetAdminResponseDto)
@@ -51,9 +53,9 @@ public class BudgetAdminRestController {
     public ResponseEntity<BudgetAdminResponseDto> createBudgetForUser(@RequestBody BudgetCreateDto budgetCreateDto,
                                                                  @PathVariable Long userId) {
         Budget budget = convertCreateDtoToBudget(budgetCreateDto);
-
-
         User user = userService.findUserById(userId);
+
+        if (!budgetService.checkIfUserHasBudgetWithGivenName(budget.getBudgetName(), user)) {
         budget.setUser(user);
         budgetService.save(budget);
 
@@ -64,6 +66,10 @@ public class BudgetAdminRestController {
 
         BudgetAdminResponseDto budgetAdminResponseDto = convertToBudgetAdminResponseDto(budget);
         return new ResponseEntity<>(budgetAdminResponseDto, HttpStatus.CREATED);
+
+        }
+
+        throw new EntityExistsException("Budget with this name already exists.");
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")

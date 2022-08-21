@@ -13,12 +13,15 @@ public interface UserService  {
 
     List<User> findAll();
 
+    List<User> findAll(int pageNumber, int pageSize, String sortBy);
+
     User saveUser(User user);
 
     User updateUser(User user);
 
     User updateUserPassword(User user);
     void deleteUser(User user);
+
 
 
 

@@ -4,12 +4,16 @@ import com.barnackles.role.Role;
 import com.barnackles.role.RoleRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.EntityManager;
 import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -23,10 +27,6 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final BCryptPasswordEncoder passwordEncoder;
-
-    private final EntityManager entityManager;
-
-//    private EntityManagerFactory emf = null;
 
 
     public User findUserByEmail(String email) throws EntityNotFoundException {
@@ -60,11 +60,26 @@ public class UserServiceImpl implements UserService {
         );
     }
 
-
     @Override
     public List<User> findAll() {
         log.info("All users found");
         return userRepository.findAll();
+    }
+
+    @Override
+    public List<User> findAll(int pageNumber, int pageSize, String sortBy) {
+        pageNumber -= 1;
+        Pageable paging = PageRequest.of(pageNumber, pageSize, Sort.by(sortBy));
+        Page<User> pagedResult = userRepository.findAll(paging);
+        if(pagedResult.hasContent()) {
+            log.info("Users for pageNumber: {}, pageSize: {}, sorted by: {} found.", pageNumber, pageSize, sortBy);
+            return pagedResult.getContent();
+        } else {
+            log.info("No results found.");
+            return new ArrayList<>();
+        }
+
+
     }
 
     public User saveUser(User user) {
@@ -95,6 +110,8 @@ public class UserServiceImpl implements UserService {
         log.info("User deleted: {}", user.getUserName());
         userRepository.deleteUserById(user.getId());
     }
+
+
 
 
 }
