@@ -90,4 +90,8 @@ public class BudgetService {
     public void delete(Budget budget) {
         budgetRepository.delete(budget);
     }
+
+    public boolean checkIfBudgetExistsById(Long id) {
+        return budgetRepository.existsById(id);
+    }
 }

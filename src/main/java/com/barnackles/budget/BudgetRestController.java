@@ -31,14 +31,14 @@ public class BudgetRestController {
 
     @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
     @GetMapping("/budgets/current-user")
-    public ResponseEntity<List<BudgetResponseDto>> findAllUserBudgets() {
+    public ResponseEntity<List<BudgetResponseDtoAll>> findAllUserBudgets() {
 
        Authentication authentication = authenticationFacade.getAuthentication();
 
        List<Budget> userBudgetList = userService.findUserByUserName(authentication.getName()).getBudgets();
-       List<BudgetResponseDto> listOfBudgetResponseDtos = userBudgetList
+       List<BudgetResponseDtoAll> listOfBudgetResponseDtos = userBudgetList
                 .stream()
-                .map(this::convertBudgetToResponseDto)
+                .map(this::convertBudgetToResponseDtoAll)
                 .toList();
         return new ResponseEntity<>(listOfBudgetResponseDtos, HttpStatus.OK);
     }
@@ -114,6 +114,10 @@ public class BudgetRestController {
 
     private BudgetResponseDto convertBudgetToResponseDto(Budget budget) {
         return modelMapper.map(budget, BudgetResponseDto.class);
+    }
+
+    private BudgetResponseDtoAll convertBudgetToResponseDtoAll(Budget budget) {
+        return modelMapper.map(budget, BudgetResponseDtoAll.class);
     }
 
 }

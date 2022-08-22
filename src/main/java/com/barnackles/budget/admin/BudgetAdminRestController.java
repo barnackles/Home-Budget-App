@@ -27,13 +27,25 @@ public class BudgetAdminRestController {
 
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @GetMapping("/budgets/all")
+    public ResponseEntity<List<BudgetAdminResponseDtoAll>> findAll() {
+
+        List<Budget> budgets = budgetService.findAll();
+        List<BudgetAdminResponseDtoAll> listOfBudgetAdminResponseDtos = budgets
+                .stream()
+                .map(this::convertToBudgetAdminResponseDtoAll)
+                .toList();
+        return new ResponseEntity<>(listOfBudgetAdminResponseDtos, HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/budgets/all/{pageNumber}/{pageSize}/{sortBy}")
-    public ResponseEntity<List<BudgetAdminResponseDto>> findAll(@PathVariable int pageNumber, @PathVariable int pageSize, @PathVariable String sortBy) {
+    public ResponseEntity<List<BudgetAdminResponseDtoAll>> findAll(@PathVariable int pageNumber, @PathVariable int pageSize, @PathVariable String sortBy) {
 
         List<Budget> budgets = budgetService.findAll(pageNumber, pageSize, sortBy);
-        List<BudgetAdminResponseDto> listOfBudgetAdminResponseDtos = budgets
+        List<BudgetAdminResponseDtoAll> listOfBudgetAdminResponseDtos = budgets
                 .stream()
-                .map(this::convertToBudgetAdminResponseDto)
+                .map(this::convertToBudgetAdminResponseDtoAll)
                 .toList();
         return new ResponseEntity<>(listOfBudgetAdminResponseDtos, HttpStatus.OK);
     }
@@ -100,6 +112,10 @@ public class BudgetAdminRestController {
 
     private BudgetAdminResponseDto convertToBudgetAdminResponseDto(Budget budget) {
         return modelMapper.map(budget, BudgetAdminResponseDto.class);
+    }
+
+    private BudgetAdminResponseDtoAll convertToBudgetAdminResponseDtoAll(Budget budget) {
+        return modelMapper.map(budget, BudgetAdminResponseDtoAll.class);
     }
 
 }

@@ -1,12 +1,13 @@
 package com.barnackles.operation;
 
+import com.barnackles.budget.Budget;
 import com.barnackles.category.Category;
 import lombok.Data;
 import org.hibernate.validator.constraints.Length;
 
 import javax.persistence.*;
 import javax.validation.constraints.DecimalMin;
-import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -16,7 +17,8 @@ import java.util.UUID;
 @Table(name = "operations")
 public class Operation {
 
-
+ // validate enums
+ // validate category
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -26,18 +28,20 @@ public class Operation {
     private String description;
     @ManyToOne
     @JoinColumn(name = "category_id")
-    @NotBlank
+    @NotNull
     private Category category;
     @DecimalMin(value = "0.01")
     private BigDecimal amount;
-    @NotBlank
+    @NotNull
     private OperationType operationType;
-    @NotBlank
+    @NotNull
     private LocalDateTime operationDateTime;
-    @NotBlank
+    @NotNull
     private ActualOrPlanned actualOrPlanned;
-    @NotBlank
+    @NotNull
     private OperationFrequency frequency;
+    @ManyToOne
+    private Budget budget;
 
 
     @PrePersist

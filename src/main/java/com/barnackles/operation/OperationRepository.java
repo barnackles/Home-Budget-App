@@ -19,6 +19,8 @@ public interface OperationRepository extends JpaRepository<Operation, Long> {
 
     Page<Operation> findAll(Pageable pageable);
 
+    Page<Operation> findOperationBy(Pageable pageable);
+
     Optional<Operation> findOperationById(Long id);
 
     Optional<Operation> findOperationByUuid(UUID uuid);
