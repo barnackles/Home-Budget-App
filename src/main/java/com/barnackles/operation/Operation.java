@@ -1,6 +1,5 @@
 package com.barnackles.operation;
 
-import com.barnackles.budget.Budget;
 import com.barnackles.category.Category;
 import lombok.Data;
 import org.hibernate.validator.constraints.Length;
@@ -27,7 +26,6 @@ public class Operation {
     @Length(max = 200)
     private String description;
     @ManyToOne
-    @JoinColumn(name = "category_id")
     @NotNull
     private Category category;
     @DecimalMin(value = "0.01")
@@ -40,8 +38,7 @@ public class Operation {
     private ActualOrPlanned actualOrPlanned;
     @NotNull
     private OperationFrequency frequency;
-    @ManyToOne
-    private Budget budget;
+
 
 
     @PrePersist

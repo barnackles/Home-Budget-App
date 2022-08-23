@@ -3,6 +3,8 @@ package com.barnackles.budget.admin;
 import com.barnackles.budget.Budget;
 import com.barnackles.budget.BudgetCreateDto;
 import com.barnackles.budget.BudgetService;
+import com.barnackles.operation.Operation;
+import com.barnackles.operation.OperationService;
 import com.barnackles.user.User;
 import com.barnackles.user.UserService;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.EntityExistsException;
 import javax.validation.Valid;
+import java.util.Comparator;
 import java.util.List;
 
 @RestController
@@ -24,6 +27,8 @@ public class BudgetAdminRestController {
     private final BudgetService budgetService;
     private final ModelMapper modelMapper;
     private final UserService userService;
+
+    private final OperationService operationService;
 
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
@@ -40,7 +45,8 @@ public class BudgetAdminRestController {
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/budgets/all/{pageNumber}/{pageSize}/{sortBy}")
-    public ResponseEntity<List<BudgetAdminResponseDtoAll>> findAll(@PathVariable int pageNumber, @PathVariable int pageSize, @PathVariable String sortBy) {
+    public ResponseEntity<List<BudgetAdminResponseDtoAll>> findAll(@PathVariable int pageNumber,
+                                                                   @PathVariable int pageSize, @PathVariable String sortBy) {
 
         List<Budget> budgets = budgetService.findAll(pageNumber, pageSize, sortBy);
         List<BudgetAdminResponseDtoAll> listOfBudgetAdminResponseDtos = budgets
@@ -55,7 +61,17 @@ public class BudgetAdminRestController {
     public ResponseEntity<BudgetAdminResponseDto> findBudgetById(@PathVariable Long budgetId) {
 
         Budget budget = budgetService.findBudgetByBudgetId(budgetId);
-        BudgetAdminResponseDto budgetAdminResponseDto = convertToBudgetAdminResponseDto(budget);
+        BudgetAdminResponseDto budgetAdminResponseDto = new BudgetAdminResponseDto(); // convertToBudgetAdminResponseDto(budget);
+        String dateTime = "OperationDateTime";
+        List<Operation> recentFiveOperationsByDate = budget.getOperations().stream()
+                .sorted(Comparator.comparing(Operation::getOperationDateTime)).toList();
+
+        budgetAdminResponseDto.setId(budget.getId());
+        budgetAdminResponseDto.setBudgetName(budget.getBudgetName());
+        budgetAdminResponseDto.setUserId(budget.getUser().getId());
+        budgetAdminResponseDto.setUserName(budget.getUser().getUserName());
+//        budgetAdminResponseDto.setRecentFiveOperations(operationService.findTop5operationAndBudgetEquals(budget.getId()));
+        budgetAdminResponseDto.setRecentFiveOperations(recentFiveOperationsByDate);
 
         return new ResponseEntity<>(budgetAdminResponseDto, HttpStatus.OK);
     }

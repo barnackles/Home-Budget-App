@@ -66,8 +66,6 @@ public class OperationAdminRestController {
                                                                       @PathVariable Long budgetId) {
         Budget budget = budgetService.findBudgetByBudgetId(budgetId);
         Operation operation = convertCreateDtoToOperation(operationCreateDto);
-
-        operation.setBudget(budget);
         operationService.save(operation);
 
         List<Operation> operationList = budget.getOperations();
@@ -76,6 +74,8 @@ public class OperationAdminRestController {
         budgetService.update(budget);
 
         OperationAdminResponseDto operationAdminResponseDto = convertToOperationAdminResponseDto(operation);
+        operationAdminResponseDto.setBudgetId(budget.getId());
+        operationAdminResponseDto.setBudgetName(budget.getBudgetName());
         return new ResponseEntity<>(operationAdminResponseDto, HttpStatus.CREATED);
 
     }
@@ -89,7 +89,6 @@ public class OperationAdminRestController {
         Operation operation = convertCreateDtoToOperation(operationCreateDto);
         operation.setId(operationId);
         operation.setUuid(persistentOperation.getUuid());
-        operation.setBudget(persistentOperation.getBudget());
 
         operationService.update(operation);
 
@@ -100,7 +99,7 @@ public class OperationAdminRestController {
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping("/operation/{operationId}")
-    public ResponseEntity<String> deleteBudget(@PathVariable Long operationId) {
+    public ResponseEntity<String> deleteOperation(@PathVariable Long operationId) {
 
         String message = String.format("Operation of id: %d successfully deleted ", operationId);
         operationService.delete(operationService.findOperationByOperationId(operationId));

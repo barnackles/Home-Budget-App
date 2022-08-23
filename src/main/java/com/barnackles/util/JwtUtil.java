@@ -23,8 +23,8 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @Data
 public class JwtUtil {
 
-    private static final Date TEN_MINUTES_IN_MILLISECONDS = new Date(System.currentTimeMillis() + (3600000 / 6));
-    private static final Date ONE_HOUR_IN_MILLISECONDS = new Date(System.currentTimeMillis() + (3600000));
+    private static Date TEN_MINUTES_IN_MILLISECONDS = new Date(System.currentTimeMillis() + (3600000 / 6));
+    private static Date ONE_HOUR_IN_MILLISECONDS = new Date(System.currentTimeMillis() + (3600000));
     private final String secret;
     private final String secret2;
     private Date tokenExpirationTime;

@@ -13,5 +13,5 @@ public class BudgetAdminResponseDto {
     private String budgetName;
     private Long userId;
     private String userName;
-    private List<Operation> operations;
+    private List<Operation> recentFiveOperations;
 }
