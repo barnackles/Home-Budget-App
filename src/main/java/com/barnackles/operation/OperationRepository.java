@@ -1,5 +1,6 @@
 package com.barnackles.operation;
 
+import com.barnackles.budget.Budget;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -19,11 +20,14 @@ public interface OperationRepository extends JpaRepository<Operation, Long> {
 
     Page<Operation> findAll(Pageable pageable);
 
-    Page<Operation> findOperationBy(Pageable pageable);
+    List<Operation> findOperationsByBudgetEquals(Budget budget);
+
+    Page<Operation> findOperationsByBudgetEquals(Pageable pageable, Budget budget);
 
     Optional<Operation> findOperationById(Long id);
 
     Optional<Operation> findOperationByUuid(UUID uuid);
+//    Optional<Operation> findOperationByUuidAndBudgetEquals(UUID uuid, Budget budget);
 
     boolean existsById(Long id);
 

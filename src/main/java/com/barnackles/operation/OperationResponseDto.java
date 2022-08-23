@@ -1,9 +1,6 @@
-package com.barnackles.operation.admin;
+package com.barnackles.operation;
 
 import com.barnackles.category.Category;
-import com.barnackles.operation.ActualOrPlanned;
-import com.barnackles.operation.OperationFrequency;
-import com.barnackles.operation.OperationType;
 import lombok.Data;
 
 import java.math.BigDecimal;
