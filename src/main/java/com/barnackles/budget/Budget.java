@@ -21,7 +21,7 @@ public class Budget {
     private Long id;
     @Length(max = 100)
     private String budgetName;
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "budget", fetch = FetchType.LAZY)
     private List<Operation> operations;
     @ManyToOne
     private User user;

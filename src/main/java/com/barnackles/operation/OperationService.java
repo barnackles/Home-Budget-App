@@ -1,5 +1,6 @@
 package com.barnackles.operation;
 
+import com.barnackles.budget.Budget;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -42,6 +43,27 @@ public class OperationService {
         }
     }
 
+    public List<Operation> findAllOperationsForBudget(Budget budget) {
+        log.info("Operations found.");
+        return operationRepository.findOperationsByBudgetEquals(budget);
+    }
+
+    public List<Operation> findAllOperationsForBudget(int pageNumber, int pageSize, String sortBy,
+    Budget budget) {
+
+        pageNumber -= 1;
+        Pageable paging = PageRequest.of(pageNumber, pageSize, Sort.by(sortBy));
+        Page<Operation> pagedResult = operationRepository.findOperationsByBudgetEquals(paging, budget);
+
+        if(pagedResult.hasContent()) {
+            log.info("Operations for pageNumber: {}, pageSize: {}, sorted by: {} found", pageNumber, pageSize, sortBy);
+            return pagedResult.getContent();
+        } else {
+            log.info("No results found.");
+            return new ArrayList<>();
+        }
+    }
+
 
     public Operation findOperationByOperationId(Long id) throws EntityNotFoundException {
         log.info("Operation found: {}", id);
@@ -52,6 +74,15 @@ public class OperationService {
         );
     }
 
+//    public Operation findOperationByOperationUuid(UUID uuid) throws EntityNotFoundException {
+//        log.info("Operation found: {}", uuid);
+//        return operationRepository.findOperationByUuid(uuid).orElseThrow(() -> {
+//                    log.error("entity with operation id: {} not found", uuid);
+//                    throw new EntityNotFoundException("entity not found");
+//                }
+//        );
+//    }
+
     public Operation findOperationByOperationUuid(UUID uuid) throws EntityNotFoundException {
         log.info("Operation found: {}", uuid);
         return operationRepository.findOperationByUuid(uuid).orElseThrow(() -> {
@@ -60,6 +91,8 @@ public class OperationService {
                 }
         );
     }
+
+
 
     public Operation save(Operation operation) {
         return operationRepository.save(operation);

@@ -1,7 +1,11 @@
 package com.barnackles.operation;
 
+import com.barnackles.budget.Budget;
 import com.barnackles.category.Category;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.uuid.Generators;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.hibernate.validator.constraints.Length;
 
 import javax.persistence.*;
@@ -14,14 +18,16 @@ import java.util.UUID;
 @Data
 @Entity
 @Table(name = "operations")
+@EqualsAndHashCode
 public class Operation {
 
  // validate enums
  // validate category
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include()
     private Long id;
-    @Column(name = "operation_number", unique = true)
+    @Column(name = "operation_number", unique = true, columnDefinition = "BINARY(16)")
     private UUID uuid;
     @Length(max = 200)
     private String description;
@@ -38,13 +44,16 @@ public class Operation {
     private ActualOrPlanned actualOrPlanned;
     @NotNull
     private OperationFrequency frequency;
+    @ManyToOne
+    @JsonIgnore
+    private Budget budget;
 
 
 
     @PrePersist
-    public void prePersist() {
+    private void prePersist() {
         //check for collisions
-        uuid = UUID.randomUUID();
+        uuid = Generators.timeBasedGenerator().generate();
     }
 
 
