@@ -45,7 +45,7 @@ Third stage will allow to import transactional data via bank account API.
 
 **Rationale**
 This project is a final programming bootcamp project.
-It's purpose is to demonstrate the ability to apply acquired programming knowledge
+Its purpose is to demonstrate the ability to apply acquired programming knowledge
 as well as to gain new and strengthen already gained knowlegde.
 
 
