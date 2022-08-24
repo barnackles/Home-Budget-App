@@ -41,14 +41,21 @@ public class OperationRestController {
 
         Authentication authentication = authenticationFacade.getAuthentication();
         User user = userService.findUserByUserName(authentication.getName());
-        Budget budget = budgetService.findBudgetByBudgetNameAndUserEquals(budgetName, user);
 
-        List<Operation> operations = budget.getOperations();
-        List<OperationResponseDto> listOfOperationResponseDtos = operations
-                .stream()
-                .map(this::convertToOperationResponseDto)
-                .toList();
-        return new ResponseEntity<>(listOfOperationResponseDtos, HttpStatus.OK);
+        if (budgetService.checkIfUserHasBudgetWithGivenName(budgetName, user)) {
+            Budget budget = budgetService.findBudgetByBudgetNameAndUserEquals(budgetName, user);
+            List<Operation> operations = budget.getOperations();
+            List<OperationResponseDto> listOfOperationResponseDtos = operations
+                    .stream()
+                    .map(this::convertToOperationResponseDto)
+                    .toList();
+
+            return new ResponseEntity<>(listOfOperationResponseDtos, HttpStatus.OK);
+        } else {
+            throw new AccessDeniedException("Permission denied.");
+        }
+
+
     }
 
 
@@ -60,16 +67,22 @@ public class OperationRestController {
 
         Authentication authentication = authenticationFacade.getAuthentication();
         User user = userService.findUserByUserName(authentication.getName());
-        Budget budget = budgetService.findBudgetByBudgetNameAndUserEquals(budgetName, user);
 
-        List<Operation> operations = operationService.findAllOperationsForBudget(pageNumber,
-                pageSize, sortBy, budget);
-        List<OperationResponseDto> listOfOperationResponseDtos = operations
-                .stream()
-                .map(this::convertToOperationResponseDto)
-                .toList();
+        if (budgetService.checkIfUserHasBudgetWithGivenName(budgetName, user)) {
+            Budget budget = budgetService.findBudgetByBudgetNameAndUserEquals(budgetName, user);
 
-        return new ResponseEntity<>(listOfOperationResponseDtos, HttpStatus.OK);
+            List<Operation> operations = operationService.findAllOperationsForBudget(pageNumber,
+                    pageSize, sortBy, budget);
+            List<OperationResponseDto> listOfOperationResponseDtos = operations
+                    .stream()
+                    .map(this::convertToOperationResponseDto)
+                    .toList();
+
+            return new ResponseEntity<>(listOfOperationResponseDtos, HttpStatus.OK);
+        } else {
+            throw new AccessDeniedException("Permission denied.");
+        }
+
     }
 
     @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
