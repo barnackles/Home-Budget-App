@@ -1,6 +1,8 @@
 package com.barnackles.budget;
 
 import com.barnackles.ApplicationSecurity.IAuthenticationFacade;
+import com.barnackles.operation.Operation;
+import com.barnackles.operation.OperationService;
 import com.barnackles.user.User;
 import com.barnackles.user.UserService;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.EntityExistsException;
 import javax.validation.Valid;
+import java.util.Comparator;
 import java.util.List;
 
 @RestController
@@ -24,6 +27,7 @@ public class BudgetRestController {
     private final ModelMapper modelMapper;
 
     private final UserService userService;
+    private final OperationService operationService;
 
     private final IAuthenticationFacade authenticationFacade;
 
@@ -31,14 +35,14 @@ public class BudgetRestController {
 
     @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
     @GetMapping("/budgets/current-user")
-    public ResponseEntity<List<BudgetResponseDto>> findAllUserBudgets() {
+    public ResponseEntity<List<BudgetResponseDtoAll>> findAllUserBudgets() {
 
        Authentication authentication = authenticationFacade.getAuthentication();
 
        List<Budget> userBudgetList = userService.findUserByUserName(authentication.getName()).getBudgets();
-       List<BudgetResponseDto> listOfBudgetResponseDtos = userBudgetList
+       List<BudgetResponseDtoAll> listOfBudgetResponseDtos = userBudgetList
                 .stream()
-                .map(this::convertBudgetToResponseDto)
+                .map(this::convertBudgetToResponseDtoAll)
                 .toList();
         return new ResponseEntity<>(listOfBudgetResponseDtos, HttpStatus.OK);
     }
@@ -51,8 +55,12 @@ public class BudgetRestController {
 
         User user = userService.findUserByUserName(authentication.getName());
         Budget budget = budgetService.findBudgetByBudgetNameAndUserEquals(budgetName, user);
+        List<Operation> recentFiveOperationsByDate = budget.getOperations().stream()
+                .sorted(Comparator.comparing(Operation::getOperationDateTime)).toList();
 
         BudgetResponseDto budgetResponseDto = convertBudgetToResponseDto(budget);
+//        budgetResponseDto.setRecentOperations(operationService.findTop5operationAndBudgetEquals(budget.getId()));
+//        budgetResponseDto.setRecentFiveOperations(recentFiveOperationsByDate);
 
         return new ResponseEntity<>(budgetResponseDto, HttpStatus.OK);
     }
@@ -114,6 +122,10 @@ public class BudgetRestController {
 
     private BudgetResponseDto convertBudgetToResponseDto(Budget budget) {
         return modelMapper.map(budget, BudgetResponseDto.class);
+    }
+
+    private BudgetResponseDtoAll convertBudgetToResponseDtoAll(Budget budget) {
+        return modelMapper.map(budget, BudgetResponseDtoAll.class);
     }
 
 }

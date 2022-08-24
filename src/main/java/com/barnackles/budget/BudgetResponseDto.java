@@ -10,5 +10,5 @@ import java.util.List;
 public class BudgetResponseDto {
 
     private String budgetName;
-    private List<Operation> operations;
+    private List<Operation> recentOperations;
 }

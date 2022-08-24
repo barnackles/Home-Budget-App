@@ -21,5 +21,6 @@ public interface BudgetRepository extends JpaRepository<Budget, Long> {
     List<Budget> findAll();
     Page<Budget> findAll(Pageable pageable);
 
-
+    @Override
+    boolean existsById(Long id);
 }

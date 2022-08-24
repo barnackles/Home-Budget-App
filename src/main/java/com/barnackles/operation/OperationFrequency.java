@@ -1,6 +1,6 @@
 package com.barnackles.operation;
 
-public enum Frequency {
+public enum OperationFrequency {
     NONE,
     DAILY,
     WEEKLY,
