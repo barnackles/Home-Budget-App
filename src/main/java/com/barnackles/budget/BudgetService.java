@@ -1,5 +1,6 @@
 package com.barnackles.budget;
 
+import com.barnackles.operation.Operation;
 import com.barnackles.user.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -11,8 +12,11 @@ import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.barnackles.operation.OperationType.*;
 
 @Service
 @Transactional
@@ -94,4 +98,42 @@ public class BudgetService {
     public boolean checkIfBudgetExistsById(Long id) {
         return budgetRepository.existsById(id);
     }
+
+    //financial methods
+
+    public BigDecimal calculateBudgetBalance(List<Operation> operations) {
+
+        return (calculateTotalIncome(operations).subtract(calculateTotalExpense(operations)));
+
+    }
+
+    public BigDecimal calculateTotalIncome(List<Operation> operations) {
+
+        return operations.stream()
+                .filter(operation -> INCOME.equals(operation.getOperationType()))
+                .map(Operation::getAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    public BigDecimal calculateTotalExpense(List<Operation> operations) {
+
+        return operations.stream()
+                .filter(operation -> EXPENSE.equals(operation.getOperationType()))
+                .map(Operation::getAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+    }
+
+    public BigDecimal calculateTotalSavings(List<Operation> operations) {
+
+        return operations.stream()
+                .filter(operation -> SAVING.equals(operation.getOperationType()))
+                .map(Operation::getAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+
+
+
+
 }

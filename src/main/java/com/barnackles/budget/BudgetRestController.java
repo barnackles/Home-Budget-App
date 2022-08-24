@@ -1,6 +1,7 @@
 package com.barnackles.budget;
 
 import com.barnackles.ApplicationSecurity.IAuthenticationFacade;
+import com.barnackles.budget.admin.BudgetOverviewDto;
 import com.barnackles.operation.Operation;
 import com.barnackles.operation.OperationService;
 import com.barnackles.user.User;
@@ -9,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -52,17 +54,22 @@ public class BudgetRestController {
     public ResponseEntity<BudgetResponseDto> findUserBudgetByName(@PathVariable String budgetName) {
 
         Authentication authentication = authenticationFacade.getAuthentication();
-
         User user = userService.findUserByUserName(authentication.getName());
+
+        if (budgetService.checkIfUserHasBudgetWithGivenName(budgetName, user)) {
+
         Budget budget = budgetService.findBudgetByBudgetNameAndUserEquals(budgetName, user);
         List<Operation> recentFiveOperationsByDate = budget.getOperations().stream()
                 .sorted(Comparator.comparing(Operation::getOperationDateTime)).toList();
 
         BudgetResponseDto budgetResponseDto = convertBudgetToResponseDto(budget);
-//        budgetResponseDto.setRecentOperations(operationService.findTop5operationAndBudgetEquals(budget.getId()));
-//        budgetResponseDto.setRecentFiveOperations(recentFiveOperationsByDate);
+        budgetResponseDto.setRecentOperations(recentFiveOperationsByDate);
 
         return new ResponseEntity<>(budgetResponseDto, HttpStatus.OK);
+
+        } else {
+            throw new AccessDeniedException("Permission denied.");
+        }
     }
     @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
     @PostMapping("/budget")
@@ -95,12 +102,17 @@ public class BudgetRestController {
         Authentication authentication = authenticationFacade.getAuthentication();
         User user = userService.findUserByUserName(authentication.getName());
 
-        Budget budget = budgetService.findBudgetByBudgetNameAndUserEquals(budgetUpdateDto.getCurrentBudgetName(), user);
-        budget.setBudgetName(budgetUpdateDto.getNewBudgetName());
-        budgetService.update(budget);
+        if (budgetService.checkIfUserHasBudgetWithGivenName(budgetUpdateDto.getCurrentBudgetName(), user)) {
+            Budget budget = budgetService.findBudgetByBudgetNameAndUserEquals(budgetUpdateDto.getCurrentBudgetName(), user);
+            budget.setBudgetName(budgetUpdateDto.getNewBudgetName());
+            budgetService.update(budget);
 
-        BudgetResponseDto budgetResponseDto = convertBudgetToResponseDto(budget);
-        return new ResponseEntity<>(budgetResponseDto, HttpStatus.CREATED);
+            BudgetResponseDto budgetResponseDto = convertBudgetToResponseDto(budget);
+            return new ResponseEntity<>(budgetResponseDto, HttpStatus.OK);
+
+        } else {
+            throw new AccessDeniedException("Permission denied.");
+        }
 
     }
 
@@ -110,11 +122,51 @@ public class BudgetRestController {
         Authentication authentication = authenticationFacade.getAuthentication();
         User user = userService.findUserByUserName(authentication.getName());
 
-        String message = String.format("Budget: %s successfully deleted ", budgetName);
+        if (budgetService.checkIfUserHasBudgetWithGivenName(budgetName, user)) {
+
         budgetService.delete(budgetService.findBudgetByBudgetNameAndUserEquals(budgetName, user));
+        String message = String.format("Budget: %s successfully deleted ", budgetName);
         return new ResponseEntity<>(message, HttpStatus.OK);
+
+        } else {
+            throw new AccessDeniedException("Permission denied.");
+        }
     }
 
+    // financial methods
+
+    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
+    @GetMapping("/budget/overview/all/{budgetName}")
+    public ResponseEntity<BudgetOverviewDto> showBudgetOverview(@PathVariable String budgetName) {
+
+        Authentication authentication = authenticationFacade.getAuthentication();
+
+        User user = userService.findUserByUserName(authentication.getName());
+
+        if (budgetService.checkIfUserHasBudgetWithGivenName(budgetName, user)) {
+
+            Budget budget = budgetService.findBudgetByBudgetNameAndUserEquals(budgetName, user);
+
+            BudgetOverviewDto budgetOverviewDto = new BudgetOverviewDto();
+            budgetOverviewDto.setUserName(user.getUserName());
+            budgetOverviewDto.setBudgetName(budgetName);
+            budgetOverviewDto.setBudgetBalance(budgetService.calculateBudgetBalance(budget.getOperations()));
+            budgetOverviewDto.setTotalIncome(budgetService.calculateTotalIncome(budget.getOperations()));
+            budgetOverviewDto.setTotalExpense(budgetService.calculateTotalExpense(budget.getOperations()));
+            budgetOverviewDto.setTotalSavings(budgetService.calculateTotalSavings(budget.getOperations()));
+
+
+            return new ResponseEntity<>(budgetOverviewDto, HttpStatus.OK);
+        } else {
+            throw new AccessDeniedException("Permission denied.");
+    }
+
+}
+
+
+
+
+    //mappers
 
     private Budget convertCreateDtoToBudget(BudgetCreateDto budgetCreateDto) {
         return modelMapper.map(budgetCreateDto, Budget.class);

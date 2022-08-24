@@ -54,8 +54,6 @@ public class OperationRestController {
         } else {
             throw new AccessDeniedException("Permission denied.");
         }
-
-
     }
 
 
