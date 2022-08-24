@@ -97,19 +97,25 @@ public class OperationRestController {
         Authentication authentication = authenticationFacade.getAuthentication();
         User user = userService.findUserByUserName(authentication.getName());
 
-        Budget budget = budgetService.findBudgetByBudgetNameAndUserEquals(budgetName, user);
-        Operation operation = convertCreateDtoToOperation(operationCreateDto);
-        operation.setBudget(budget);
-        operationService.save(operation);
+        if (budgetService.checkIfUserHasBudgetWithGivenName(budgetName, user)) {
 
-        List<Operation> operationList = budget.getOperations();
-        operationList.add(operation);
-        budget.setOperations(operationList);
-        budgetService.update(budget);
+            Budget budget = budgetService.findBudgetByBudgetNameAndUserEquals(budgetName, user);
+            Operation operation = convertCreateDtoToOperation(operationCreateDto);
+            operation.setBudget(budget);
+            operationService.save(operation);
 
-        OperationResponseDto operationResponseDto = convertToOperationResponseDto(operation);
-        operationResponseDto.setBudgetName(budget.getBudgetName());
-        return new ResponseEntity<>(operationResponseDto, HttpStatus.CREATED);
+            List<Operation> operationList = budget.getOperations();
+            operationList.add(operation);
+            budget.setOperations(operationList);
+            budgetService.update(budget);
+
+            OperationResponseDto operationResponseDto = convertToOperationResponseDto(operation);
+            operationResponseDto.setBudgetName(budget.getBudgetName());
+            return new ResponseEntity<>(operationResponseDto, HttpStatus.CREATED);
+
+        } else {
+            throw new AccessDeniedException("Permission denied.");
+        }
 
     }
 
@@ -140,6 +146,28 @@ public class OperationRestController {
         }
 
     }
+
+    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
+    @DeleteMapping("/operation/{operationUuid}")
+    public ResponseEntity<String> deleteOperation(@PathVariable String operationUuid) {
+
+        UUID uuidFromStr = UUIDUtil.uuid(operationUuid);
+        Authentication authentication = authenticationFacade.getAuthentication();
+        Operation persistentOperation = operationService.findOperationByOperationUuid(uuidFromStr);
+        User user = userService.findUserByUserName(authentication.getName());
+
+        if (budgetService.checkIfUserHasBudgetWithGivenName(persistentOperation.getBudget().getBudgetName(), user)) {
+
+            operationService.delete(persistentOperation);
+            String message = String.format("Operation number: %s successfully deleted ", operationUuid);
+
+            return new ResponseEntity<>(message, HttpStatus.OK);
+        } else {
+            throw new AccessDeniedException("Permission denied.");
+        }
+
+    }
+
 
     private Operation convertCreateDtoToOperation(OperationCreateDto operationCreateDto) {
         return modelMapper.map(operationCreateDto, Operation.class);
