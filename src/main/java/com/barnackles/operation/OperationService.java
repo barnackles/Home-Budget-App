@@ -74,14 +74,6 @@ public class OperationService {
         );
     }
 
-//    public Operation findOperationByOperationUuid(UUID uuid) throws EntityNotFoundException {
-//        log.info("Operation found: {}", uuid);
-//        return operationRepository.findOperationByUuid(uuid).orElseThrow(() -> {
-//                    log.error("entity with operation id: {} not found", uuid);
-//                    throw new EntityNotFoundException("entity not found");
-//                }
-//        );
-//    }
 
     public Operation findOperationByOperationUuid(UUID uuid) throws EntityNotFoundException {
         log.info("Operation found: {}", uuid);

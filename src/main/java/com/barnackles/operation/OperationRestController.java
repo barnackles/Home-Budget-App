@@ -77,8 +77,6 @@ public class OperationRestController {
     public ResponseEntity<OperationResponseDto> findOperationByUuid(@PathVariable String operationUuid) {
         UUID uuidFromStr = UUIDUtil.uuid(operationUuid);
 
-
-
         Authentication authentication = authenticationFacade.getAuthentication();
         Operation operation = operationService.findOperationByOperationUuid(uuidFromStr);
         User user = userService.findUserByUserName(authentication.getName());
@@ -112,6 +110,34 @@ public class OperationRestController {
         OperationResponseDto operationResponseDto = convertToOperationResponseDto(operation);
         operationResponseDto.setBudgetName(budget.getBudgetName());
         return new ResponseEntity<>(operationResponseDto, HttpStatus.CREATED);
+
+    }
+
+    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
+    @PutMapping("/operation/{operationUuid}")
+    public ResponseEntity<OperationResponseDto> updateOperation(@Valid @RequestBody OperationCreateDto operationCreateDto,
+                                                                     @PathVariable String operationUuid) {
+
+        UUID uuidFromStr = UUIDUtil.uuid(operationUuid);
+
+        Authentication authentication = authenticationFacade.getAuthentication();
+        Operation persistentOperation = operationService.findOperationByOperationUuid(uuidFromStr);
+        User user = userService.findUserByUserName(authentication.getName());
+
+        if (budgetService.checkIfUserHasBudgetWithGivenName(persistentOperation.getBudget().getBudgetName(), user)) {
+
+            Operation operation = convertCreateDtoToOperation(operationCreateDto);
+            operation.setId(persistentOperation.getId());
+            operation.setUuid(persistentOperation.getUuid());
+            operation.setBudget(persistentOperation.getBudget());
+
+            operationService.update(operation);
+
+            OperationResponseDto operationResponseDto = convertToOperationResponseDto(persistentOperation);
+            return new ResponseEntity<>(operationResponseDto, HttpStatus.OK);
+        } else {
+            throw new AccessDeniedException("Permission denied.");
+        }
 
     }
 
