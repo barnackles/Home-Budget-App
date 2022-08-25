@@ -67,7 +67,7 @@ public class UserRestController {
      */
     //email confirmation
     @PostMapping("/user")
-    public ResponseEntity<UserResponseDto> save(@Valid @RequestBody UserCreateDto userCreateDto) {
+    public ResponseEntity<UserResponseDto> createUser(@Valid @RequestBody UserCreateDto userCreateDto) {
 
         User user;
         try {

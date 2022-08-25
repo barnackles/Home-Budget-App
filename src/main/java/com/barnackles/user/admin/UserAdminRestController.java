@@ -84,7 +84,7 @@ public class UserAdminRestController {
      */
 
     @PostMapping("/user")
-    public ResponseEntity<UserAdminResponseDto> userCreate(@Valid @RequestBody UserCreateDto userCreateDto) {
+    public ResponseEntity<UserAdminResponseDto> createUser(@Valid @RequestBody UserCreateDto userCreateDto) {
 
         User user;
         try {
