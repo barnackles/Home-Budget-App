@@ -1,8 +1,8 @@
 package com.barnackles.user;
 
 
-import com.barnackles.validator.UniqueEmail;
-import com.barnackles.validator.UniqueUserName;
+import com.barnackles.validator.email.UniqueEmail;
+import com.barnackles.validator.username.UniqueUserName;
 import lombok.Data;
 import org.hibernate.validator.constraints.Length;
 

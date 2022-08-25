@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.EntityExistsException;
@@ -22,7 +22,7 @@ public class CategoryAdminRestController {
     private final ModelMapper modelMapper;
 
 
-    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
+    @Secured("ROLE_ADMIN")
     @GetMapping("/categories/all")
     public ResponseEntity<List<CategoryAdminResponseDto>> findAll() {
 
@@ -34,7 +34,7 @@ public class CategoryAdminRestController {
         return new ResponseEntity<>(listOfCategoryAdminResponseDtos, HttpStatus.OK);
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @Secured("ROLE_ADMIN")
     @GetMapping("/categories/all/{pageNumber}/{pageSize}/{sortBy}")
     public ResponseEntity<List<CategoryAdminResponseDto>> findAll(@PathVariable int pageNumber, @PathVariable int pageSize,
                                                                   @PathVariable String sortBy) {
@@ -48,7 +48,7 @@ public class CategoryAdminRestController {
     }
 
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @Secured("ROLE_ADMIN")
     @GetMapping("/category/{id}")
     public ResponseEntity<CategoryAdminResponseDto> findCategoryById(@PathVariable Long id) {
 
@@ -59,7 +59,7 @@ public class CategoryAdminRestController {
         return new ResponseEntity<>(categoryAdminResponseDto, HttpStatus.OK);
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @Secured("ROLE_ADMIN")
     @PostMapping("/category")
     public ResponseEntity<CategoryAdminResponseDto> createCategory(@Valid @RequestBody CategoryCreateDto categoryCreateDto) {
         Category category = convertCreateDtoToCategory(categoryCreateDto);
@@ -77,7 +77,7 @@ public class CategoryAdminRestController {
         throw new EntityExistsException("Category with this name already exists.");
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @Secured("ROLE_ADMIN")
     @PutMapping("/category")
     public ResponseEntity<CategoryAdminResponseDto> updateCategory(@Valid @RequestBody CategoryAdminUpdateDto categoryAdminUpdateDto) {
 
@@ -90,7 +90,7 @@ public class CategoryAdminRestController {
 
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @Secured("ROLE_ADMIN")
     @DeleteMapping("/category/{categoryId}")
     public ResponseEntity<String> deleteCategory(@PathVariable Long categoryId) {
 
@@ -99,7 +99,7 @@ public class CategoryAdminRestController {
         return new ResponseEntity<>(message, HttpStatus.OK);
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @Secured("ROLE_ADMIN")
     @GetMapping("/category/count")
     public ResponseEntity<String> showNumberOfCategories() {
 

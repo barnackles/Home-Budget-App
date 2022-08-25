@@ -38,9 +38,6 @@ public class JwtUtil {
     public JwtUtil(@Value("${jwt.secret") String secret, @Value("${jwt.secret2") String secret2) {
         this.secret = secret;
         this.secret2 = secret2;
-//        this.tokenExpirationTime = TEN_MINUTES_IN_MILLISECONDS;
-//        this.refreshTokenActivationTime = tokenExpirationTime;
-//        this.refreshTokenExpirationTime = ONE_HOUR_IN_MILLISECONDS;
         this.algorithm = Algorithm.HMAC512(secret.getBytes());
         this.algorithm2 = Algorithm.HMAC512(secret2.getBytes());
     }
@@ -68,7 +65,7 @@ public class JwtUtil {
     public Map<String, String> generateTokenUponRefresh(com.barnackles.user.User user, HttpServletRequest request, HttpServletResponse response,
                                                         String refresh_token) {
 
-        String access_token = JWT.create().withSubject(user.getUserName()).withExpiresAt(tokenExpirationTime)
+        String access_token = JWT.create().withSubject(user.getUserName()).withExpiresAt(ONE_HOUR_IN_MILLISECONDS)
                 .withIssuer(request.getRequestURL().toString()).withClaim("roles", user.getRoles()
                         .stream().map(Role::getRole).collect(Collectors.toList()))
                 .sign(algorithm);

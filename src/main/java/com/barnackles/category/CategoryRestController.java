@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,7 +24,7 @@ public class CategoryRestController {
 
 
 
-    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
+    @Secured("ROLE_USER")
     @GetMapping("/categories/all")
     public ResponseEntity<List<CategoryResponseDto>> findAll() {
 
@@ -36,7 +36,7 @@ public class CategoryRestController {
         return new ResponseEntity<>(listOfCategoryResponseDtos, HttpStatus.OK);
     }
 
-    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
+    @Secured("ROLE_USER")
     @GetMapping("/categories/all/{pageNumber}/{pageSize}")
     public ResponseEntity<List<CategoryResponseDto>> findAll(@PathVariable int pageNumber, @PathVariable int pageSize) {
         String sortBy = "name";
@@ -48,7 +48,7 @@ public class CategoryRestController {
         return new ResponseEntity<>(listOfCategoryResponseDtos, HttpStatus.OK);
     }
 
-    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
+    @Secured("ROLE_USER")
     @GetMapping("/category/{categoryName}")
     public ResponseEntity<CategoryResponseDto> findCategoryByName(@PathVariable String categoryName) {
 

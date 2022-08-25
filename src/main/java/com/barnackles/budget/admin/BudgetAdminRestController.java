@@ -11,7 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.EntityExistsException;
@@ -31,7 +31,7 @@ public class BudgetAdminRestController {
     private final OperationService operationService;
 
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @Secured("ROLE_ADMIN")
     @GetMapping("/budgets/all")
     public ResponseEntity<List<BudgetAdminResponseDtoAll>> findAll() {
 
@@ -43,7 +43,7 @@ public class BudgetAdminRestController {
         return new ResponseEntity<>(listOfBudgetAdminResponseDtos, HttpStatus.OK);
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @Secured("ROLE_ADMIN")
     @GetMapping("/budgets/all/{pageNumber}/{pageSize}/{sortBy}")
     public ResponseEntity<List<BudgetAdminResponseDtoAll>> findAll(@PathVariable int pageNumber,
                                                                    @PathVariable int pageSize, @PathVariable String sortBy) {
@@ -56,7 +56,7 @@ public class BudgetAdminRestController {
         return new ResponseEntity<>(listOfBudgetAdminResponseDtos, HttpStatus.OK);
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @Secured("ROLE_ADMIN")
     @GetMapping ("/budget/{budgetId}")
     public ResponseEntity<BudgetAdminResponseDto> findBudgetById(@PathVariable Long budgetId) {
 
@@ -70,13 +70,13 @@ public class BudgetAdminRestController {
         budgetAdminResponseDto.setBudgetName(budget.getBudgetName());
         budgetAdminResponseDto.setUserId(budget.getUser().getId());
         budgetAdminResponseDto.setUserName(budget.getUser().getUserName());
-//        budgetAdminResponseDto.setRecentFiveOperations(operationService.findTop5operationAndBudgetEquals(budget.getId()));
+
         budgetAdminResponseDto.setRecentFiveOperations(recentFiveOperationsByDate);
 
         return new ResponseEntity<>(budgetAdminResponseDto, HttpStatus.OK);
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @Secured("ROLE_ADMIN")
     @PostMapping("/budget/{userId}")
     public ResponseEntity<BudgetAdminResponseDto> createBudgetForUser(@Valid @RequestBody BudgetCreateDto budgetCreateDto,
                                                                  @PathVariable Long userId) {
@@ -100,7 +100,7 @@ public class BudgetAdminRestController {
         throw new EntityExistsException("Budget with this name already exists.");
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @Secured("ROLE_ADMIN")
     @PutMapping("/budget")
     public ResponseEntity<BudgetAdminResponseDto> updateBudget(@Valid @RequestBody BudgetAdminUpdateDto budgetAdminUpdateDto) {
 
@@ -113,7 +113,7 @@ public class BudgetAdminRestController {
 
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @Secured("ROLE_ADMIN")
     @DeleteMapping("/budget/{budgetId}")
     public ResponseEntity<String> deleteBudget(@PathVariable Long budgetId) {
 

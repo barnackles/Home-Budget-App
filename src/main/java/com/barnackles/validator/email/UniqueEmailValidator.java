@@ -1,4 +1,4 @@
-package com.barnackles.validator;
+package com.barnackles.validator.email;
 
 
 import com.barnackles.user.UserRepository;

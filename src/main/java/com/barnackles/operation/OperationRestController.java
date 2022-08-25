@@ -11,7 +11,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -34,7 +34,7 @@ public class OperationRestController {
 
 
 
-    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
+    @Secured("ROLE_USER")
     @GetMapping("/operations/budget/all/{budgetName}")
     public ResponseEntity<List<OperationResponseDto>> findAllBudgetOperations(
             @PathVariable String budgetName) {
@@ -57,7 +57,7 @@ public class OperationRestController {
     }
 
 
-    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
+    @Secured("ROLE_USER")
     @GetMapping("/operations/budget/all/{budgetName}/{pageNumber}/{pageSize}/{sortBy}")
     public ResponseEntity<List<OperationResponseDto>> findAllBudgetOperations(
             @PathVariable String budgetName, @PathVariable int pageNumber, @PathVariable int pageSize,
@@ -83,7 +83,7 @@ public class OperationRestController {
 
     }
 
-    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
+    @Secured("ROLE_USER")
     @GetMapping ("/operation/{operationUuid}")
     public ResponseEntity<OperationResponseDto> findOperationByUuid(@PathVariable String operationUuid) {
         UUID uuidFromStr = UUIDUtil.uuid(operationUuid);
@@ -101,7 +101,7 @@ public class OperationRestController {
 
     }
 
-    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
+    @Secured("ROLE_USER")
     @PostMapping("/operation/{budgetName}")
     public ResponseEntity<OperationResponseDto> createOperationForBudget(@Valid @RequestBody OperationCreateDto operationCreateDto,
                                                                               @PathVariable String budgetName) {
@@ -130,7 +130,7 @@ public class OperationRestController {
 
     }
 
-    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
+    @Secured("ROLE_USER")
     @PutMapping("/operation/{operationUuid}")
     public ResponseEntity<OperationResponseDto> updateOperation(@Valid @RequestBody OperationCreateDto operationCreateDto,
                                                                      @PathVariable String operationUuid) {
@@ -158,7 +158,7 @@ public class OperationRestController {
 
     }
 
-    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
+    @Secured("ROLE_USER")
     @DeleteMapping("/operation/{operationUuid}")
     public ResponseEntity<String> deleteOperation(@PathVariable String operationUuid) {
 

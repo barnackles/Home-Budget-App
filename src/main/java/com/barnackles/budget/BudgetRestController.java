@@ -6,11 +6,12 @@ import com.barnackles.operation.Operation;
 import com.barnackles.user.User;
 import com.barnackles.user.UserService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,6 +26,7 @@ import java.util.InputMismatchException;
 import java.util.List;
 
 @RestController
+@Slf4j
 @RequiredArgsConstructor
 @RequestMapping("/budget")
 public class BudgetRestController {
@@ -36,7 +38,7 @@ public class BudgetRestController {
 
 
 
-    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
+    @Secured("ROLE_USER")
     @GetMapping("/budgets/current-user")
     public ResponseEntity<List<BudgetResponseDtoAll>> findAllUserBudgets() {
 
@@ -50,7 +52,7 @@ public class BudgetRestController {
         return new ResponseEntity<>(listOfBudgetResponseDtos, HttpStatus.OK);
     }
 
-    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
+    @Secured("ROLE_USER")
     @GetMapping("/budget/{budgetName}")
     public ResponseEntity<BudgetResponseDto> findUserBudgetByName(@PathVariable String budgetName) {
 
@@ -72,7 +74,7 @@ public class BudgetRestController {
             throw new AccessDeniedException("Permission denied.");
         }
     }
-    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
+    @Secured("ROLE_USER")
     @PostMapping("/budget")
     public ResponseEntity<BudgetResponseDto> createBudget(@Valid @RequestBody BudgetCreateDto budgetCreateDto) {
         Budget budget = convertCreateDtoToBudget(budgetCreateDto);
@@ -96,7 +98,7 @@ public class BudgetRestController {
         throw new EntityExistsException("Budget with this name already exists.");
     }
 
-    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
+    @Secured("ROLE_USER")
     @PutMapping("/budget")
     public ResponseEntity<BudgetResponseDto> updateBudget(@Valid @RequestBody BudgetUpdateDto budgetUpdateDto) {
 
@@ -117,7 +119,7 @@ public class BudgetRestController {
 
     }
 
-    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
+    @Secured("ROLE_USER")
     @DeleteMapping("/budget/{budgetName}")
     public ResponseEntity<String> deleteBudget(@PathVariable String budgetName) {
         Authentication authentication = authenticationFacade.getAuthentication();
@@ -140,7 +142,7 @@ public class BudgetRestController {
      * @param budgetName
      * @return budgetOverviewDto
      */
-    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
+    @Secured("ROLE_USER")
     @GetMapping("/budget/overview/all/{budgetName}")
     public ResponseEntity<BudgetOverviewDto> showBudgetOverview(@PathVariable String budgetName) {
 
@@ -161,76 +163,76 @@ public class BudgetRestController {
          * @return budgetOverviewDto
          */
 
-        @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
-        @GetMapping("/budget/overview/week/{budgetName}")
-        public ResponseEntity<BudgetOverviewDto> showBudgetOverviewForLastWeek(@PathVariable String budgetName) {
+    @Secured("ROLE_USER")
+    @GetMapping("/budget/overview/week/{budgetName}")
+    public ResponseEntity<BudgetOverviewDto> showBudgetOverviewForLastWeek(@PathVariable String budgetName) {
 
-            Authentication authentication = authenticationFacade.getAuthentication();
-            User user = userService.findUserByUserName(authentication.getName());
+        Authentication authentication = authenticationFacade.getAuthentication();
+        User user = userService.findUserByUserName(authentication.getName());
 
-            if (budgetService.checkIfUserHasBudgetWithGivenName(budgetName, user)) {
-                Budget budget = budgetService.findBudgetByBudgetName(budgetName);
+        if (budgetService.checkIfUserHasBudgetWithGivenName(budgetName, user)) {
+            Budget budget = budgetService.findBudgetByBudgetName(budgetName);
 
-                List<Operation> lastWeekOperations = budget.getOperations().stream()
-                        .filter(op -> op.getOperationDateTime().isAfter((LocalDateTime.now().minusDays(7L))))
-                        .toList();
-                return getBudgetOverviewDtoResponseEntity(budgetName, user, lastWeekOperations);
-            } else {
-                throw new AccessDeniedException("Permission denied.");
-            }
+            List<Operation> lastWeekOperations = budget.getOperations().stream()
+                    .filter(op -> op.getOperationDateTime().isAfter((LocalDateTime.now().minusDays(7L))))
+                    .toList();
+            return getBudgetOverviewDtoResponseEntity(budgetName, user, lastWeekOperations);
+        } else {
+            throw new AccessDeniedException("Permission denied.");
         }
+    }
 
 
 
 
     /**
-         * Show actual budget standing for last month
-         * @param budgetName
-         * @return budgetOverviewDto
-         */
+     * Show actual budget standing for last month
+     * @param budgetName
+     * @return budgetOverviewDto
+     */
 
-            @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
-            @GetMapping("/budget/overview/month/{budgetName}")
-            public ResponseEntity<BudgetOverviewDto> showBudgetOverviewForLastMonth(@PathVariable String budgetName){
+    @Secured("ROLE_USER")
+    @GetMapping("/budget/overview/month/{budgetName}")
+    public ResponseEntity<BudgetOverviewDto> showBudgetOverviewForLastMonth(@PathVariable String budgetName){
 
-                Authentication authentication = authenticationFacade.getAuthentication();
-                User user = userService.findUserByUserName(authentication.getName());
+        Authentication authentication = authenticationFacade.getAuthentication();
+        User user = userService.findUserByUserName(authentication.getName());
 
-                if (budgetService.checkIfUserHasBudgetWithGivenName(budgetName, user)) {
+        if (budgetService.checkIfUserHasBudgetWithGivenName(budgetName, user)) {
 
-                    Budget budget = budgetService.findBudgetByBudgetName(budgetName);
-                    List<Operation> lastMonthOperations = budget.getOperations().stream()
-                            .filter(op -> op.getOperationDateTime().isAfter((LocalDateTime.now().minusMonths(1L)))).toList();
+            Budget budget = budgetService.findBudgetByBudgetName(budgetName);
+            List<Operation> lastMonthOperations = budget.getOperations().stream()
+                    .filter(op -> op.getOperationDateTime().isAfter((LocalDateTime.now().minusMonths(1L)))).toList();
 
-                    return getBudgetOverviewDtoResponseEntity(budgetName, user, lastMonthOperations);
-                } else {
-                    throw new AccessDeniedException("Permission denied.");
-                }
+            return getBudgetOverviewDtoResponseEntity(budgetName, user, lastMonthOperations);
+        } else {
+            throw new AccessDeniedException("Permission denied.");
         }
-        /**
+}
+    /**
          * Show actual budget standing for last year
          * @param budgetName
          * @return budgetOverviewDto
          */
 
 
-        @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
-        @GetMapping("/budget/overview/year/{budgetName}")
-        public ResponseEntity<BudgetOverviewDto> showBudgetOverviewForLastYear(@PathVariable String budgetName){
+    @Secured("ROLE_USER")
+    @GetMapping("/budget/overview/year/{budgetName}")
+    public ResponseEntity<BudgetOverviewDto> showBudgetOverviewForLastYear(@PathVariable String budgetName){
 
-            Authentication authentication = authenticationFacade.getAuthentication();
-            User user = userService.findUserByUserName(authentication.getName());
+        Authentication authentication = authenticationFacade.getAuthentication();
+        User user = userService.findUserByUserName(authentication.getName());
 
-            if (budgetService.checkIfUserHasBudgetWithGivenName(budgetName, user)) {
+        if (budgetService.checkIfUserHasBudgetWithGivenName(budgetName, user)) {
 
-                Budget budget = budgetService.findBudgetByBudgetName(budgetName);
-                List<Operation> lastYearOperations = budget.getOperations().stream()
-                        .filter(op -> op.getOperationDateTime().isAfter((LocalDateTime.now().minusYears(1L)))).toList();
-                return getBudgetOverviewDtoResponseEntity(budgetName, user, lastYearOperations);
-            } else {
-                throw new AccessDeniedException("Permission denied.");
-            }
+            Budget budget = budgetService.findBudgetByBudgetName(budgetName);
+            List<Operation> lastYearOperations = budget.getOperations().stream()
+                    .filter(op -> op.getOperationDateTime().isAfter((LocalDateTime.now().minusYears(1L)))).toList();
+            return getBudgetOverviewDtoResponseEntity(budgetName, user, lastYearOperations);
+        } else {
+            throw new AccessDeniedException("Permission denied.");
         }
+    }
 
     /**
      * Show actual budget standing for custom range of dates
@@ -239,7 +241,7 @@ public class BudgetRestController {
      */
 
 
-    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
+    @Secured("ROLE_USER")
     @GetMapping("/budget/overview/custom-dates/{budgetName}/{beginStr}/{endStr}")
     public ResponseEntity<BudgetOverviewDto> showBudgetOverviewForCustomRange(@PathVariable String budgetName,
                                     @PathVariable String beginStr, @PathVariable String endStr){
@@ -263,7 +265,8 @@ public class BudgetRestController {
 
                 return getBudgetOverviewDtoResponseEntity(budgetName, user, customDateRangeOperations);
             } catch (DateTimeParseException e) {
-                throw new InputMismatchException("Date must be in yyyy-mm-dd format");
+                log.error("LocalDate parsing error: {}", e.getMessage());
+                throw new InputMismatchException("Incorrect date format. Date should be in format: yyyy-mm-dd");
             }
 
         } else {
