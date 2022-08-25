@@ -1,6 +1,7 @@
 package com.barnackles.operation;
 
 import com.barnackles.category.Category;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import javax.validation.constraints.DecimalMin;
@@ -9,6 +10,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
+@AllArgsConstructor
 public class OperationCreateDto {
     // validate enums
     // validate category
