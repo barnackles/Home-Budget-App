@@ -101,13 +101,13 @@ public class BudgetService {
 
     //financial methods
 
-    public BigDecimal calculateBudgetBalance(List<Operation> operations) {
+    public BigDecimal calculateBalance(List<Operation> operations) {
 
-        return (calculateTotalIncome(operations).subtract(calculateTotalExpense(operations)));
+        return (calculateIncome(operations).subtract(calculateExpense(operations)));
 
     }
 
-    public BigDecimal calculateTotalIncome(List<Operation> operations) {
+    public BigDecimal calculateIncome(List<Operation> operations) {
 
         return operations.stream()
                 .filter(operation -> INCOME.equals(operation.getOperationType()))
@@ -115,7 +115,7 @@ public class BudgetService {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
-    public BigDecimal calculateTotalExpense(List<Operation> operations) {
+    public BigDecimal calculateExpense(List<Operation> operations) {
 
         return operations.stream()
                 .filter(operation -> EXPENSE.equals(operation.getOperationType()))
@@ -124,7 +124,7 @@ public class BudgetService {
 
     }
 
-    public BigDecimal calculateTotalSavings(List<Operation> operations) {
+    public BigDecimal calculateSavings(List<Operation> operations) {
 
         return operations.stream()
                 .filter(operation -> SAVING.equals(operation.getOperationType()))
