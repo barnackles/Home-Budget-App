@@ -9,9 +9,9 @@ public class BudgetOverviewDto {
 
     private String userName;
     private String budgetName;
-    private BigDecimal budgetBalance;
-    private BigDecimal totalIncome;
-    private BigDecimal totalExpense;
-    private BigDecimal totalSavings;
+    private BigDecimal balance;
+    private BigDecimal income;
+    private BigDecimal expenses;
+    private BigDecimal savings;
 
 }

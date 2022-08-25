@@ -39,6 +39,7 @@ public class Operation {
     @NotNull
     private OperationType operationType;
     @NotNull
+
     private LocalDateTime operationDateTime;
     @NotNull
     private ActualOrPlanned actualOrPlanned;

@@ -20,14 +20,13 @@ public interface OperationRepository extends JpaRepository<Operation, Long> {
 
     Page<Operation> findAll(Pageable pageable);
 
-    List<Operation> findOperationsByBudgetEquals(Budget budget);
-
     Page<Operation> findOperationsByBudgetEquals(Pageable pageable, Budget budget);
+
+    List<Operation> findOperationsByBudgetEquals(Budget budget);
 
     Optional<Operation> findOperationById(Long id);
 
     Optional<Operation> findOperationByUuid(UUID uuid);
-//    Optional<Operation> findOperationByUuidAndBudgetEquals(UUID uuid, Budget budget);
 
     boolean existsById(Long id);
 

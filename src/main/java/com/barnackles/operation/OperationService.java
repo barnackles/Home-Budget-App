@@ -65,6 +65,7 @@ public class OperationService {
     }
 
 
+
     public Operation findOperationByOperationId(Long id) throws EntityNotFoundException {
         log.info("Operation found: {}", id);
         return operationRepository.findOperationById(id).orElseThrow(() -> {
