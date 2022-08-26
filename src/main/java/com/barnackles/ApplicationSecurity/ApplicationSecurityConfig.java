@@ -1,6 +1,5 @@
 package com.barnackles.ApplicationSecurity;
 
-import com.barnackles.filter.CustomAccessDeniedExceptionFilter;
 import com.barnackles.filter.CustomAuthenticationFilter;
 import com.barnackles.filter.CustomAuthorizationFilter;
 import com.barnackles.user.SpringDataUserDetailsService;
@@ -80,7 +79,6 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
             http.authorizeRequests().antMatchers("/**").hasAnyRole("USER", "ADMIN")
                 .anyRequest().authenticated();
 
-            http.addFilterBefore(customAccessDeniedExceptionFilter(), UsernamePasswordAuthenticationFilter.class);
             http.addFilter(customAuthenticationFilter);
             http.addFilterBefore(new CustomAuthorizationFilter(new JwtUtil(secret, secret2)),
                     UsernamePasswordAuthenticationFilter.class);
@@ -113,10 +111,6 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
         return super.authenticationManagerBean();
     }
 
-    @Bean
-    public CustomAccessDeniedExceptionFilter customAccessDeniedExceptionFilter(){
-            return new CustomAccessDeniedExceptionFilter();
-    }
 
 
 
