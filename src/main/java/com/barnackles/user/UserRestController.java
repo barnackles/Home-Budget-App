@@ -4,6 +4,7 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.barnackles.ApplicationSecurity.IAuthenticationFacade;
+import com.barnackles.filter.CustomAuthorizationFilter;
 import com.barnackles.util.JwtUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -22,12 +23,9 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.text.ParseException;
-import java.util.HashMap;
-import java.util.Map;
 
 import static com.barnackles.filter.CustomAuthorizationFilter.TOKEN_PREFIX;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @Controller
 @Slf4j
@@ -41,9 +39,7 @@ public class UserRestController {
     private final IAuthenticationFacade authenticationFacade;
 
 
-
     private final JwtUtil jwtUtil;
-
 
 
     /**
@@ -127,10 +123,10 @@ public class UserRestController {
         HttpStatus httpStatus = HttpStatus.PRECONDITION_FAILED;
 
         if (passwordEncoder.matches(userPasswordUpdateDto.getCurrentPassword(), user.getPassword())) {
-                user.setPassword(userPasswordUpdateDto.getNewPassword());
-                userService.updateUserPassword(user);
-                response = "Password updated successfully";
-                httpStatus = HttpStatus.OK;
+            user.setPassword(userPasswordUpdateDto.getNewPassword());
+            userService.updateUserPassword(user);
+            response = "Password updated successfully";
+            httpStatus = HttpStatus.OK;
         }
         return new ResponseEntity<>(response, httpStatus);
     }
@@ -148,12 +144,12 @@ public class UserRestController {
         return new ResponseEntity<>(message, HttpStatus.OK);
     }
 
-    @Secured("ROLE_USER")
+
     @GetMapping("/token/refresh")
     public void refreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
         String authorizationHeader = request.getHeader(AUTHORIZATION);
-        if(authorizationHeader != null && authorizationHeader.startsWith(TOKEN_PREFIX)) {
+        if (authorizationHeader != null && authorizationHeader.startsWith(TOKEN_PREFIX)) {
             try {
                 String refresh_token = authorizationHeader.substring(TOKEN_PREFIX.length());
                 JWTVerifier verifier = JWT.require(jwtUtil.getAlgorithm2()).build();
@@ -166,21 +162,13 @@ public class UserRestController {
                 }
             } catch (Exception e) {
                 log.error("Error: {}", "RefreshToken Error");
-                response.setHeader("error", e.getMessage());
-                response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-                Map<String, String> tokens = new HashMap<>();
-                tokens.put("error_message", e.getMessage());
-                response.setContentType(APPLICATION_JSON_VALUE);
-                new ObjectMapper().writeValue(response.getOutputStream(), tokens);
+                CustomAuthorizationFilter.setResponseHeader(response, e);
             }
         } else {
             throw new RuntimeException("No refresh token");
         }
 
     }
-
-
-
 
 
     /**

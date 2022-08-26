@@ -21,8 +21,8 @@ import java.util.UUID;
 @EqualsAndHashCode
 public class Operation {
 
- // validate enums
- // validate category
+    // validate enums
+    // validate category
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @EqualsAndHashCode.Include()
@@ -48,7 +48,6 @@ public class Operation {
     @ManyToOne
     @JsonIgnore
     private Budget budget;
-
 
 
     @PrePersist

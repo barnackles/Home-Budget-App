@@ -10,13 +10,12 @@ public interface IAuthenticationFacade {
 
 
     @Component
-    public class AuthenticationFacade implements IAuthenticationFacade {
+    class AuthenticationFacade implements IAuthenticationFacade {
 
         @Override
         public Authentication getAuthentication() {
             return SecurityContextHolder.getContext().getAuthentication();
         }
-
 
 
     }

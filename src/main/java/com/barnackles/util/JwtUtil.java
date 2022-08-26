@@ -34,7 +34,6 @@ public class JwtUtil {
     private Algorithm algorithm2;
 
 
-
     public JwtUtil(@Value("${jwt.secret") String secret, @Value("${jwt.secret2") String secret2) {
         this.secret = secret;
         this.secret2 = secret2;
@@ -75,8 +74,6 @@ public class JwtUtil {
         response.setContentType(APPLICATION_JSON_VALUE);
         return tokens;
     }
-
-
 
 
 }

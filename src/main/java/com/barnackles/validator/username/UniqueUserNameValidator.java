@@ -16,7 +16,6 @@ public class UniqueUserNameValidator implements ConstraintValidator<UniqueUserNa
     private final UserRepository userRepository;
 
 
-
     @Override
     public void initialize(UniqueUserName constraintAnnotation) {
     }

@@ -1,6 +1,6 @@
 package com.barnackles.role;
 
-import lombok.*;
+import lombok.Data;
 
 import javax.persistence.*;
 

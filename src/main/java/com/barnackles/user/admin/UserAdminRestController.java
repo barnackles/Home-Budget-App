@@ -33,10 +33,10 @@ public class UserAdminRestController {
     private final JwtUtil jwtUtil;
 
 
-
     /**
      * admin only
-     * @return ResponseEntity<List<UserAdminResponseDto>>
+     *
+     * @return ResponseEntity<List < UserAdminResponseDto>>
      */
     @Secured("ROLE_ADMIN")
     @GetMapping("/users/{pageNumber}/{pageSize}/{sortBy}")
@@ -45,22 +45,22 @@ public class UserAdminRestController {
     ) {
 
 
-         List<User> users = userService.findAll(pageNumber, pageSize, sortBy);
-         List<UserAdminResponseDto> userAdminResponseDtos = users
-                 .stream()
-                 .map(this::convertToAdminResponseDto)
-                 .toList();
+        List<User> users = userService.findAll(pageNumber, pageSize, sortBy);
+        List<UserAdminResponseDto> userAdminResponseDtos = users
+                .stream()
+                .map(this::convertToAdminResponseDto)
+                .toList();
 
-         userAdminResponseDtos.forEach(
-                 userAdminResponseDto -> userAdminResponseDto.setBudgets
-                         (getBudgetsMapFromUsersList(
-                         users, userAdminResponseDto.getId()
-                         )
-                 )
-         );
+        userAdminResponseDtos.forEach(
+                userAdminResponseDto -> userAdminResponseDto.setBudgets
+                        (getBudgetsMapFromUsersList(
+                                        users, userAdminResponseDto.getId()
+                                )
+                        )
+        );
 
 
-         return new ResponseEntity<>(userAdminResponseDtos, HttpStatus.OK);
+        return new ResponseEntity<>(userAdminResponseDtos, HttpStatus.OK);
     }
 
     /**
@@ -73,7 +73,7 @@ public class UserAdminRestController {
         User user = userService.findUserById(id);
 
         UserAdminResponseDto userAdminResponseDto = convertToAdminResponseDto(user);
-                userAdminResponseDto.setBudgets(getBudgetsMap(user));
+        userAdminResponseDto.setBudgets(getBudgetsMap(user));
 
         return new ResponseEntity<>(userAdminResponseDto, HttpStatus.OK);
     }
@@ -125,15 +125,12 @@ public class UserAdminRestController {
     }
 
 
-
     /**
      * @param id
      * @return ResponseEntity<String>
-     *
      */
     //Admin only
     //add confirmation // secure unintentional deletion
-
     @Secured("ROLE_ADMIN")
     @DeleteMapping("/user/{id}")
     public ResponseEntity<String> deleteUser(@PathVariable Long id) {
@@ -144,7 +141,6 @@ public class UserAdminRestController {
 
 
     }
-
 
 
     /**
@@ -201,15 +197,5 @@ public class UserAdminRestController {
         }
         return null;
     }
-
-
-//    @PostMapping("/test")
-//    public void firstUser() {
-//        User firstUser = new User();
-//        firstUser.setUserName("thorsten");
-//        firstUser.setEmail("throsten@gmail.com");
-//        firstUser.setPassword("testtest");
-//        userService.saveUser(firstUser);
-//    }
 
 }

@@ -35,6 +35,7 @@ public class BudgetService {
                 }
         );
     }
+
     public Budget findBudgetByBudgetId(Long id) throws EntityNotFoundException {
         log.info("Budget found: {}", id);
         return budgetRepository.findBudgetById(id).orElseThrow(() -> {
@@ -54,12 +55,11 @@ public class BudgetService {
     }
 
 
-    public boolean checkIfUserHasBudgetWithGivenName (String budgetName, User user) {
+    public boolean checkIfUserHasBudgetWithGivenName(String budgetName, User user) {
         boolean userHasBudget = budgetRepository.findBudgetByBudgetNameAndUserEquals(budgetName, user).isPresent();
         log.info("User has budget with {}: {}", budgetName, userHasBudget);
         return userHasBudget;
     }
-
 
 
     public List<Budget> findAll() {
@@ -73,7 +73,7 @@ public class BudgetService {
         Pageable paging = PageRequest.of(pageNumber, pageSize, Sort.by(sortBy));
         Page<Budget> pagedResult = budgetRepository.findAll(paging);
 
-        if(pagedResult.hasContent()) {
+        if (pagedResult.hasContent()) {
             log.info("Budgets for pageNumber: {}, pageSize: {}, sorted by: {} found", pageNumber, pageSize, sortBy);
             return pagedResult.getContent();
         } else {
@@ -131,9 +131,6 @@ public class BudgetService {
                 .map(Operation::getAmount)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
-
-
-
 
 
 }
