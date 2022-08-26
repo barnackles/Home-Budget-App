@@ -144,7 +144,7 @@ public class UserRestController {
         return new ResponseEntity<>(message, HttpStatus.OK);
     }
 
-    @Secured("ROLE_USER")
+
     @GetMapping("/token/refresh")
     public void refreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
