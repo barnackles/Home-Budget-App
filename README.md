@@ -1,51 +1,41 @@
-# Home-Budget-App
+# Home BudgetApp
  
 **About project**
-Repository contains simple web application which helps in executing home budget.
 
-**Technologies**
-- Java 17.02
-- Spring Boot v
-- Spring Security v
-- Spring Data v
+Repository contains simple web application for managing home budget.
+
+Application was built using Spring Boot and Spring Security.
+Application exposes REST API.
+
+RELEASE v0.1.0
+**Technologies:**
+- Java 17
+- Spring Boot v2.6.10
+- Spring Security
 - MySQL
 
-**List of dependencies**
+**List of dependencies:**
+- lombok
+- springfox swaggerUI v3.0.0
+- modelmapper v3.1.0
+- java jwt v3.19.2
+- java uuidgenerator v4.0.1
 
-to be provided
+**Features:**
 
-**Features**
-There are two categories of features:
-
-I. Budget Tracking
-which consists of:
-
-1. Income tracking
-2. Expenses tracking
-3. Savings tracking
-
-II. Budget Planning
-which cosists of:
-
-1. Income planning
-2. Expenses Planning
-3. Savings Planning
-
-III. Budget Execution
-wchich consists of:
-
-1. Execution of income
-2. Execution of expenses
-3. Execution of savings
-
-First stage will allow manual input of transactions.
-Second stage will allow to import bank account operations from csv files for multiple bank accounts.
-Third stage will allow to import transactional data via bank account API.
+With this application you can:
+- create you profile
+- add budgets to your profile
+- manage your transactions
+- display total balance for budget and total income, expenses and savings,
+- display: total balance for budget and total income, expenses and savings for recent week, recent month, 
+recent year and custom range of dates
 
 
-**Rationale**
+**Rationale:**
 This project is a final programming bootcamp project.
 Its purpose is to demonstrate the ability to apply acquired programming knowledge
-as well as to gain new and strengthen already gained knowlegde.
+as well as to gain new and strengthen already gained knowledge.
+
 
 
