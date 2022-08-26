@@ -14,14 +14,16 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findUserByUserName(String userName);
+
     Optional<User> findUserByEmail(String email);
+
     Optional<User> findUserById(Long id);
+
     void deleteUserById(Long id);
 
     List<User> findAll();
+
     @Override
     Page<User> findAll(Pageable pageable);
 
-    boolean existsByUserName(String userName);
-    boolean existsByEmail(String email);
 }

@@ -43,7 +43,7 @@ public class OperationAdminRestController {
     @Secured("ROLE_ADMIN")
     @GetMapping("/operations/all/{pageNumber}/{pageSize}/{sortBy}")
     public ResponseEntity<List<OperationAdminResponseDto>> findAll(@PathVariable int pageNumber, @PathVariable int pageSize,
-                                                                @PathVariable String sortBy) {
+                                                                   @PathVariable String sortBy) {
 
         List<Operation> operations = operationService.findAll(pageNumber, pageSize, sortBy);
         List<OperationAdminResponseDto> listOfOperationAdminResponseDtos = operations
@@ -54,7 +54,7 @@ public class OperationAdminRestController {
     }
 
     @Secured("ROLE_ADMIN")
-    @GetMapping ("/operation/{operationId}")
+    @GetMapping("/operation/{operationId}")
     public ResponseEntity<OperationAdminResponseDto> findOperationById(@PathVariable Long operationId) {
 
         Operation operation = operationService.findOperationByOperationId(operationId);
@@ -66,7 +66,7 @@ public class OperationAdminRestController {
     @Secured("ROLE_ADMIN")
     @PostMapping("/operation/{budgetId}")
     public ResponseEntity<OperationAdminResponseDto> createOperationForBudget(@Valid @RequestBody OperationCreateDto operationCreateDto,
-                                                                      @PathVariable Long budgetId) {
+                                                                              @PathVariable Long budgetId) {
         Budget budget = budgetService.findBudgetByBudgetId(budgetId);
         Operation operation = convertCreateDtoToOperation(operationCreateDto);
         operationService.save(operation);
@@ -86,7 +86,7 @@ public class OperationAdminRestController {
     @Secured("ROLE_ADMIN")
     @PutMapping("/operation/{operationId}")
     public ResponseEntity<OperationAdminResponseDto> updateOperation(@Valid @RequestBody OperationCreateDto operationCreateDto,
-                                                 @PathVariable Long operationId) {
+                                                                     @PathVariable Long operationId) {
 
         Operation persistentOperation = operationService.findOperationByOperationId(operationId);
         Operation operation = convertCreateDtoToOperation(operationCreateDto);
@@ -118,7 +118,6 @@ public class OperationAdminRestController {
 
         return new ResponseEntity<>(message, HttpStatus.OK);
     }
-
 
 
     private Operation convertCreateDtoToOperation(OperationCreateDto operationCreateDto) {

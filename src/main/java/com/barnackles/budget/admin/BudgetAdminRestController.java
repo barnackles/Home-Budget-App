@@ -4,7 +4,6 @@ import com.barnackles.budget.Budget;
 import com.barnackles.budget.BudgetCreateDto;
 import com.barnackles.budget.BudgetService;
 import com.barnackles.operation.Operation;
-import com.barnackles.operation.OperationService;
 import com.barnackles.user.User;
 import com.barnackles.user.UserService;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +27,6 @@ public class BudgetAdminRestController {
     private final ModelMapper modelMapper;
     private final UserService userService;
 
-    private final OperationService operationService;
 
 
     @Secured("ROLE_ADMIN")
@@ -57,7 +55,7 @@ public class BudgetAdminRestController {
     }
 
     @Secured("ROLE_ADMIN")
-    @GetMapping ("/budget/{budgetId}")
+    @GetMapping("/budget/{budgetId}")
     public ResponseEntity<BudgetAdminResponseDto> findBudgetById(@PathVariable Long budgetId) {
 
         Budget budget = budgetService.findBudgetByBudgetId(budgetId);
@@ -79,21 +77,21 @@ public class BudgetAdminRestController {
     @Secured("ROLE_ADMIN")
     @PostMapping("/budget/{userId}")
     public ResponseEntity<BudgetAdminResponseDto> createBudgetForUser(@Valid @RequestBody BudgetCreateDto budgetCreateDto,
-                                                                 @PathVariable Long userId) {
+                                                                      @PathVariable Long userId) {
         Budget budget = convertCreateDtoToBudget(budgetCreateDto);
         User user = userService.findUserById(userId);
 
         if (!budgetService.checkIfUserHasBudgetWithGivenName(budget.getBudgetName(), user)) {
-        budget.setUser(user);
-        budgetService.save(budget);
+            budget.setUser(user);
+            budgetService.save(budget);
 
-        List<Budget> budgetList = user.getBudgets();
-        budgetList.add(budget);
-        user.setBudgets(budgetList);
-        userService.updateUser(user);
+            List<Budget> budgetList = user.getBudgets();
+            budgetList.add(budget);
+            user.setBudgets(budgetList);
+            userService.updateUser(user);
 
-        BudgetAdminResponseDto budgetAdminResponseDto = convertToBudgetAdminResponseDto(budget);
-        return new ResponseEntity<>(budgetAdminResponseDto, HttpStatus.CREATED);
+            BudgetAdminResponseDto budgetAdminResponseDto = convertToBudgetAdminResponseDto(budget);
+            return new ResponseEntity<>(budgetAdminResponseDto, HttpStatus.CREATED);
 
         }
 

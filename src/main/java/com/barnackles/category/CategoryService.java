@@ -33,7 +33,7 @@ public class CategoryService {
         Pageable paging = PageRequest.of(pageNumber, pageSize, Sort.by(sortBy));
         Page<Category> pagedResult = categoryRepository.findAll(paging);
 
-        if(pagedResult.hasContent()) {
+        if (pagedResult.hasContent()) {
             log.info("Categories for pageNumber: {}, pageSize: {}, sorted by: {} found", pageNumber, pageSize, sortBy);
             return pagedResult.getContent();
         } else {
@@ -50,6 +50,7 @@ public class CategoryService {
                 }
         );
     }
+
     public Category findCategoryByCategoryId(Long id) throws EntityNotFoundException {
         log.info("Category found: {}", id);
         return categoryRepository.findCategoryById(id).orElseThrow(() -> {
@@ -72,16 +73,13 @@ public class CategoryService {
         categoryRepository.delete(category);
     }
 
-    public boolean existsByName(String name){
+    public boolean existsByName(String name) {
         return categoryRepository.existsByName(name);
     }
 
-    public Long showNumberOfCategories(){
+    public Long showNumberOfCategories() {
         return categoryRepository.count();
     }
-
-
-
 
 
 }

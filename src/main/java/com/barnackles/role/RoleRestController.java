@@ -14,7 +14,7 @@ public class RoleRestController {
 
     @Secured("ROLE_ADMIN")
     @GetMapping("/roles/{role}")
-    public Role findByRole (@PathVariable String role) {
+    public Role findByRole(@PathVariable String role) {
         return roleService.findByRole(role);
     }
 
@@ -26,7 +26,7 @@ public class RoleRestController {
 
     @Secured("ROLE_ADMIN")
     @PutMapping("/roles/{role}")
-    public void update (@PathVariable Role role) {
+    public void update(@PathVariable Role role) {
         roleService.updateRole(role);
     }
 

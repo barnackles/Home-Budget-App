@@ -15,10 +15,13 @@ import java.util.Optional;
 public interface BudgetRepository extends JpaRepository<Budget, Long> {
 
     Optional<Budget> findBudgetByBudgetName(String budgetName);
+
     Optional<Budget> findBudgetById(Long id);
 
     Optional<Budget> findBudgetByBudgetNameAndUserEquals(String budgetName, User user);
+
     List<Budget> findAll();
+
     Page<Budget> findAll(Pageable pageable);
 
     @Override

@@ -1,6 +1,5 @@
 package com.barnackles.category;
 
-import com.barnackles.category.admin.CategoryCreateDto;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
@@ -21,7 +20,6 @@ public class CategoryRestController {
     private final CategoryService categoryService;
 
     private final ModelMapper modelMapper;
-
 
 
     @Secured("ROLE_USER")
@@ -59,11 +57,6 @@ public class CategoryRestController {
         return new ResponseEntity<>(categoryResponseDto, HttpStatus.OK);
     }
 
-
-
-    private Category convertCreateDtoToBudget(CategoryCreateDto categoryCreateDto) {
-        return modelMapper.map(categoryCreateDto, Category.class);
-    }
 
     private CategoryResponseDto convertToCategoryResponseDto(Category category) {
         return modelMapper.map(category, CategoryResponseDto.class);

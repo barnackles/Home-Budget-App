@@ -33,7 +33,6 @@ public class OperationRestController {
     private final IAuthenticationFacade authenticationFacade;
 
 
-
     @Secured("ROLE_USER")
     @GetMapping("/operations/budget/all/{budgetName}")
     public ResponseEntity<List<OperationResponseDto>> findAllBudgetOperations(
@@ -84,7 +83,7 @@ public class OperationRestController {
     }
 
     @Secured("ROLE_USER")
-    @GetMapping ("/operation/{operationUuid}")
+    @GetMapping("/operation/{operationUuid}")
     public ResponseEntity<OperationResponseDto> findOperationByUuid(@PathVariable String operationUuid) {
         UUID uuidFromStr = UUIDUtil.uuid(operationUuid);
 
@@ -104,7 +103,7 @@ public class OperationRestController {
     @Secured("ROLE_USER")
     @PostMapping("/operation/{budgetName}")
     public ResponseEntity<OperationResponseDto> createOperationForBudget(@Valid @RequestBody OperationCreateDto operationCreateDto,
-                                                                              @PathVariable String budgetName) {
+                                                                         @PathVariable String budgetName) {
         Authentication authentication = authenticationFacade.getAuthentication();
         User user = userService.findUserByUserName(authentication.getName());
 
@@ -133,7 +132,7 @@ public class OperationRestController {
     @Secured("ROLE_USER")
     @PutMapping("/operation/{operationUuid}")
     public ResponseEntity<OperationResponseDto> updateOperation(@Valid @RequestBody OperationCreateDto operationCreateDto,
-                                                                     @PathVariable String operationUuid) {
+                                                                @PathVariable String operationUuid) {
 
         UUID uuidFromStr = UUIDUtil.uuid(operationUuid);
 

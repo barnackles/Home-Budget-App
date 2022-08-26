@@ -37,15 +37,14 @@ public class BudgetRestController {
     private final IAuthenticationFacade authenticationFacade;
 
 
-
     @Secured("ROLE_USER")
     @GetMapping("/budgets/current-user")
     public ResponseEntity<List<BudgetResponseDtoAll>> findAllUserBudgets() {
 
-       Authentication authentication = authenticationFacade.getAuthentication();
+        Authentication authentication = authenticationFacade.getAuthentication();
 
-       List<Budget> userBudgetList = userService.findUserByUserName(authentication.getName()).getBudgets();
-       List<BudgetResponseDtoAll> listOfBudgetResponseDtos = userBudgetList
+        List<Budget> userBudgetList = userService.findUserByUserName(authentication.getName()).getBudgets();
+        List<BudgetResponseDtoAll> listOfBudgetResponseDtos = userBudgetList
                 .stream()
                 .map(this::convertBudgetToResponseDtoAll)
                 .toList();
@@ -61,19 +60,20 @@ public class BudgetRestController {
 
         if (budgetService.checkIfUserHasBudgetWithGivenName(budgetName, user)) {
 
-        Budget budget = budgetService.findBudgetByBudgetNameAndUserEquals(budgetName, user);
-        List<Operation> recentFiveOperationsByDate = budget.getOperations().stream()
-                .sorted(Comparator.comparing(Operation::getOperationDateTime)).toList();
+            Budget budget = budgetService.findBudgetByBudgetNameAndUserEquals(budgetName, user);
+            List<Operation> recentFiveOperationsByDate = budget.getOperations().stream()
+                    .sorted(Comparator.comparing(Operation::getOperationDateTime)).toList();
 
-        BudgetResponseDto budgetResponseDto = convertBudgetToResponseDto(budget);
-        budgetResponseDto.setRecentOperations(recentFiveOperationsByDate);
+            BudgetResponseDto budgetResponseDto = convertBudgetToResponseDto(budget);
+            budgetResponseDto.setRecentOperations(recentFiveOperationsByDate);
 
-        return new ResponseEntity<>(budgetResponseDto, HttpStatus.OK);
+            return new ResponseEntity<>(budgetResponseDto, HttpStatus.OK);
 
         } else {
             throw new AccessDeniedException("Permission denied.");
         }
     }
+
     @Secured("ROLE_USER")
     @PostMapping("/budget")
     public ResponseEntity<BudgetResponseDto> createBudget(@Valid @RequestBody BudgetCreateDto budgetCreateDto) {
@@ -139,6 +139,7 @@ public class BudgetRestController {
 
     /**
      * Show actual budget standing
+     *
      * @param budgetName
      * @return budgetOverviewDto
      */
@@ -157,11 +158,12 @@ public class BudgetRestController {
         }
     }
 
-        /**
-         * Show actual budget standing for last week
-         * @param budgetName
-         * @return budgetOverviewDto
-         */
+    /**
+     * Show actual budget standing for last week
+     *
+     * @param budgetName
+     * @return budgetOverviewDto
+     */
 
     @Secured("ROLE_USER")
     @GetMapping("/budget/overview/week/{budgetName}")
@@ -183,17 +185,16 @@ public class BudgetRestController {
     }
 
 
-
-
     /**
      * Show actual budget standing for last month
+     *
      * @param budgetName
      * @return budgetOverviewDto
      */
 
     @Secured("ROLE_USER")
     @GetMapping("/budget/overview/month/{budgetName}")
-    public ResponseEntity<BudgetOverviewDto> showBudgetOverviewForLastMonth(@PathVariable String budgetName){
+    public ResponseEntity<BudgetOverviewDto> showBudgetOverviewForLastMonth(@PathVariable String budgetName) {
 
         Authentication authentication = authenticationFacade.getAuthentication();
         User user = userService.findUserByUserName(authentication.getName());
@@ -208,17 +209,19 @@ public class BudgetRestController {
         } else {
             throw new AccessDeniedException("Permission denied.");
         }
-}
+    }
+
     /**
-         * Show actual budget standing for last year
-         * @param budgetName
-         * @return budgetOverviewDto
-         */
+     * Show actual budget standing for last year
+     *
+     * @param budgetName
+     * @return budgetOverviewDto
+     */
 
 
     @Secured("ROLE_USER")
     @GetMapping("/budget/overview/year/{budgetName}")
-    public ResponseEntity<BudgetOverviewDto> showBudgetOverviewForLastYear(@PathVariable String budgetName){
+    public ResponseEntity<BudgetOverviewDto> showBudgetOverviewForLastYear(@PathVariable String budgetName) {
 
         Authentication authentication = authenticationFacade.getAuthentication();
         User user = userService.findUserByUserName(authentication.getName());
@@ -236,6 +239,7 @@ public class BudgetRestController {
 
     /**
      * Show actual budget standing for custom range of dates
+     *
      * @param budgetName
      * @return budgetOverviewDto
      */
@@ -244,18 +248,18 @@ public class BudgetRestController {
     @Secured("ROLE_USER")
     @GetMapping("/budget/overview/custom-dates/{budgetName}/{beginStr}/{endStr}")
     public ResponseEntity<BudgetOverviewDto> showBudgetOverviewForCustomRange(@PathVariable String budgetName,
-                                    @PathVariable String beginStr, @PathVariable String endStr){
+                                                                              @PathVariable String beginStr, @PathVariable String endStr) {
 
         Authentication authentication = authenticationFacade.getAuthentication();
         User user = userService.findUserByUserName(authentication.getName());
 
         if (budgetService.checkIfUserHasBudgetWithGivenName(budgetName, user)) {
             try {
-            LocalDate beginDate = LocalDate.parse(beginStr, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-            LocalDate endDate = LocalDate.parse(endStr, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+                LocalDate beginDate = LocalDate.parse(beginStr, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+                LocalDate endDate = LocalDate.parse(endStr, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
 
-            LocalDateTime begin = beginDate.atStartOfDay();
-            LocalDateTime end = endDate.atTime(23, 59,59);
+                LocalDateTime begin = beginDate.atStartOfDay();
+                LocalDateTime end = endDate.atTime(23, 59, 59);
 
                 Budget budget = budgetService.findBudgetByBudgetName(budgetName);
                 List<Operation> customDateRangeOperations = budget.getOperations().stream()

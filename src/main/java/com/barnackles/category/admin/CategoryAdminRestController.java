@@ -110,9 +110,6 @@ public class CategoryAdminRestController {
     }
 
 
-
-
-
     private Category convertCreateDtoToCategory(CategoryCreateDto categoryCreateDto) {
         return modelMapper.map(categoryCreateDto, Category.class);
     }

@@ -36,21 +36,20 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
     public static final String TOKEN_PREFIX = "Bearer ";
 
 
-
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-        if(("/login".equals(request.getServletPath()))
-    || ("/user/token/refresh".equals(request.getServletPath()))
-    || ("/swagger-ui/**".equals(request.getServletPath()))
-    || ("/swagger-resources/**".equals(request.getServletPath()))
-    || ("/v2/api-docs".equals(request.getServletPath()))
-    || ("/user/user".equals(request.getServletPath()))
+        if (("/login".equals(request.getServletPath()))
+                || ("/user/token/refresh".equals(request.getServletPath()))
+                || ("/swagger-ui/**".equals(request.getServletPath()))
+                || ("/swagger-resources/**".equals(request.getServletPath()))
+                || ("/v2/api-docs".equals(request.getServletPath()))
+                || ("/user/user".equals(request.getServletPath()))
         ) {
             filterChain.doFilter(request, response);
         } else {
             String authorizationHeader = request.getHeader(AUTHORIZATION);
-            if(authorizationHeader != null && authorizationHeader.startsWith(TOKEN_PREFIX)) {
+            if (authorizationHeader != null && authorizationHeader.startsWith(TOKEN_PREFIX)) {
                 try {
                     String token = authorizationHeader.substring(TOKEN_PREFIX.length());
                     JWTVerifier verifier = JWT.require(jwtUtil.getAlgorithm()).build();
@@ -68,16 +67,20 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
                     filterChain.doFilter(request, response);
                 } catch (Exception e) {
                     log.error("Error: {}", "Authorization Filter Error");
-                    response.setHeader("error", e.getMessage());
-                    response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-                    Map<String, String> tokens = new HashMap<>();
-                    tokens.put("error_message", e.getMessage());
-                    response.setContentType(APPLICATION_JSON_VALUE);
-                    new ObjectMapper().writeValue(response.getOutputStream(), tokens);
+                    setResponseHeader(response, e);
                 }
             } else {
                 filterChain.doFilter(request, response);
             }
         }
+    }
+
+    public static void setResponseHeader(HttpServletResponse response, Exception e) throws IOException {
+        response.setHeader("error", e.getMessage());
+        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+        Map<String, String> tokens = new HashMap<>();
+        tokens.put("error_message", e.getMessage());
+        response.setContentType(APPLICATION_JSON_VALUE);
+        new ObjectMapper().writeValue(response.getOutputStream(), tokens);
     }
 }

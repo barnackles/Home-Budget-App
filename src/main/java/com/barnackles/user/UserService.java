@@ -3,7 +3,7 @@ package com.barnackles.user;
 
 import java.util.List;
 
-public interface UserService  {
+public interface UserService {
 
     User findUserByEmail(String email);
 
@@ -20,11 +20,8 @@ public interface UserService  {
     User updateUser(User user);
 
     User updateUserPassword(User user);
+
     void deleteUser(User user);
-
-
-
-
 
 
 }

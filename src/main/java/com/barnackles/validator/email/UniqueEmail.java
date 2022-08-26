@@ -14,8 +14,10 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Target({FIELD, METHOD})
 public @interface UniqueEmail {
 
-    public String message() default "Forgot your account’s password? Go to password recovery service.";
-    public Class<?>[] groups() default {};
-    public Class<? extends Payload>[] payload() default{};
+    String message() default "Forgot your account’s password? Go to password recovery service.";
+
+    Class<?>[] groups() default {};
+
+    Class<? extends Payload>[] payload() default {};
 
 }

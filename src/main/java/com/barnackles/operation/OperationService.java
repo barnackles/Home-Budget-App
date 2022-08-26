@@ -34,7 +34,7 @@ public class OperationService {
         Pageable paging = PageRequest.of(pageNumber, pageSize, Sort.by(sortBy));
         Page<Operation> pagedResult = operationRepository.findAll(paging);
 
-        if(pagedResult.hasContent()) {
+        if (pagedResult.hasContent()) {
             log.info("Operations for pageNumber: {}, pageSize: {}, sorted by: {} found", pageNumber, pageSize, sortBy);
             return pagedResult.getContent();
         } else {
@@ -43,19 +43,14 @@ public class OperationService {
         }
     }
 
-    public List<Operation> findAllOperationsForBudget(Budget budget) {
-        log.info("Operations found.");
-        return operationRepository.findOperationsByBudgetEquals(budget);
-    }
-
     public List<Operation> findAllOperationsForBudget(int pageNumber, int pageSize, String sortBy,
-    Budget budget) {
+                                                      Budget budget) {
 
         pageNumber -= 1;
         Pageable paging = PageRequest.of(pageNumber, pageSize, Sort.by(sortBy));
         Page<Operation> pagedResult = operationRepository.findOperationsByBudgetEquals(paging, budget);
 
-        if(pagedResult.hasContent()) {
+        if (pagedResult.hasContent()) {
             log.info("Operations for pageNumber: {}, pageSize: {}, sorted by: {} found", pageNumber, pageSize, sortBy);
             return pagedResult.getContent();
         } else {
@@ -63,7 +58,6 @@ public class OperationService {
             return new ArrayList<>();
         }
     }
-
 
 
     public Operation findOperationByOperationId(Long id) throws EntityNotFoundException {
@@ -86,7 +80,6 @@ public class OperationService {
     }
 
 
-
     public Operation save(Operation operation) {
         return operationRepository.save(operation);
     }
@@ -100,18 +93,9 @@ public class OperationService {
         operationRepository.delete(operation);
     }
 
-    public boolean existsById(Long id){
-        return operationRepository.existsById(id);
-    }
-
-    public boolean existsByUuid(UUID uuid){
-        return operationRepository.existsByUuid(uuid);
-    }
-
-    public Long showNumberOfOperations(){
+    public Long showNumberOfOperations() {
         return operationRepository.count();
     }
-
 
 
 }

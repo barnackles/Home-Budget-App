@@ -30,8 +30,7 @@ public class SpringDataUserDetailsService implements UserDetailsService {
         User user;
         if (isLoginUserNameOrEmail(login)) {
             user = userService.findUserByEmail(login);
-        }
-        else {
+        } else {
             user = userService.findUserByUserName(login);
         }
         if (user == null) {
@@ -41,7 +40,6 @@ public class SpringDataUserDetailsService implements UserDetailsService {
         List<GrantedAuthority> authorities = getUserAuthority(user.getRoles());
         return buildUserForAuthentication(user, authorities);
     }
-
 
 
     private List<GrantedAuthority> getUserAuthority(Set<Role> userRoles) {
@@ -55,14 +53,11 @@ public class SpringDataUserDetailsService implements UserDetailsService {
     private UserDetails buildUserForAuthentication(User user, List<GrantedAuthority> authorities) {
         return new org.springframework.security.core.userdetails.User(user.getUserName(), user.getPassword(),
                 user.getActive(), true, true, true, authorities);
-//        return new CurrentUser(user.getUserName(), user.getPassword(), authorities, user, user.getId());
     }
 
     public boolean isLoginUserNameOrEmail(String login) {
         return login.matches("^[a-zA-Z0-9_!#$%&'*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$");
     }
-
-
 
 
 }

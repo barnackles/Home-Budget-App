@@ -13,10 +13,7 @@ import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -71,7 +68,7 @@ public class UserServiceImpl implements UserService {
         pageNumber -= 1;
         Pageable paging = PageRequest.of(pageNumber, pageSize, Sort.by(sortBy));
         Page<User> pagedResult = userRepository.findAll(paging);
-        if(pagedResult.hasContent()) {
+        if (pagedResult.hasContent()) {
             log.info("Users for pageNumber: {}, pageSize: {}, sorted by: {} found.", pageNumber, pageSize, sortBy);
             return pagedResult.getContent();
         } else {
@@ -87,7 +84,7 @@ public class UserServiceImpl implements UserService {
         user.setEmail(user.getEmail().toLowerCase());
         user.setActive(true);
         Role userRole = roleRepository.findByRole("ROLE_USER");
-        user.setRoles(new HashSet<Role>(Arrays.asList(userRole)));
+        user.setRoles(new HashSet<Role>(Collections.singletonList(userRole)));
         log.info("User saved: {}", user.getUserName());
         userRepository.save(user);
         return user;
@@ -110,8 +107,6 @@ public class UserServiceImpl implements UserService {
         log.info("User deleted: {}", user.getUserName());
         userRepository.deleteUserById(user.getId());
     }
-
-
 
 
 }
