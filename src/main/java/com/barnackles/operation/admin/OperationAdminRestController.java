@@ -3,18 +3,17 @@ package com.barnackles.operation.admin;
 import com.barnackles.budget.Budget;
 import com.barnackles.budget.BudgetService;
 import com.barnackles.category.CategoryService;
-import com.barnackles.operation.*;
+import com.barnackles.operation.Operation;
+import com.barnackles.operation.OperationCreateDto;
+import com.barnackles.operation.OperationService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.time.Month;
 import java.util.List;
 
 @RestController
@@ -28,7 +27,7 @@ public class OperationAdminRestController {
 
     private final CategoryService categoryService;
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @Secured("ROLE_ADMIN")
     @GetMapping("/operations/all")
     public ResponseEntity<List<OperationAdminResponseDto>> findAll() {
 
@@ -41,7 +40,7 @@ public class OperationAdminRestController {
         return new ResponseEntity<>(listOfOperationAdminResponseDtos, HttpStatus.OK);
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @Secured("ROLE_ADMIN")
     @GetMapping("/operations/all/{pageNumber}/{pageSize}/{sortBy}")
     public ResponseEntity<List<OperationAdminResponseDto>> findAll(@PathVariable int pageNumber, @PathVariable int pageSize,
                                                                 @PathVariable String sortBy) {
@@ -54,7 +53,7 @@ public class OperationAdminRestController {
         return new ResponseEntity<>(listOfOperationAdminResponseDtos, HttpStatus.OK);
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @Secured("ROLE_ADMIN")
     @GetMapping ("/operation/{operationId}")
     public ResponseEntity<OperationAdminResponseDto> findOperationById(@PathVariable Long operationId) {
 
@@ -64,7 +63,7 @@ public class OperationAdminRestController {
         return new ResponseEntity<>(operationAdminResponseDto, HttpStatus.OK);
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @Secured("ROLE_ADMIN")
     @PostMapping("/operation/{budgetId}")
     public ResponseEntity<OperationAdminResponseDto> createOperationForBudget(@Valid @RequestBody OperationCreateDto operationCreateDto,
                                                                       @PathVariable Long budgetId) {
@@ -84,7 +83,7 @@ public class OperationAdminRestController {
 
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @Secured("ROLE_ADMIN")
     @PutMapping("/operation/{operationId}")
     public ResponseEntity<OperationAdminResponseDto> updateOperation(@Valid @RequestBody OperationCreateDto operationCreateDto,
                                                  @PathVariable Long operationId) {
@@ -101,7 +100,7 @@ public class OperationAdminRestController {
 
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @Secured("ROLE_ADMIN")
     @DeleteMapping("/operation/{operationId}")
     public ResponseEntity<String> deleteOperation(@PathVariable Long operationId) {
 
@@ -110,7 +109,7 @@ public class OperationAdminRestController {
         return new ResponseEntity<>(message, HttpStatus.OK);
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @Secured("ROLE_ADMIN")
     @GetMapping("/operation/count")
     public ResponseEntity<String> showNumberOfOperations() {
 

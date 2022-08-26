@@ -30,10 +30,12 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @Slf4j
 @RequiredArgsConstructor
-public class CustomAuthorizationFilter extends OncePerRequestFilter {  //OncePerRequestFilter
+public class CustomAuthorizationFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
     public static final String TOKEN_PREFIX = "Bearer ";
+
+
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)

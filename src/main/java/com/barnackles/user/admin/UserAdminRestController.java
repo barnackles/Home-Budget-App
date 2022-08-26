@@ -10,7 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -38,7 +38,7 @@ public class UserAdminRestController {
      * admin only
      * @return ResponseEntity<List<UserAdminResponseDto>>
      */
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @Secured("ROLE_ADMIN")
     @GetMapping("/users/{pageNumber}/{pageSize}/{sortBy}")
     public ResponseEntity<List<UserAdminResponseDto>> findAllUsers(
             @PathVariable int pageNumber, @PathVariable int pageSize, @PathVariable String sortBy
@@ -66,7 +66,7 @@ public class UserAdminRestController {
     /**
      * @return ResponseEntity<UserAdminResponseDto>
      */
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @Secured("ROLE_ADMIN")
     @GetMapping("/user/{id}")
     public ResponseEntity<UserAdminResponseDto> findUserById(@PathVariable Long id) {
 
@@ -82,9 +82,9 @@ public class UserAdminRestController {
      * @param userCreateDto
      * @return ResponseEntity<UserResponseDto>
      */
-
+    @Secured("ROLE_ADMIN")
     @PostMapping("/user")
-    public ResponseEntity<UserAdminResponseDto> userCreate(@Valid @RequestBody UserCreateDto userCreateDto) {
+    public ResponseEntity<UserAdminResponseDto> createUser(@Valid @RequestBody UserCreateDto userCreateDto) {
 
         User user;
         try {
@@ -102,9 +102,9 @@ public class UserAdminRestController {
      * @param userAdminUpdateDto
      * @return ResponseEntity<UserResponseDto>
      */
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @Secured("ROLE_ADMIN")
     @PutMapping("/user/{id}")
-    public ResponseEntity<UserAdminResponseDto> UpdateUser(@Valid @RequestBody UserAdminUpdateDto userAdminUpdateDto, @PathVariable Long id) {
+    public ResponseEntity<UserAdminResponseDto> updateUser(@Valid @RequestBody UserAdminUpdateDto userAdminUpdateDto, @PathVariable Long id) {
 
         User persistentUser = userService.findUserById(id);
         UserAdminResponseDto userAdminResponseDto = convertToAdminResponseDto(persistentUser);
@@ -134,7 +134,7 @@ public class UserAdminRestController {
     //Admin only
     //add confirmation // secure unintentional deletion
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @Secured("ROLE_ADMIN")
     @DeleteMapping("/user/{id}")
     public ResponseEntity<String> deleteUser(@PathVariable Long id) {
         User user = userService.findUserById(id);
@@ -163,7 +163,6 @@ public class UserAdminRestController {
      * CreateDTO to Entity conversion
      */
 
-    //UserAdminCreateDTO ?
     private User convertCreateDtoToUser(UserCreateDto userCreateDto) throws ParseException {
         return modelMapper.map(userCreateDto, User.class);
     }
@@ -174,7 +173,6 @@ public class UserAdminRestController {
      * UpdateDTO to Entity conversion
      */
 
-    //userAdminUpdateDTO - all fields?
 
     private User convertUpdateDtoToUser(UserAdminUpdateDto userAdminUpdateDto) throws ParseException {
         return modelMapper.map(userAdminUpdateDto, User.class);

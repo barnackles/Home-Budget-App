@@ -1,4 +1,4 @@
-package com.barnackles.validator;
+package com.barnackles.validator.username;
 
 import javax.validation.Constraint;
 import javax.validation.Payload;

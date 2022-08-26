@@ -25,5 +25,13 @@ public class RoleService {
         roleRepository.save(role);
     }
 
+    public void updateRole(Role role) {
+        roleRepository.save(role);
+    }
+
+    public void deleteRole(Role role) {
+        roleRepository.delete(role);
+    }
+
 
 }

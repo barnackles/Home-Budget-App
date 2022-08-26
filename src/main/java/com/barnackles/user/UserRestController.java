@@ -11,7 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
@@ -49,7 +49,7 @@ public class UserRestController {
     /**
      * @return ResponseEntity<User>
      */
-    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
+    @Secured("ROLE_USER")
     @GetMapping("/user/current")
     public ResponseEntity<UserResponseDto> findCurrentUser() {
         Authentication authentication = authenticationFacade.getAuthentication();
@@ -67,7 +67,7 @@ public class UserRestController {
      */
     //email confirmation
     @PostMapping("/user")
-    public ResponseEntity<UserResponseDto> save(@Valid @RequestBody UserCreateDto userCreateDto) {
+    public ResponseEntity<UserResponseDto> createUser(@Valid @RequestBody UserCreateDto userCreateDto) {
 
         User user;
         try {
@@ -85,16 +85,14 @@ public class UserRestController {
      * @param userUpdateDto
      * @return ResponseEntity<UserResponseDto>
      */
-    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
-    @PutMapping("/user")
-    public ResponseEntity<UserResponseDto> UpdateUser(@Valid @RequestBody UserUpdateDto userUpdateDto) {
+    @Secured("ROLE_USER")
+    @PutMapping("/user/update")
+    public ResponseEntity<UserResponseDto> updateUser(@Valid @RequestBody UserUpdateDto userUpdateDto) {
         Authentication authentication = authenticationFacade.getAuthentication();
 
         User persistentUser = userService.findUserByUserName(authentication.getName());
         UserResponseDto responseUser = convertToResponseDto(persistentUser);
         HttpStatus httpStatus = HttpStatus.CONFLICT;
-
-
 
         User user;
         try {
@@ -104,12 +102,10 @@ public class UserRestController {
             user.setActive(persistentUser.getActive());
             user.setRoles(persistentUser.getRoles());
             user.setBudgets(persistentUser.getBudgets());
-//            user.setAssets(persistentUser.getAssets());
             userService.updateUser(user);
             responseUser = convertToResponseDto(user);
             httpStatus = HttpStatus.OK;
         } catch (ParseException e) {
-//            throw new RuntimeException(e);
             log.error("unable to parse dto to entity error: {}", e.getMessage());
         }
         return new ResponseEntity<>(responseUser, httpStatus);
@@ -119,9 +115,9 @@ public class UserRestController {
      * @param userPasswordUpdateDto
      * @return ResponseEntity<UserResponseDto>
      */
-    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
-    @PutMapping("/user-password")
-    public ResponseEntity<String> UpdateUserPassword
+    @Secured("ROLE_USER")
+    @PutMapping("user/user-password")
+    public ResponseEntity<String> updateUserPassword
     (@Valid @RequestBody UserPasswordUpdateDto userPasswordUpdateDto) {
 
         Authentication authentication = authenticationFacade.getAuthentication();
@@ -141,7 +137,7 @@ public class UserRestController {
 
 
     // secure unintentional deletion
-    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
+    @Secured("ROLE_USER")
     @DeleteMapping("/user/current")
     public ResponseEntity<String> deleteUser() {
         Authentication authentication = authenticationFacade.getAuthentication();
@@ -152,7 +148,7 @@ public class UserRestController {
         return new ResponseEntity<>(message, HttpStatus.OK);
     }
 
-    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
+    @Secured("ROLE_USER")
     @GetMapping("/token/refresh")
     public void refreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
