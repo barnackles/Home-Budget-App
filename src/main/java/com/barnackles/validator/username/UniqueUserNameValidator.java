@@ -25,8 +25,11 @@ public class UniqueUserNameValidator implements ConstraintValidator<UniqueUserNa
         if (value == null) {
             return true;
         }
-        boolean isUserNameNotTaken = userRepository.findUserByUserName(value).isEmpty();
-        log.info("email: {} is taken: {}", value, isUserNameNotTaken);
-        return isUserNameNotTaken;
+        if (userRepository.findUserByUserName(value).isEmpty()) {
+            log.info("username: {} is available.", value);
+            return true;
+        }
+        log.info("username: {} is not available.", value);
+        return false;
     }
 }

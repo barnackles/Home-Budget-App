@@ -108,5 +108,43 @@ public class UserServiceImpl implements UserService {
         userRepository.deleteUserById(user.getId());
     }
 
+    /**
+     *
+     * @param email
+     * @param persistentUser
+     * @return boolean
+     * If user with email equals persistent user method will return true.
+     * If user with email
+     */
+    public boolean emailCheck(String email, User persistentUser) {
+        Optional<User> userToCheckEmail = userRepository.findUserByEmail(email);
+        if (userToCheckEmail.isPresent() && persistentUser.equals(userToCheckEmail.orElseThrow(
+                () -> {
+                    log.error("entity not found with email: {} not found", email);
+                    throw new EntityNotFoundException("entity not found");
+                }
+        )) || userToCheckEmail.isEmpty()) {
+            log.info("User with email {} is the same user as the user with email: {} invoking update method or email is available.",
+                    email, persistentUser.getEmail());
+            return true;
+        }
+        log.info("Email: {} is not available.", email);
+        return false;
+    }
 
+    public boolean usernameCheck(String userName, User persistentUser) {
+        Optional<User> userToCheckUserName = userRepository.findUserByUserName(userName);
+        if (userToCheckUserName.isPresent() && persistentUser.equals(userToCheckUserName.orElseThrow(
+                () -> {
+                    log.error("entity not found with username: {} not found", userName);
+                    throw new EntityNotFoundException("entity not found");
+                }
+        )) || userToCheckUserName.isEmpty()) {
+            log.info("User with username {} is the same user as the user with username: {} invoking update method or username is available.",
+                    userName, persistentUser.getUserName());
+            return true;
+        }
+        log.info("Username: {} is not available.", userName);
+        return false;
+    }
 }

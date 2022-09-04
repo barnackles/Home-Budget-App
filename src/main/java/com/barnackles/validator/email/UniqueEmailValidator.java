@@ -24,8 +24,11 @@ public class UniqueEmailValidator implements ConstraintValidator<UniqueEmail, St
         if (value == null) {
             return true;
         }
-        boolean isEmailNotTaken = userRepository.findUserByEmail(value).isEmpty();
-        log.info("email: {} is taken: {}", value, isEmailNotTaken);
-        return isEmailNotTaken;
+        if (userRepository.findUserByEmail(value).isEmpty()) {
+            log.info("email: {} is available.", value);
+            return true;
+        }
+        log.info("email: {} is not available.", value);
+        return false;
     }
 }

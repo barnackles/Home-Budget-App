@@ -90,19 +90,30 @@ public class UserRestController {
         UserResponseDto responseUser = convertToResponseDto(persistentUser);
         HttpStatus httpStatus = HttpStatus.CONFLICT;
 
-        User user;
-        try {
-            user = convertUpdateDtoToUser(userUpdateDto);
-            user.setId(persistentUser.getId());
-            user.setPassword(persistentUser.getPassword());
-            user.setActive(persistentUser.getActive());
-            user.setRoles(persistentUser.getRoles());
-            user.setBudgets(persistentUser.getBudgets());
-            userService.updateUser(user);
-            responseUser = convertToResponseDto(user);
-            httpStatus = HttpStatus.OK;
-        } catch (ParseException e) {
-            log.error("unable to parse dto to entity error: {}", e.getMessage());
+        if(persistentUser.getUserName().equals(userUpdateDto.getUserName())
+        && persistentUser.getEmail().equals(userUpdateDto.getEmail())) {
+
+            return new ResponseEntity<>(responseUser, httpStatus);
+
+        }
+
+        if (userService.emailCheck(userUpdateDto.getEmail(), persistentUser) &&
+                userService.usernameCheck(userUpdateDto.getUserName(), persistentUser)) {
+            User user;
+            try {
+                user = convertUpdateDtoToUser(userUpdateDto);
+                user.setId(persistentUser.getId());
+                user.setPassword(persistentUser.getPassword());
+                user.setActive(persistentUser.getActive());
+                user.setRoles(persistentUser.getRoles());
+                user.setBudgets(persistentUser.getBudgets());
+                userService.updateUser(user);
+                responseUser = convertToResponseDto(user);
+                httpStatus = HttpStatus.OK;
+            } catch (ParseException e) {
+                log.error("unable to parse dto to entity error: {}", e.getMessage());
+            }
+            return new ResponseEntity<>(responseUser, httpStatus);
         }
         return new ResponseEntity<>(responseUser, httpStatus);
     }
