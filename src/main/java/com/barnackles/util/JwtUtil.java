@@ -23,15 +23,11 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @Data
 public class JwtUtil {
 
-    private static Date TEN_MINUTES_IN_MILLISECONDS = new Date(System.currentTimeMillis() + (3600000 / 6));
-    private static Date ONE_HOUR_IN_MILLISECONDS = new Date(System.currentTimeMillis() + (3600000));
     private final String secret;
     private final String secret2;
-    private Date tokenExpirationTime;
-    private Date refreshTokenActivationTime;
-    private Date refreshTokenExpirationTime;
     private Algorithm algorithm;
     private Algorithm algorithm2;
+
 
 
     public JwtUtil(@Value("${jwt.secret") String secret, @Value("${jwt.secret2") String secret2) {
@@ -39,18 +35,20 @@ public class JwtUtil {
         this.secret2 = secret2;
         this.algorithm = Algorithm.HMAC512(secret.getBytes());
         this.algorithm2 = Algorithm.HMAC512(secret2.getBytes());
+
     }
 
 
     public Map<String, String> generateTokens(User user, HttpServletRequest request, HttpServletResponse response) {
+        Date tenMinutesInMilliseconds = getTenMinutesInMilliSeconds();
 
-        String access_token = JWT.create().withSubject(user.getUsername()).withExpiresAt(TEN_MINUTES_IN_MILLISECONDS)
+        String access_token = JWT.create().withSubject(user.getUsername()).withExpiresAt(tenMinutesInMilliseconds)
                 .withIssuer(request.getRequestURL().toString()).withClaim("roles", user.getAuthorities()
                         .stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()))
                 .sign(algorithm);
 
-        String refresh_token = JWT.create().withSubject(user.getUsername()).withExpiresAt(ONE_HOUR_IN_MILLISECONDS)
-                .withIssuer(request.getRequestURL().toString()).withNotBefore(TEN_MINUTES_IN_MILLISECONDS).withClaim("roles", user.getAuthorities()
+        String refresh_token = JWT.create().withSubject(user.getUsername()).withExpiresAt(getOneHourInMilliSeconds())
+                .withIssuer(request.getRequestURL().toString()).withNotBefore(tenMinutesInMilliseconds).withClaim("roles", user.getAuthorities()
                         .stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()))
                 .sign(algorithm2);
 
@@ -64,7 +62,7 @@ public class JwtUtil {
     public Map<String, String> generateTokenUponRefresh(com.barnackles.user.User user, HttpServletRequest request, HttpServletResponse response,
                                                         String refresh_token) {
 
-        String access_token = JWT.create().withSubject(user.getUserName()).withExpiresAt(ONE_HOUR_IN_MILLISECONDS)
+        String access_token = JWT.create().withSubject(user.getUserName()).withExpiresAt(getOneHourInMilliSeconds())
                 .withIssuer(request.getRequestURL().toString()).withClaim("roles", user.getRoles()
                         .stream().map(Role::getRole).collect(Collectors.toList()))
                 .sign(algorithm);
@@ -74,6 +72,15 @@ public class JwtUtil {
         response.setContentType(APPLICATION_JSON_VALUE);
         return tokens;
     }
+
+    private Date getTenMinutesInMilliSeconds() {
+        return new Date(System.currentTimeMillis() + (3600000 / 6));
+    }
+
+    private Date getOneHourInMilliSeconds() {
+        return new Date(System.currentTimeMillis() + (3600000));
+    }
+
 
 
 }
