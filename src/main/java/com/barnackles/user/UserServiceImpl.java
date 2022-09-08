@@ -1,5 +1,7 @@
 package com.barnackles.user;
 
+import com.barnackles.confirmationToken.ConfirmationToken;
+import com.barnackles.confirmationToken.ConfirmationTokenService;
 import com.barnackles.role.Role;
 import com.barnackles.role.RoleRepository;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +25,8 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+
+    private final ConfirmationTokenService confirmationTokenService;
     private final BCryptPasswordEncoder passwordEncoder;
 
 
@@ -82,11 +86,15 @@ public class UserServiceImpl implements UserService {
     public User saveUser(User user) {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setEmail(user.getEmail().toLowerCase());
-        user.setActive(true);
+        user.setActive(false);
         Role userRole = roleRepository.findByRole("ROLE_USER");
         user.setRoles(new HashSet<Role>(Collections.singletonList(userRole)));
         log.info("User saved: {}", user.getUserName());
         userRepository.save(user);
+        ConfirmationToken confirmationToken = new ConfirmationToken();
+        confirmationToken.setUser(user);
+        confirmationTokenService.saveConfirmationToken(confirmationToken);
+        // send confirmation link
         return user;
     }
 

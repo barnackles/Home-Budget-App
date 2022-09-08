@@ -62,7 +62,7 @@ public class UserRestController {
      * @return ResponseEntity<UserResponseDto>
      */
     //email confirmation
-    @PostMapping("/user")
+    @PostMapping("/register")
     public ResponseEntity<UserResponseDto> createUser(@Valid @RequestBody UserCreateDto userCreateDto) {
 
         User user;

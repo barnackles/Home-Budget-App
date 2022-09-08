@@ -76,7 +76,7 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
                 "/swagger-resources/**",
                 "/v2/api-docs").permitAll();
 
-        http.authorizeRequests().antMatchers(HttpMethod.POST, "/user/user").permitAll();
+        http.authorizeRequests().antMatchers(HttpMethod.POST, "/user/register").permitAll();
         http.authorizeRequests().antMatchers("/**").hasAnyRole("USER", "ADMIN")
                 .anyRequest().authenticated();
 
