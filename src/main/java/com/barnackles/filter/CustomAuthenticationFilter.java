@@ -50,7 +50,7 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
                     authRequest.getUsername(), authRequest.getPassword()
             );
 
-            log.info("username is {}", authRequest.getUsername());
+            log.info("login is {}", authRequest.getUsername());
 
             return authenticationManager.authenticate(authenticationToken);
 
