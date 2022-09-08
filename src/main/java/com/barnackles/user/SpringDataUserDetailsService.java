@@ -13,10 +13,11 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 @Service
 public class SpringDataUserDetailsService implements UserDetailsService {
-
+    private static final Pattern PATTERN = Pattern.compile("^[a-zA-Z0-9_!#$%&'*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$");
     private UserService userService;
 
 
@@ -56,7 +57,7 @@ public class SpringDataUserDetailsService implements UserDetailsService {
     }
 
     public boolean isLoginUserNameOrEmail(String login) {
-        return login.matches("^[a-zA-Z0-9_!#$%&'*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$");
+        return PATTERN.matcher(login).matches();
     }
 
 
