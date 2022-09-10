@@ -91,6 +91,7 @@ public class UserServiceImpl implements UserService {
         user.setRoles(new HashSet<Role>(Collections.singletonList(userRole)));
         log.info("User saved: {}", user.getUserName());
         userRepository.save(user);
+
         ConfirmationToken confirmationToken = new ConfirmationToken();
         confirmationToken.setUser(user);
         confirmationTokenService.saveConfirmationToken(confirmationToken);
