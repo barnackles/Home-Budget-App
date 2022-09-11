@@ -181,6 +181,11 @@ public class UserRestController {
 
     }
 
+    @GetMapping("/user/confirm/{token}")
+    public String confirmUser(@Valid @PathVariable String token) {
+        return "string";
+    }
+
 
     /**
      * @param user
