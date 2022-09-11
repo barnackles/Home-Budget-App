@@ -2,6 +2,7 @@ package com.barnackles.user;
 
 import com.barnackles.confirmationToken.ConfirmationToken;
 import com.barnackles.confirmationToken.ConfirmationTokenService;
+import com.barnackles.email.EmailSender;
 import com.barnackles.role.Role;
 import com.barnackles.role.RoleRepository;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +29,10 @@ public class UserServiceImpl implements UserService {
 
     private final ConfirmationTokenService confirmationTokenService;
     private final BCryptPasswordEncoder passwordEncoder;
+
+    private final EmailSender emailSender;
+
+
 
 
     public User findUserByEmail(String email) throws EntityNotFoundException {
@@ -95,7 +100,10 @@ public class UserServiceImpl implements UserService {
         ConfirmationToken confirmationToken = new ConfirmationToken();
         confirmationToken.setUser(user);
         confirmationTokenService.saveConfirmationToken(confirmationToken);
-        // send confirmation link
+        String token = String.valueOf(confirmationToken.getToken());
+
+        emailSender.send(user.getEmail(), getConfirmationEmail(user.getUserName(), token));
+
         return user;
     }
 
@@ -156,4 +164,22 @@ public class UserServiceImpl implements UserService {
         log.info("Username: {} is not available.", userName);
         return false;
     }
+
+    public String getConfirmationEmail(String userName, String token ) {
+        return String.format("<!DOCTYPE html>\n" +
+                "<html lang=\"en\">\n" +
+                "<head>\n" +
+                "    <meta charset=\"UTF-8\">\n" +
+                "    <title>Email Confirmation</title>\n" +
+                "    <p>Greetings %s! <br> In order to confirm registration of your account please click <a href=\"http://localhost:8080/api/user/confirm/%s\">here</a>.</p>\n" +
+                "<p>Link will only be valid for 15 minutes.</p>\n" +
+                "<p>If you did not register your account please ignore this message.</p>\n" +
+                "<p>Kind regards <br> Home BudgetApp Team</p>\n" +
+                "</head>\n" +
+                "<body>\n" +
+                "\n" +
+                "</body>\n" +
+                "</html>", userName, token);
+    }
+
 }

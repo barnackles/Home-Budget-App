@@ -17,7 +17,7 @@ public class ConfirmationTokenService {
     private final ConfirmationTokenRepository confirmationTokenRepository;
 
     public void saveConfirmationToken(ConfirmationToken confirmationToken) {
-        log.info("Confirmation token saved: {}", confirmationToken.getToken());
+        log.info("Confirmation token saved: {}", String.valueOf(confirmationToken.getToken()));
         confirmationTokenRepository.save(confirmationToken);
     }
 

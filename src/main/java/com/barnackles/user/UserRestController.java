@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
 import java.io.IOException;
 import java.text.ParseException;
 import java.time.LocalDateTime;
@@ -70,7 +71,7 @@ public class UserRestController {
      * @param userCreateDto
      * @return ResponseEntity<UserResponseDto>
      */
-    //email confirmation
+
     @PostMapping("/register")
     public ResponseEntity<UserResponseDto> createUser(@Valid @RequestBody UserCreateDto userCreateDto) {
 
@@ -191,13 +192,17 @@ public class UserRestController {
     }
 
     @GetMapping("/confirm/{token}")
-    public ResponseEntity<String> confirmUser(@PathVariable @ValidUuidString String token) {
+    public ResponseEntity<String> confirmUser(@PathVariable @ValidUuidString @NotBlank String token) {
         HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
         String message;
         try {
             UUID UuidToken = UUID.fromString(token);
             ConfirmationToken confirmationToken = confirmationTokenService.findConfirmationTokenByToken(UuidToken);
             LocalDateTime now = LocalDateTime.now();
+            if (confirmationToken.getConfirmationTime() != null) {
+                message = "Your account has already been activated.";
+                return new ResponseEntity<>(message, HttpStatus.OK);
+            }
             if (now.isBefore(confirmationToken.getExpirationTime())
                 && now.isAfter(confirmationToken.getCreationTime())) {
 
@@ -213,7 +218,7 @@ public class UserRestController {
             return new ResponseEntity<>(message, HttpStatus.OK);
         } catch (IllegalArgumentException e) {
             log.error(e.getMessage());
-            message = "Invalid token";
+            message = "Invalid token.";
             return new ResponseEntity<>(message, httpStatus);
         }
     }

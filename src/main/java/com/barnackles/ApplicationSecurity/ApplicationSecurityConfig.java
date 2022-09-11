@@ -29,6 +29,7 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final String secret;
     private final String secret2;
+    private String token;
 
 
     public ApplicationSecurityConfig(@Value("${jwt.secret") String secret, @Value("${jwt.secret2") String secret2) {
@@ -93,6 +94,7 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
     public AuthenticationManager authenticationManagerBean() throws Exception {
         return super.authenticationManagerBean();
     }
+
 }
 
 
