@@ -12,5 +12,5 @@ import java.util.UUID;
 public interface ConfirmationTokenRepository extends JpaRepository<ConfirmationToken, Long> {
 
 
-    Optional<ConfirmationToken> findOperationByToken(UUID uuid);
+    Optional<ConfirmationToken> findConfirmationTokenByToken(UUID token);
 }

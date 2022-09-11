@@ -3,6 +3,7 @@ package com.barnackles.confirmationToken;
 import com.barnackles.user.User;
 import com.fasterxml.uuid.Generators;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -10,12 +11,14 @@ import java.util.UUID;
 
 @Entity
 @Data
+@EqualsAndHashCode
 public class ConfirmationToken {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(unique = true, columnDefinition = "BINARY(16)", nullable = false)
+    @EqualsAndHashCode.Include()
     private UUID token;
     @Column(nullable = false)
     private LocalDateTime creationTime;

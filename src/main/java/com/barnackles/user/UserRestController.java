@@ -4,8 +4,11 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.barnackles.ApplicationSecurity.IAuthenticationFacade;
+import com.barnackles.confirmationToken.ConfirmationToken;
+import com.barnackles.confirmationToken.ConfirmationTokenService;
 import com.barnackles.filter.CustomAuthorizationFilter;
 import com.barnackles.util.JwtUtil;
+import com.barnackles.validator.uuid.ValidUuidString;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +26,8 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.text.ParseException;
+import java.time.LocalDateTime;
+import java.util.UUID;
 
 import static com.barnackles.filter.CustomAuthorizationFilter.TOKEN_PREFIX;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
@@ -34,9 +39,13 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 public class UserRestController {
 
     private final UserServiceImpl userService;
+
+    private final ConfirmationTokenService confirmationTokenService;
     private final ModelMapper modelMapper;
     private final PasswordEncoder passwordEncoder;
     private final IAuthenticationFacade authenticationFacade;
+
+
 
 
     private final JwtUtil jwtUtil;
@@ -181,9 +190,32 @@ public class UserRestController {
 
     }
 
-    @GetMapping("/user/confirm/{token}")
-    public String confirmUser(@Valid @PathVariable String token) {
-        return "string";
+    @GetMapping("/confirm/{token}")
+    public ResponseEntity<String> confirmUser(@PathVariable @ValidUuidString String token) {
+        HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
+        String message;
+        try {
+            UUID UuidToken = UUID.fromString(token);
+            ConfirmationToken confirmationToken = confirmationTokenService.findConfirmationTokenByToken(UuidToken);
+            LocalDateTime now = LocalDateTime.now();
+            if (now.isBefore(confirmationToken.getExpirationTime())
+                && now.isAfter(confirmationToken.getCreationTime())) {
+
+                confirmationToken.setConfirmationTime(now);
+                confirmationTokenService.updateConfirmationToken(confirmationToken);
+                User userToActivate = confirmationToken.getUser();
+                userToActivate.setActive(true);
+                userService.updateUser(userToActivate);
+                message = "Successfull confirmation.";
+                return new ResponseEntity<>(message, HttpStatus.OK);
+            }
+            message = "Confirmation token expired.";
+            return new ResponseEntity<>(message, HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            log.error(e.getMessage());
+            message = "Invalid token";
+            return new ResponseEntity<>(message, httpStatus);
+        }
     }
 
 
