@@ -17,13 +17,19 @@ public class ConfirmationTokenService {
     private final ConfirmationTokenRepository confirmationTokenRepository;
 
     public void saveConfirmationToken(ConfirmationToken confirmationToken) {
-        log.info("Confirmation token saved: {}", String.valueOf(confirmationToken.getToken()));
+        String token = String.valueOf(confirmationToken.getToken());
+        log.info("Confirmation token saved: {}", token);
         confirmationTokenRepository.save(confirmationToken);
     }
 
     public void updateConfirmationToken(ConfirmationToken confirmationToken) {
-        log.info("Token updated");
         confirmationTokenRepository.save(confirmationToken);
+        log.info("Token updated");
+    }
+
+    public void deleteConfirmationToken(ConfirmationToken confirmationToken) {
+        confirmationTokenRepository.delete(confirmationToken);
+        log.info("Token deleted");
     }
 
     public ConfirmationToken findConfirmationTokenByToken(UUID token) {

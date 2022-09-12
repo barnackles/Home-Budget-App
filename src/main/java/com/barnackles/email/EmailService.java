@@ -19,14 +19,14 @@ public class EmailService implements EmailSender {
 
     @Override
     @Async // use queue
-    public void send(String to, String email) {
+    public void send(String to, String email, String topic) {
 
         try {
             MimeMessage mimeMessage = mailSender.createMimeMessage();
             MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, "utf-8");
             mimeMessageHelper.setText(email, true);
             mimeMessageHelper.setTo(to);
-            mimeMessageHelper.setSubject("Home BudgetApp - Confirm Registration");
+            mimeMessageHelper.setSubject(topic);
             mimeMessageHelper.setFrom("confirmation@homebudgetapp.com");
             log.info("Confirmation email sent to: {}", to);
             mailSender.send(mimeMessage);
@@ -36,4 +36,6 @@ public class EmailService implements EmailSender {
         }
 
     }
+
+
 }

@@ -12,6 +12,7 @@ import java.util.UUID;
 @Entity
 @Data
 @EqualsAndHashCode
+@Table(name = "confirmation_tokens")
 public class ConfirmationToken {
 
     @Id
@@ -26,7 +27,7 @@ public class ConfirmationToken {
     private LocalDateTime expirationTime;
     private LocalDateTime confirmationTime;
     @ManyToOne
-    @JoinColumn(nullable = false)
+    @JoinColumn(name = "user_token")
     private User user;
 
     @PrePersist

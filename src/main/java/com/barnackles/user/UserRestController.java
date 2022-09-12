@@ -160,8 +160,8 @@ public class UserRestController {
         Authentication authentication = authenticationFacade.getAuthentication();
         User user = userService.findUserByUserName(authentication.getName());
 
-        String message = String.format("User: %s successfully deleted ", user.getUserName());
-        userService.deleteUser(user);
+        String message = String.format("Confirmation email sent to: %s", user.getEmail());
+        userService.sendDeleteConfirmationToken(user);
         return new ResponseEntity<>(message, HttpStatus.OK);
     }
 
@@ -191,8 +191,8 @@ public class UserRestController {
 
     }
 
-    @GetMapping("/confirm/{token}")
-    public ResponseEntity<String> confirmUser(@PathVariable @ValidUuidString @NotBlank String token) {
+    @GetMapping("/confirm/registration/{token}")
+    public ResponseEntity<String> confirmUserRegistration(@PathVariable @ValidUuidString @NotBlank String token) {
         HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
         String message;
         try {
@@ -212,6 +212,39 @@ public class UserRestController {
                 userToActivate.setActive(true);
                 userService.updateUser(userToActivate);
                 message = "Successfull confirmation.";
+                return new ResponseEntity<>(message, HttpStatus.OK);
+            }
+            message = "Confirmation token expired.";
+            return new ResponseEntity<>(message, HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            log.error(e.getMessage());
+            message = "Invalid token.";
+            return new ResponseEntity<>(message, httpStatus);
+        }
+    }
+
+    @GetMapping("/confirm/deletion/{token}")
+    public ResponseEntity<String> confirmUserDeletion(@PathVariable @ValidUuidString @NotBlank String token) {
+        HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
+        String message;
+        try {
+            UUID UuidToken = UUID.fromString(token);
+            ConfirmationToken confirmationToken = confirmationTokenService.findConfirmationTokenByToken(UuidToken);
+            LocalDateTime now = LocalDateTime.now();
+            if (confirmationToken.getConfirmationTime() != null) {
+                message = "Your account has already been deleted.";
+                return new ResponseEntity<>(message, HttpStatus.OK);
+            }
+            if (now.isBefore(confirmationToken.getExpirationTime())
+                    && now.isAfter(confirmationToken.getCreationTime())) {
+
+                confirmationToken.setConfirmationTime(now);
+                confirmationTokenService.updateConfirmationToken(confirmationToken);
+                User userToDelete = confirmationToken.getUser();
+                confirmationTokenService.deleteConfirmationToken(confirmationToken);
+                userService.deleteUser(userToDelete);
+
+                message = "Account deleted successfully.";
                 return new ResponseEntity<>(message, HttpStatus.OK);
             }
             message = "Confirmation token expired.";

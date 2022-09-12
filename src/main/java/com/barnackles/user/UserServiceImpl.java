@@ -5,12 +5,14 @@ import com.barnackles.confirmationToken.ConfirmationTokenService;
 import com.barnackles.email.EmailSender;
 import com.barnackles.role.Role;
 import com.barnackles.role.RoleRepository;
+import com.barnackles.task.DeleteUnconfirmedAccountTask;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -32,6 +34,7 @@ public class UserServiceImpl implements UserService {
 
     private final EmailSender emailSender;
 
+    private final ThreadPoolTaskScheduler scheduler;
 
 
 
@@ -101,11 +104,17 @@ public class UserServiceImpl implements UserService {
         confirmationToken.setUser(user);
         confirmationTokenService.saveConfirmationToken(confirmationToken);
         String token = String.valueOf(confirmationToken.getToken());
+        String topic = "Home BudgetApp - Confirm Registration";
+        emailSender.send(user.getEmail(), getCreateConfirmationEmail(user.getUserName(), token), topic);
 
-        emailSender.send(user.getEmail(), getConfirmationEmail(user.getUserName(), token));
+        Date fifteenMinutesInMilliseconds = new Date(System.currentTimeMillis() + 900000);
+        scheduler.schedule(new DeleteUnconfirmedAccountTask(userRepository, confirmationTokenService, user,
+                        confirmationToken),
+        fifteenMinutesInMilliseconds);
 
         return user;
     }
+
 
     public User updateUser(User user) {
         user.setEmail(user.getEmail().toLowerCase());
@@ -120,13 +129,25 @@ public class UserServiceImpl implements UserService {
         return user;
     }
 
+    public void sendDeleteConfirmationToken(User user) {
+        log.info("Deletion confirmation token sent to: {}", user.getUserName());
+
+        ConfirmationToken confirmationToken = new ConfirmationToken();
+        confirmationToken.setUser(user);
+        confirmationTokenService.saveConfirmationToken(confirmationToken);
+        String token = String.valueOf(confirmationToken.getToken());
+        String topic = "Home BudgetApp - Are you sure you want to delete your account?";
+
+        emailSender.send(user.getEmail(), getDeleteConfirmationEmail(user.getUserName(), token), topic);
+    }
+
     public void deleteUser(User user) {
-        log.info("User deleted: {}", user.getUserName());
+
         userRepository.deleteUserById(user.getId());
+        log.info("User: {} deleted successfully", user.getUserName());
     }
 
     /**
-     *
      * @param email
      * @param persistentUser
      * @return boolean
@@ -165,13 +186,13 @@ public class UserServiceImpl implements UserService {
         return false;
     }
 
-    public String getConfirmationEmail(String userName, String token ) {
+    public String getCreateConfirmationEmail(String userName, String token) {
         return String.format("<!DOCTYPE html>\n" +
                 "<html lang=\"en\">\n" +
                 "<head>\n" +
                 "    <meta charset=\"UTF-8\">\n" +
                 "    <title>Email Confirmation</title>\n" +
-                "    <p>Greetings %s! <br> In order to confirm registration of your account please click <a href=\"http://localhost:8080/api/user/confirm/%s\">here</a>.</p>\n" +
+                "    <p>Greetings %s! <br> In order to confirm registration of your account please click <a href=\"http://localhost:8080/api/user/confirm/registration/%s\">here</a>.</p>\n" +
                 "<p>Link will only be valid for 15 minutes.</p>\n" +
                 "<p>If you did not register your account please ignore this message.</p>\n" +
                 "<p>Kind regards <br> Home BudgetApp Team</p>\n" +
@@ -181,5 +202,25 @@ public class UserServiceImpl implements UserService {
                 "</body>\n" +
                 "</html>", userName, token);
     }
+
+    public String getDeleteConfirmationEmail(String userName, String token) {
+        return String.format("<!DOCTYPE html>\n" +
+                "<html lang=\"en\">\n" +
+                "<head>\n" +
+                "    <meta charset=\"UTF-8\">\n" +
+                "    <title>Email Confirmation</title>\n" +
+                "    <p>Greetings %s! <br> Are you sure you want to delete your account? </p> \n" +
+                "<p> If you really want to delete your account please click this <a href=\"http://localhost:8080/api/user/confirm/deletion/%s\">link</a>.</p>\n" +
+                "<p>Remember that operation is irreversible and you will lose all content.</p>\n" +
+                "<p>Link will only be valid for 15 minutes.</p>\n" +
+                "<p>If you did not try to delete your account please ignore this message.</p>\n" +
+                "<p>Kind regards <br> Home BudgetApp Team</p>\n" +
+                "</head>\n" +
+                "<body>\n" +
+                "\n" +
+                "</body>\n" +
+                "</html>", userName, token);
+    }
+
 
 }
