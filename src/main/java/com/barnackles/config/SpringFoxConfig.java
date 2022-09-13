@@ -18,8 +18,10 @@ import java.util.List;
 import static java.util.Collections.singletonList;
 
 
-@EnableSwagger2
+
 @Configuration
+//@Profile({"!prod && swagger"})
+@EnableSwagger2
 public class SpringFoxConfig {
     @Bean
     public Docket api() {
