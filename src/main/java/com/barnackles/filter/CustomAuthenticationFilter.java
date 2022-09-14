@@ -74,7 +74,7 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
         String message = "Unable to authenticate";
         body.put("message", message);
         body.put("exception", failed.getMessage());
-        log.info("authentication unsuccessfully: {}", body);
+        log.info("authentication unsuccessfull: {}", body);
         response.setStatus(HttpStatus.UNAUTHORIZED.value());
 
 

@@ -4,8 +4,11 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.barnackles.ApplicationSecurity.IAuthenticationFacade;
+import com.barnackles.confirmationToken.ConfirmationToken;
+import com.barnackles.confirmationToken.ConfirmationTokenService;
 import com.barnackles.filter.CustomAuthorizationFilter;
 import com.barnackles.util.JwtUtil;
+import com.barnackles.validator.uuid.ValidUuidString;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,8 +24,11 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
 import java.io.IOException;
 import java.text.ParseException;
+import java.time.LocalDateTime;
+import java.util.UUID;
 
 import static com.barnackles.filter.CustomAuthorizationFilter.TOKEN_PREFIX;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
@@ -34,9 +40,13 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 public class UserRestController {
 
     private final UserServiceImpl userService;
+
+    private final ConfirmationTokenService confirmationTokenService;
     private final ModelMapper modelMapper;
     private final PasswordEncoder passwordEncoder;
     private final IAuthenticationFacade authenticationFacade;
+
+
 
 
     private final JwtUtil jwtUtil;
@@ -58,11 +68,11 @@ public class UserRestController {
 
 
     /**
-     * @param userCreateDto
+     * @param userCreateDto user create data transfer object
      * @return ResponseEntity<UserResponseDto>
      */
-    //email confirmation
-    @PostMapping("/user")
+
+    @PostMapping("/register")
     public ResponseEntity<UserResponseDto> createUser(@Valid @RequestBody UserCreateDto userCreateDto) {
 
         User user;
@@ -78,7 +88,7 @@ public class UserRestController {
     }
 
     /**
-     * @param userUpdateDto
+     * @param userUpdateDto user update data transfer object
      * @return ResponseEntity<UserResponseDto>
      */
     @Secured("ROLE_USER")
@@ -94,7 +104,6 @@ public class UserRestController {
         && persistentUser.getEmail().equals(userUpdateDto.getEmail())) {
 
             return new ResponseEntity<>(responseUser, httpStatus);
-
         }
 
         if (userService.emailCheck(userUpdateDto.getEmail(), persistentUser) &&
@@ -119,7 +128,7 @@ public class UserRestController {
     }
 
     /**
-     * @param userPasswordUpdateDto
+     * @param userPasswordUpdateDto password update data transfer object
      * @return ResponseEntity<UserResponseDto>
      */
     @Secured("ROLE_USER")
@@ -143,15 +152,14 @@ public class UserRestController {
     }
 
 
-    // secure unintentional deletion
     @Secured("ROLE_USER")
     @DeleteMapping("/user/current")
     public ResponseEntity<String> deleteUser() {
         Authentication authentication = authenticationFacade.getAuthentication();
         User user = userService.findUserByUserName(authentication.getName());
 
-        String message = String.format("User: %s successfully deleted ", user.getUserName());
-        userService.deleteUser(user);
+        String message = String.format("Confirmation email sent to: %s", user.getEmail());
+        userService.sendDeleteConfirmationToken(user);
         return new ResponseEntity<>(message, HttpStatus.OK);
     }
 
@@ -181,20 +189,96 @@ public class UserRestController {
 
     }
 
+    /**
+     * @param token registration token in the form of string
+     * @return ResponseEntity
+     * Accepts registration confirmation token and activates user.
+     */
+
+    @GetMapping("/confirm/registration/{token}")
+    public ResponseEntity<String> confirmUserRegistration(@PathVariable @ValidUuidString @NotBlank String token) {
+        HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
+        String message;
+        try {
+            UUID UuidToken = UUID.fromString(token);
+            ConfirmationToken confirmationToken = confirmationTokenService.findConfirmationTokenByToken(UuidToken);
+            LocalDateTime now = LocalDateTime.now();
+            if (confirmationToken.getConfirmationTime() != null) {
+                message = "Your account has already been activated.";
+                return new ResponseEntity<>(message, HttpStatus.OK);
+            }
+            if (now.isBefore(confirmationToken.getExpirationTime())
+                && now.isAfter(confirmationToken.getCreationTime())) {
+
+                confirmationToken.setConfirmationTime(now);
+                confirmationTokenService.updateConfirmationToken(confirmationToken);
+                User userToActivate = confirmationToken.getUser();
+                userToActivate.setActive(true);
+                userService.updateUser(userToActivate);
+                message = "Your account has been confirmed.";
+                return new ResponseEntity<>(message, HttpStatus.OK);
+            }
+            message = "Confirmation token expired.";
+            return new ResponseEntity<>(message, HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            log.error(e.getMessage());
+            message = "Invalid token.";
+            return new ResponseEntity<>(message, httpStatus);
+        }
+    }
 
     /**
-     * @param user
-     * @return UserResponseDto
-     * Entity to DTO conversion
+     * @param token deletion token
+     * @return ResponseEntity
+     * Accepts deletion confirmation token and deletes user.
      */
-    private UserResponseDto convertToResponseDto(User user) {
-        UserResponseDto userResponseDto = modelMapper.map(user, UserResponseDto.class);
-        return userResponseDto;
+
+    @GetMapping("/confirm/deletion/{token}")
+    public ResponseEntity<String> confirmUserDeletion(@PathVariable @ValidUuidString @NotBlank String token) {
+        HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
+        String message;
+        try {
+            UUID UuidToken = UUID.fromString(token);
+            ConfirmationToken confirmationToken = confirmationTokenService.findConfirmationTokenByToken(UuidToken);
+            LocalDateTime now = LocalDateTime.now();
+            if (confirmationToken.getConfirmationTime() != null) {
+                message = "Your account has already been deleted.";
+                return new ResponseEntity<>(message, HttpStatus.OK);
+            }
+            if (now.isBefore(confirmationToken.getExpirationTime())
+                    && now.isAfter(confirmationToken.getCreationTime())) {
+
+                confirmationToken.setConfirmationTime(now);
+                confirmationTokenService.updateConfirmationToken(confirmationToken);
+                User userToDelete = confirmationToken.getUser();
+                confirmationTokenService.deleteConfirmationToken(confirmationToken);
+                userService.deleteUser(userToDelete);
+
+                message = "Account deleted successfully.";
+                return new ResponseEntity<>(message, HttpStatus.OK);
+            }
+            message = "Confirmation token expired.";
+            return new ResponseEntity<>(message, HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            log.error(e.getMessage());
+            message = "Invalid token.";
+            return new ResponseEntity<>(message, httpStatus);
+        }
     }
 
 
     /**
-     * @param userCreateDto
+     * @param user object of type User
+     * @return UserResponseDto
+     * Entity to DTO conversion
+     */
+    private UserResponseDto convertToResponseDto(User user) {
+        return modelMapper.map(user, UserResponseDto.class);
+    }
+
+
+    /**
+     * @param userCreateDto object of type UserCreateDto
      * @return User
      * CreateDTO to Entity conversion
      */
@@ -204,7 +288,7 @@ public class UserRestController {
     }
 
     /**
-     * @param userUpdateDto
+     * @param userUpdateDto object of type UserUpdateDto
      * @return User
      * UpdateDTO to Entity conversion
      */

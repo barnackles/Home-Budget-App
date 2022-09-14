@@ -1,13 +1,18 @@
 package com.barnackles.user;
 
+import com.barnackles.confirmationToken.ConfirmationToken;
+import com.barnackles.confirmationToken.ConfirmationTokenService;
+import com.barnackles.email.EmailSender;
 import com.barnackles.role.Role;
 import com.barnackles.role.RoleRepository;
+import com.barnackles.task.DeleteUnconfirmedAccountTask;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -23,7 +28,14 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+
+    private final ConfirmationTokenService confirmationTokenService;
     private final BCryptPasswordEncoder passwordEncoder;
+
+    private final EmailSender emailSender;
+
+    private final ThreadPoolTaskScheduler scheduler;
+
 
 
     public User findUserByEmail(String email) throws EntityNotFoundException {
@@ -78,17 +90,35 @@ public class UserServiceImpl implements UserService {
 
 
     }
-
+    /**
+     * @return User
+     * Save user, set active to false and send confirmation email.
+     * Delete unconfirmed user.
+     */
     public User saveUser(User user) {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setEmail(user.getEmail().toLowerCase());
-        user.setActive(true);
+        user.setActive(false);
         Role userRole = roleRepository.findByRole("ROLE_USER");
-        user.setRoles(new HashSet<Role>(Collections.singletonList(userRole)));
+        user.setRoles(new HashSet<>(Collections.singletonList(userRole)));
         log.info("User saved: {}", user.getUserName());
         userRepository.save(user);
+
+        ConfirmationToken confirmationToken = new ConfirmationToken();
+        confirmationToken.setUser(user);
+        confirmationTokenService.saveConfirmationToken(confirmationToken);
+        String token = String.valueOf(confirmationToken.getToken());
+        String topic = "Home BudgetApp - Confirm Registration";
+        emailSender.send(user.getEmail(), getCreateConfirmationEmail(user.getUserName(), token), topic);
+
+        Date fifteenMinutesInMilliseconds = new Date(System.currentTimeMillis() + 900000);
+        scheduler.schedule(new DeleteUnconfirmedAccountTask(userRepository, confirmationTokenService, user,
+                        confirmationToken),
+        fifteenMinutesInMilliseconds);
+
         return user;
     }
+
 
     public User updateUser(User user) {
         user.setEmail(user.getEmail().toLowerCase());
@@ -103,15 +133,31 @@ public class UserServiceImpl implements UserService {
         return user;
     }
 
+    /**
+     * @param user
+     * Method send delete confirmation token to user.
+     */
+    public void sendDeleteConfirmationToken(User user) {
+        log.info("Deletion confirmation token sent to: {}", user.getUserName());
+
+        ConfirmationToken confirmationToken = new ConfirmationToken();
+        confirmationToken.setUser(user);
+        confirmationTokenService.saveConfirmationToken(confirmationToken);
+        String token = String.valueOf(confirmationToken.getToken());
+        String topic = "Home BudgetApp - Are you sure you want to delete your account?";
+
+        emailSender.send(user.getEmail(), getDeleteConfirmationEmail(user.getUserName(), token), topic);
+    }
+
     public void deleteUser(User user) {
-        log.info("User deleted: {}", user.getUserName());
+
         userRepository.deleteUserById(user.getId());
+        log.info("User: {} deleted successfully", user.getUserName());
     }
 
     /**
-     *
-     * @param email
-     * @param persistentUser
+     * @param email user email
+     * @param persistentUser user stored in the database
      * @return boolean
      * If user with email equals persistent user method will return true.
      * If user with email
@@ -147,4 +193,46 @@ public class UserServiceImpl implements UserService {
         log.info("Username: {} is not available.", userName);
         return false;
     }
+
+    public String getCreateConfirmationEmail(String userName, String token) {
+        return String.format("""
+                <!DOCTYPE html>
+                <html lang="en">
+                <head>
+                    <meta charset="UTF-8">
+                    <title>Email Confirmation</title>
+                    <p>Greetings %s! <br> In order to confirm registration of your account please click <a href="http://localhost:8080/api/user/confirm/registration/%s">here</a>.</p>
+                <p>Link will only be valid for 15 minutes.</p>
+                <p>If you did not register your account please ignore this message.</p>
+                <p>Kind regards <br> Home BudgetApp Team</p>
+                </head>
+                <body>
+
+                </body>
+                </html>""", userName, token);
+    }
+
+    public String getDeleteConfirmationEmail(String userName, String token) {
+        return String.format("""
+                <!DOCTYPE html>
+                <html lang="en">
+                <head>
+                    <meta charset="UTF-8">
+                    <title>Email Confirmation</title>
+                    <p>Greetings %s! <br> Are you sure you want to delete your account? </p>\s
+                <p> If you really want to delete your account please click this <a href="http://localhost:8080/api/user/confirm/deletion/%s">link</a>.</p>
+                <p>Remember that operation is irreversible and you will lose all content.</p>
+                <p>Link will only be valid for 15 minutes.</p>
+                <p>If you did not try to delete your account please ignore this message.</p>
+                <p>Kind regards <br> Home BudgetApp Team</p>
+                </head>
+                <body>
+
+                </body>
+                </html>""", userName, token);
+    }
+
+
+
+
 }

@@ -41,10 +41,11 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         if (("/login".equals(request.getServletPath()))
                 || ("/user/token/refresh".equals(request.getServletPath()))
+                || ("/user/confirm/**".equals(request.getServletPath()))
                 || ("/swagger-ui/**".equals(request.getServletPath()))
                 || ("/swagger-resources/**".equals(request.getServletPath()))
                 || ("/v2/api-docs".equals(request.getServletPath()))
-                || ("/user/user".equals(request.getServletPath()))
+                || ("/user/register".equals(request.getServletPath()))
         ) {
             filterChain.doFilter(request, response);
         } else {

@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -29,6 +30,7 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final String secret;
     private final String secret2;
+    private String token;
 
 
     public ApplicationSecurityConfig(@Value("${jwt.secret") String secret, @Value("${jwt.secret2") String secret2) {
@@ -72,11 +74,12 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
         http.authorizeRequests().antMatchers(
                 "/login",
                 "/user/token/refresh",
+                "/user/confirm/**",
                 "/swagger-ui/**",
                 "/swagger-resources/**",
                 "/v2/api-docs").permitAll();
 
-        http.authorizeRequests().antMatchers(HttpMethod.POST, "/user/user").permitAll();
+        http.authorizeRequests().antMatchers(HttpMethod.POST, "/user/register").permitAll();
         http.authorizeRequests().antMatchers("/**").hasAnyRole("USER", "ADMIN")
                 .anyRequest().authenticated();
 
@@ -92,6 +95,12 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
     public AuthenticationManager authenticationManagerBean() throws Exception {
         return super.authenticationManagerBean();
     }
+
+    @Bean
+    public ThreadPoolTaskScheduler threadPoolTaskScheduler() {
+        return new ThreadPoolTaskScheduler();
+    }
+
 }
 
 
