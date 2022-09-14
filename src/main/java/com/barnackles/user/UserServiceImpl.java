@@ -91,7 +91,6 @@ public class UserServiceImpl implements UserService {
 
     }
     /**
-     * @param user
      * @return User
      * Save user, set active to false and send confirmation email.
      * Delete unconfirmed user.
@@ -101,7 +100,7 @@ public class UserServiceImpl implements UserService {
         user.setEmail(user.getEmail().toLowerCase());
         user.setActive(false);
         Role userRole = roleRepository.findByRole("ROLE_USER");
-        user.setRoles(new HashSet<Role>(Collections.singletonList(userRole)));
+        user.setRoles(new HashSet<>(Collections.singletonList(userRole)));
         log.info("User saved: {}", user.getUserName());
         userRepository.save(user);
 
@@ -136,7 +135,6 @@ public class UserServiceImpl implements UserService {
 
     /**
      * @param user
-     * @return void
      * Method send delete confirmation token to user.
      */
     public void sendDeleteConfirmationToken(User user) {
@@ -158,8 +156,8 @@ public class UserServiceImpl implements UserService {
     }
 
     /**
-     * @param email
-     * @param persistentUser
+     * @param email user email
+     * @param persistentUser user stored in the database
      * @return boolean
      * If user with email equals persistent user method will return true.
      * If user with email
@@ -197,39 +195,41 @@ public class UserServiceImpl implements UserService {
     }
 
     public String getCreateConfirmationEmail(String userName, String token) {
-        return String.format("<!DOCTYPE html>\n" +
-                "<html lang=\"en\">\n" +
-                "<head>\n" +
-                "    <meta charset=\"UTF-8\">\n" +
-                "    <title>Email Confirmation</title>\n" +
-                "    <p>Greetings %s! <br> In order to confirm registration of your account please click <a href=\"http://localhost:8080/api/user/confirm/registration/%s\">here</a>.</p>\n" +
-                "<p>Link will only be valid for 15 minutes.</p>\n" +
-                "<p>If you did not register your account please ignore this message.</p>\n" +
-                "<p>Kind regards <br> Home BudgetApp Team</p>\n" +
-                "</head>\n" +
-                "<body>\n" +
-                "\n" +
-                "</body>\n" +
-                "</html>", userName, token);
+        return String.format("""
+                <!DOCTYPE html>
+                <html lang="en">
+                <head>
+                    <meta charset="UTF-8">
+                    <title>Email Confirmation</title>
+                    <p>Greetings %s! <br> In order to confirm registration of your account please click <a href="http://localhost:8080/api/user/confirm/registration/%s">here</a>.</p>
+                <p>Link will only be valid for 15 minutes.</p>
+                <p>If you did not register your account please ignore this message.</p>
+                <p>Kind regards <br> Home BudgetApp Team</p>
+                </head>
+                <body>
+
+                </body>
+                </html>""", userName, token);
     }
 
     public String getDeleteConfirmationEmail(String userName, String token) {
-        return String.format("<!DOCTYPE html>\n" +
-                "<html lang=\"en\">\n" +
-                "<head>\n" +
-                "    <meta charset=\"UTF-8\">\n" +
-                "    <title>Email Confirmation</title>\n" +
-                "    <p>Greetings %s! <br> Are you sure you want to delete your account? </p> \n" +
-                "<p> If you really want to delete your account please click this <a href=\"http://localhost:8080/api/user/confirm/deletion/%s\">link</a>.</p>\n" +
-                "<p>Remember that operation is irreversible and you will lose all content.</p>\n" +
-                "<p>Link will only be valid for 15 minutes.</p>\n" +
-                "<p>If you did not try to delete your account please ignore this message.</p>\n" +
-                "<p>Kind regards <br> Home BudgetApp Team</p>\n" +
-                "</head>\n" +
-                "<body>\n" +
-                "\n" +
-                "</body>\n" +
-                "</html>", userName, token);
+        return String.format("""
+                <!DOCTYPE html>
+                <html lang="en">
+                <head>
+                    <meta charset="UTF-8">
+                    <title>Email Confirmation</title>
+                    <p>Greetings %s! <br> Are you sure you want to delete your account? </p>\s
+                <p> If you really want to delete your account please click this <a href="http://localhost:8080/api/user/confirm/deletion/%s">link</a>.</p>
+                <p>Remember that operation is irreversible and you will lose all content.</p>
+                <p>Link will only be valid for 15 minutes.</p>
+                <p>If you did not try to delete your account please ignore this message.</p>
+                <p>Kind regards <br> Home BudgetApp Team</p>
+                </head>
+                <body>
+
+                </body>
+                </html>""", userName, token);
     }
 
 

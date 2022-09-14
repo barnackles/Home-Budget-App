@@ -68,7 +68,7 @@ public class UserRestController {
 
 
     /**
-     * @param userCreateDto
+     * @param userCreateDto user create data transfer object
      * @return ResponseEntity<UserResponseDto>
      */
 
@@ -88,7 +88,7 @@ public class UserRestController {
     }
 
     /**
-     * @param userUpdateDto
+     * @param userUpdateDto user update data transfer object
      * @return ResponseEntity<UserResponseDto>
      */
     @Secured("ROLE_USER")
@@ -128,7 +128,7 @@ public class UserRestController {
     }
 
     /**
-     * @param userPasswordUpdateDto
+     * @param userPasswordUpdateDto password update data transfer object
      * @return ResponseEntity<UserResponseDto>
      */
     @Secured("ROLE_USER")
@@ -190,7 +190,7 @@ public class UserRestController {
     }
 
     /**
-     * @param token
+     * @param token registration token in the form of string
      * @return ResponseEntity
      * Accepts registration confirmation token and activates user.
      */
@@ -215,7 +215,7 @@ public class UserRestController {
                 User userToActivate = confirmationToken.getUser();
                 userToActivate.setActive(true);
                 userService.updateUser(userToActivate);
-                message = "Successfull confirmation.";
+                message = "Your account has been confirmed.";
                 return new ResponseEntity<>(message, HttpStatus.OK);
             }
             message = "Confirmation token expired.";
@@ -228,7 +228,7 @@ public class UserRestController {
     }
 
     /**
-     * @param token
+     * @param token deletion token
      * @return ResponseEntity
      * Accepts deletion confirmation token and deletes user.
      */
@@ -268,18 +268,17 @@ public class UserRestController {
 
 
     /**
-     * @param user
+     * @param user object of type User
      * @return UserResponseDto
      * Entity to DTO conversion
      */
     private UserResponseDto convertToResponseDto(User user) {
-        UserResponseDto userResponseDto = modelMapper.map(user, UserResponseDto.class);
-        return userResponseDto;
+        return modelMapper.map(user, UserResponseDto.class);
     }
 
 
     /**
-     * @param userCreateDto
+     * @param userCreateDto object of type UserCreateDto
      * @return User
      * CreateDTO to Entity conversion
      */
@@ -289,7 +288,7 @@ public class UserRestController {
     }
 
     /**
-     * @param userUpdateDto
+     * @param userUpdateDto object of type UserUpdateDto
      * @return User
      * UpdateDTO to Entity conversion
      */
