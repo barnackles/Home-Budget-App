@@ -90,7 +90,12 @@ public class UserServiceImpl implements UserService {
 
 
     }
-
+    /**
+     * @param user
+     * @return User
+     * Save user, set active to false and send confirmation email.
+     * Delete unconfirmed user.
+     */
     public User saveUser(User user) {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setEmail(user.getEmail().toLowerCase());
@@ -129,6 +134,11 @@ public class UserServiceImpl implements UserService {
         return user;
     }
 
+    /**
+     * @param user
+     * @return void
+     * Method send delete confirmation token to user.
+     */
     public void sendDeleteConfirmationToken(User user) {
         log.info("Deletion confirmation token sent to: {}", user.getUserName());
 
@@ -221,6 +231,8 @@ public class UserServiceImpl implements UserService {
                 "</body>\n" +
                 "</html>", userName, token);
     }
+
+
 
 
 }

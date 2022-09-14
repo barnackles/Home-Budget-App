@@ -104,7 +104,6 @@ public class UserRestController {
         && persistentUser.getEmail().equals(userUpdateDto.getEmail())) {
 
             return new ResponseEntity<>(responseUser, httpStatus);
-
         }
 
         if (userService.emailCheck(userUpdateDto.getEmail(), persistentUser) &&
@@ -153,7 +152,6 @@ public class UserRestController {
     }
 
 
-    // secure unintentional deletion
     @Secured("ROLE_USER")
     @DeleteMapping("/user/current")
     public ResponseEntity<String> deleteUser() {
@@ -191,6 +189,12 @@ public class UserRestController {
 
     }
 
+    /**
+     * @param token
+     * @return ResponseEntity
+     * Accepts registration confirmation token and activates user.
+     */
+
     @GetMapping("/confirm/registration/{token}")
     public ResponseEntity<String> confirmUserRegistration(@PathVariable @ValidUuidString @NotBlank String token) {
         HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
@@ -222,6 +226,12 @@ public class UserRestController {
             return new ResponseEntity<>(message, httpStatus);
         }
     }
+
+    /**
+     * @param token
+     * @return ResponseEntity
+     * Accepts deletion confirmation token and deletes user.
+     */
 
     @GetMapping("/confirm/deletion/{token}")
     public ResponseEntity<String> confirmUserDeletion(@PathVariable @ValidUuidString @NotBlank String token) {
