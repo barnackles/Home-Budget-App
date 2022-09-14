@@ -74,12 +74,13 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
         http.authorizeRequests().antMatchers(
                 "/login",
                 "/user/token/refresh",
+                "/user/forgotten-password/**",
                 "/user/confirm/**",
                 "/swagger-ui/**",
                 "/swagger-resources/**",
                 "/v2/api-docs").permitAll();
 
-        http.authorizeRequests().antMatchers(HttpMethod.POST, "/user/register").permitAll();
+        http.authorizeRequests().antMatchers(HttpMethod.POST, "/user/register", "/user/set-new-password").permitAll();
         http.authorizeRequests().antMatchers("/**").hasAnyRole("USER", "ADMIN")
                 .anyRequest().authenticated();
 

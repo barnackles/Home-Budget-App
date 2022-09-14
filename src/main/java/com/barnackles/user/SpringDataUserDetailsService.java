@@ -17,7 +17,7 @@ import java.util.regex.Pattern;
 
 @Service
 public class SpringDataUserDetailsService implements UserDetailsService {
-    private static final Pattern PATTERN = Pattern.compile("^[a-zA-Z0-9_!#$%&'*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$");
+    public static final Pattern PATTERN = Pattern.compile("^[a-zA-Z0-9_!#$%&'*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$");
     private UserService userService;
 
 
@@ -29,7 +29,7 @@ public class SpringDataUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String login) throws UsernameNotFoundException {
         User user;
-        if (isLoginUserNameOrEmail(login)) {
+        if (LoginIsEmail(login)) {
             user = userService.findUserByEmail(login);
         } else {
             user = userService.findUserByUserName(login);
@@ -56,7 +56,7 @@ public class SpringDataUserDetailsService implements UserDetailsService {
                 user.getActive(), true, true, true, authorities);
     }
 
-    public boolean isLoginUserNameOrEmail(String login) {
+    public boolean LoginIsEmail(String login) {
         return PATTERN.matcher(login).matches();
     }
 
