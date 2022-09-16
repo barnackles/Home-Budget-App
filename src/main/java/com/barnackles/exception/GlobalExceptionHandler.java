@@ -41,9 +41,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(EntityNotFoundException.class)
     protected ResponseEntity<Object> handleEntityNotFound(EntityNotFoundException ex) {
-//        Map<String, String> body = new HashMap<>();
-//        String error = ex.getMessage();
-//        body.put("error", error);
+
         String message = String.format("Not found.");
 
         return new ResponseEntity<>(message, HttpStatus.NOT_FOUND);
@@ -51,18 +49,14 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(EntityExistsException.class)
     protected ResponseEntity<Object> handleEntityExists(EntityExistsException ex) {
-//        Map<String, String> body = new HashMap<>();
-//        String error = ex.getMessage();
-//        body.put("error", error);
+
         String message = String.format("Already exist.");
         return new ResponseEntity<>(message, HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
     protected ResponseEntity<Object> handleIllegalEntityException(IllegalArgumentException ex) {
-//        Map<String, String> body = new HashMap<>();
-//        String error = ex.getMessage();
-//        body.put("error", error);
+
         String message = String.format("Invalid input.");
         return new ResponseEntity<>(message, HttpStatus.BAD_REQUEST);
     }

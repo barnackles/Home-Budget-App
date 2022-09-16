@@ -331,7 +331,7 @@ public class UserRestController {
      */
 
     @PostMapping("/set-new-password")
-    public ResponseEntity<String> confirmSetPassword(@Valid UserSetNewPasswordDto userSetNewPasswordDto) {
+    public ResponseEntity<String> setNewPassword(@Valid @RequestBody UserSetNewPasswordDto userSetNewPasswordDto) {
         HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
         String message;
         try {
@@ -339,7 +339,7 @@ public class UserRestController {
             ConfirmationToken confirmationToken = confirmationTokenService.findConfirmationTokenByToken(UuidToken);
             LocalDateTime now = LocalDateTime.now();
             if (confirmationToken.getConfirmationTime() != null) {
-                message = "Password has been set up. PLease log in with your new password.";
+                message = "You have already set up your new password. Please log in with your new password.";
                 return new ResponseEntity<>(message, HttpStatus.OK);
             }
             if (now.isBefore(confirmationToken.getExpirationTime())
@@ -360,6 +360,7 @@ public class UserRestController {
             log.error(e.getMessage());
             message = "Invalid token.";
             return new ResponseEntity<>(message, httpStatus);
+
         }
     }
 
