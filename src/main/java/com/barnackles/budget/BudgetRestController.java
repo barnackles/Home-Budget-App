@@ -3,6 +3,7 @@ package com.barnackles.budget;
 import com.barnackles.ApplicationSecurity.IAuthenticationFacade;
 import com.barnackles.budget.admin.BudgetOverviewDto;
 import com.barnackles.operation.Operation;
+import com.barnackles.operation.OperationResponseDto;
 import com.barnackles.user.User;
 import com.barnackles.user.UserService;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.EntityExistsException;
 import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -53,7 +55,7 @@ public class BudgetRestController {
 
     @Secured("ROLE_USER")
     @GetMapping("/budget/{budgetName}")
-    public ResponseEntity<BudgetResponseDto> findUserBudgetByName(@PathVariable String budgetName) {
+    public ResponseEntity<BudgetResponseDto> findUserBudgetByName(@NotBlank @PathVariable String budgetName) {
 
         Authentication authentication = authenticationFacade.getAuthentication();
         User user = userService.findUserByUserName(authentication.getName());
@@ -61,8 +63,11 @@ public class BudgetRestController {
         if (budgetService.checkIfUserHasBudgetWithGivenName(budgetName, user)) {
 
             Budget budget = budgetService.findBudgetByBudgetNameAndUserEquals(budgetName, user);
-            List<Operation> recentFiveOperationsByDate = budget.getOperations().stream()
-                    .sorted(Comparator.comparing(Operation::getOperationDateTime)).toList();
+            // convert to operation DTO
+            List<OperationResponseDto> recentFiveOperationsByDate = budget.getOperations().stream()
+                    .sorted(Comparator.comparing(Operation::getOperationDateTime))
+                    .map(this::convertToOperationResponseDto)
+                    .toList();
 
             BudgetResponseDto budgetResponseDto = convertBudgetToResponseDto(budget);
             budgetResponseDto.setRecentOperations(recentFiveOperationsByDate);
@@ -121,7 +126,7 @@ public class BudgetRestController {
 
     @Secured("ROLE_USER")
     @DeleteMapping("/budget/{budgetName}")
-    public ResponseEntity<String> deleteBudget(@PathVariable String budgetName) {
+    public ResponseEntity<String> deleteBudget(@NotBlank @PathVariable String budgetName) {
         Authentication authentication = authenticationFacade.getAuthentication();
         User user = userService.findUserByUserName(authentication.getName());
 
@@ -145,7 +150,7 @@ public class BudgetRestController {
      */
     @Secured("ROLE_USER")
     @GetMapping("/budget/overview/all/{budgetName}")
-    public ResponseEntity<BudgetOverviewDto> showBudgetOverview(@PathVariable String budgetName) {
+    public ResponseEntity<BudgetOverviewDto> showBudgetOverview(@NotBlank @PathVariable String budgetName) {
 
         Authentication authentication = authenticationFacade.getAuthentication();
         User user = userService.findUserByUserName(authentication.getName());
@@ -167,7 +172,7 @@ public class BudgetRestController {
 
     @Secured("ROLE_USER")
     @GetMapping("/budget/overview/week/{budgetName}")
-    public ResponseEntity<BudgetOverviewDto> showBudgetOverviewForLastWeek(@PathVariable String budgetName) {
+    public ResponseEntity<BudgetOverviewDto> showBudgetOverviewForLastWeek(@NotBlank @PathVariable String budgetName) {
 
         Authentication authentication = authenticationFacade.getAuthentication();
         User user = userService.findUserByUserName(authentication.getName());
@@ -194,7 +199,7 @@ public class BudgetRestController {
 
     @Secured("ROLE_USER")
     @GetMapping("/budget/overview/month/{budgetName}")
-    public ResponseEntity<BudgetOverviewDto> showBudgetOverviewForLastMonth(@PathVariable String budgetName) {
+    public ResponseEntity<BudgetOverviewDto> showBudgetOverviewForLastMonth(@NotBlank @PathVariable String budgetName) {
 
         Authentication authentication = authenticationFacade.getAuthentication();
         User user = userService.findUserByUserName(authentication.getName());
@@ -221,7 +226,7 @@ public class BudgetRestController {
 
     @Secured("ROLE_USER")
     @GetMapping("/budget/overview/year/{budgetName}")
-    public ResponseEntity<BudgetOverviewDto> showBudgetOverviewForLastYear(@PathVariable String budgetName) {
+    public ResponseEntity<BudgetOverviewDto> showBudgetOverviewForLastYear(@NotBlank @PathVariable String budgetName) {
 
         Authentication authentication = authenticationFacade.getAuthentication();
         User user = userService.findUserByUserName(authentication.getName());
@@ -247,8 +252,8 @@ public class BudgetRestController {
 
     @Secured("ROLE_USER")
     @GetMapping("/budget/overview/custom-dates/{budgetName}/{beginStr}/{endStr}")
-    public ResponseEntity<BudgetOverviewDto> showBudgetOverviewForCustomRange(@PathVariable String budgetName,
-                                                                              @PathVariable String beginStr, @PathVariable String endStr) {
+    public ResponseEntity<BudgetOverviewDto> showBudgetOverviewForCustomRange(@NotBlank @PathVariable String budgetName,
+                                                                              @NotBlank @PathVariable String beginStr, @NotBlank @PathVariable String endStr) {
 
         Authentication authentication = authenticationFacade.getAuthentication();
         User user = userService.findUserByUserName(authentication.getName());
@@ -303,6 +308,10 @@ public class BudgetRestController {
 
     private BudgetResponseDtoAll convertBudgetToResponseDtoAll(Budget budget) {
         return modelMapper.map(budget, BudgetResponseDtoAll.class);
+    }
+
+    private OperationResponseDto convertToOperationResponseDto(Operation operation) {
+        return modelMapper.map(operation, OperationResponseDto.class);
     }
 
 }

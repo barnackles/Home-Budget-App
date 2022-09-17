@@ -1,6 +1,6 @@
 package com.barnackles.operation;
 
-import com.barnackles.category.Category;
+import com.barnackles.category.CategoryResponseDto;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -12,7 +12,7 @@ public class OperationResponseDto {
 
     private UUID uuid;
     private String description;
-    private Category category;
+    private CategoryResponseDto category;
     private BigDecimal amount;
     private OperationType operationType;
     private LocalDateTime operationDateTime;
