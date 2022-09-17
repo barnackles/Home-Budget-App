@@ -28,7 +28,7 @@ public class ValidUuidStringValidator implements ConstraintValidator<ValidUuidSt
             log.info("UUID string: {} is in correct format.", value);
             return true;
         }
-        log.info("UUID: {} is incorrect format available.", value);
+        log.info("UUID: {} is incorrect format.", value);
         return false;
     }
 }

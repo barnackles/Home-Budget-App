@@ -50,8 +50,8 @@ class SpringDataUserDetailsServiceTest {
         SpringDataUserDetailsService springDataUserDetailsService = new SpringDataUserDetailsService();
 
 
-        emails.forEach(t -> assertTrue(springDataUserDetailsService.isLoginUserNameOrEmail(t)));
-        nonEmails.forEach(t -> assertFalse(springDataUserDetailsService.isLoginUserNameOrEmail(t)));
+        emails.forEach(t -> assertTrue(springDataUserDetailsService.LoginIsEmail(t)));
+        nonEmails.forEach(t -> assertFalse(springDataUserDetailsService.LoginIsEmail(t)));
 
 
 

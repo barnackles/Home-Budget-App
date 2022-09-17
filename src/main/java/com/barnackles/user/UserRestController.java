@@ -10,6 +10,7 @@ import com.barnackles.filter.CustomAuthorizationFilter;
 import com.barnackles.util.JwtUtil;
 import com.barnackles.validator.uuid.ValidUuidString;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.uuid.Generators;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -28,6 +29,7 @@ import javax.validation.constraints.NotBlank;
 import java.io.IOException;
 import java.text.ParseException;
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.UUID;
 
 import static com.barnackles.filter.CustomAuthorizationFilter.TOKEN_PREFIX;
@@ -151,6 +153,22 @@ public class UserRestController {
         return new ResponseEntity<>(response, httpStatus);
     }
 
+    /**
+     * @param userForgottenPasswordDto e-mail Dto
+     * @return ResponseEntity<String>
+     */
+    @PostMapping("/forgotten-password")
+    public ResponseEntity<String> forgottenPasswordRequest(@Valid @RequestBody UserForgottenPasswordDto userForgottenPasswordDto) {
+
+        //check for null
+        Optional<User> userOptional = userService.findUserByEmailOpt(userForgottenPasswordDto.getEmail());
+        userOptional.ifPresent(userService::sendResetPasswordTokenToUser);
+        String message = "If there is an account registered with the e-mail you have provided," +
+                " we will send you reset password link to your e-mail.";
+
+        return new ResponseEntity<>(message, HttpStatus.OK);
+    }
+
 
     @Secured("ROLE_USER")
     @DeleteMapping("/user/current")
@@ -265,6 +283,89 @@ public class UserRestController {
             return new ResponseEntity<>(message, httpStatus);
         }
     }
+
+    /**
+     * @param token password reset token
+     * @return ResponseEntity
+     * Accepts deletion confirmation token and deletes user.
+     */
+
+    @GetMapping("/confirm/password-reset/{token}")
+    public ResponseEntity<String> confirmResetPassword(@PathVariable @ValidUuidString @NotBlank String token) {
+        HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
+        String message;
+        try {
+            UUID UuidToken = UUID.fromString(token);
+            ConfirmationToken confirmationToken = confirmationTokenService.findConfirmationTokenByToken(UuidToken);
+            LocalDateTime now = LocalDateTime.now();
+            if (confirmationToken.getConfirmationTime() != null) {
+                message = "Your password has already been reset.";
+                return new ResponseEntity<>(message, HttpStatus.OK);
+            }
+            if (now.isBefore(confirmationToken.getExpirationTime())
+                    && now.isAfter(confirmationToken.getCreationTime())) {
+
+                confirmationToken.setConfirmationTime(now);
+                confirmationTokenService.updateConfirmationToken(confirmationToken);
+                User userToResetPassword = confirmationToken.getUser();
+
+                String tempPassword = String.valueOf(Generators.timeBasedGenerator().generate());
+                userToResetPassword.setPassword(tempPassword);
+                userService.resetUserPassword(userToResetPassword);
+
+                message = "Password has been reset. You will receive a link to set your new password.";
+                return new ResponseEntity<>(message, HttpStatus.OK);
+            }
+            message = "Confirmation token expired.";
+            return new ResponseEntity<>(message, HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            log.error(e.getMessage());
+            message = "Invalid token.";
+            return new ResponseEntity<>(message, httpStatus);
+        }
+    }
+
+    /**
+     * @param userSetNewPasswordDto object of type UserSetNewPasswordDto
+     * @return ResponseEntity
+     * Accepts deletion confirmation token and deletes user.
+     */
+
+    @PostMapping("/set-new-password")
+    public ResponseEntity<String> setNewPassword(@Valid @RequestBody UserSetNewPasswordDto userSetNewPasswordDto) {
+        HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
+        String message;
+        try {
+            UUID UuidToken = UUID.fromString(userSetNewPasswordDto.getToken());
+            ConfirmationToken confirmationToken = confirmationTokenService.findConfirmationTokenByToken(UuidToken);
+            LocalDateTime now = LocalDateTime.now();
+            if (confirmationToken.getConfirmationTime() != null) {
+                message = "This token has been already used.";
+                return new ResponseEntity<>(message, HttpStatus.OK);
+            }
+            if (now.isBefore(confirmationToken.getExpirationTime())
+                    && now.isAfter(confirmationToken.getCreationTime())) {
+
+                confirmationToken.setConfirmationTime(now);
+                confirmationTokenService.updateConfirmationToken(confirmationToken);
+                User userToSetNewPassword = confirmationToken.getUser();
+                userToSetNewPassword.setPassword(userSetNewPasswordDto.getNewPassword());
+                userService.updateUserPassword(userToSetNewPassword);
+
+                message = "New password has been set.";
+                return new ResponseEntity<>(message, HttpStatus.OK);
+            }
+            message = "Confirmation token expired.";
+            return new ResponseEntity<>(message, HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            log.error(e.getMessage());
+            message = "Invalid token.";
+            return new ResponseEntity<>(message, httpStatus);
+
+        }
+    }
+
+
 
 
     /**
