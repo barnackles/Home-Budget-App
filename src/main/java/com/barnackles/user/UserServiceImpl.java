@@ -38,6 +38,10 @@ public class UserServiceImpl implements UserService {
 
 
 
+    public Optional<User> findUserByEmailOpt(String email) throws EntityNotFoundException {
+        String emailToLowerCase = email.toLowerCase();
+        return userRepository.findUserByEmail(emailToLowerCase);
+    }
     public User findUserByEmail(String email) throws EntityNotFoundException {
         String emailToLowerCase = email.toLowerCase();
         log.info("User found: {}", emailToLowerCase);

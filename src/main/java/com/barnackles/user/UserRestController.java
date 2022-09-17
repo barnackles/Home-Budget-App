@@ -29,6 +29,7 @@ import javax.validation.constraints.NotBlank;
 import java.io.IOException;
 import java.text.ParseException;
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.UUID;
 
 import static com.barnackles.filter.CustomAuthorizationFilter.TOKEN_PREFIX;
@@ -157,15 +158,15 @@ public class UserRestController {
      * @return ResponseEntity<String>
      */
     @PostMapping("/forgotten-password")
-    public ResponseEntity<UserForgottenPasswordDto> forgottenPasswordRequest(@Valid @RequestBody UserForgottenPasswordDto userForgottenPasswordDto) {
+    public ResponseEntity<String> forgottenPasswordRequest(@Valid @RequestBody UserForgottenPasswordDto userForgottenPasswordDto) {
 
-
-        User user = userService.findUserByEmail(userForgottenPasswordDto.getEmail());
-        userService.sendResetPasswordTokenToUser(user);
-        String response = "If there is an account registered with the e-mail you have provided," +
+        //check for null
+        Optional<User> userOptional = userService.findUserByEmailOpt(userForgottenPasswordDto.getEmail());
+        userOptional.ifPresent(userService::sendResetPasswordTokenToUser);
+        String message = "If there is an account registered with the e-mail you have provided," +
                 " we will send you reset password link to your e-mail.";
 
-        return new ResponseEntity<>(userForgottenPasswordDto, HttpStatus.OK);
+        return new ResponseEntity<>(message, HttpStatus.OK);
     }
 
 
@@ -339,7 +340,7 @@ public class UserRestController {
             ConfirmationToken confirmationToken = confirmationTokenService.findConfirmationTokenByToken(UuidToken);
             LocalDateTime now = LocalDateTime.now();
             if (confirmationToken.getConfirmationTime() != null) {
-                message = "You have already set up your new password. Please log in with your new password.";
+                message = "This token has been already used.";
                 return new ResponseEntity<>(message, HttpStatus.OK);
             }
             if (now.isBefore(confirmationToken.getExpirationTime())
