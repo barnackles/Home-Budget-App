@@ -365,9 +365,6 @@ public class UserRestController {
         }
     }
 
-
-
-
     /**
      * @param user object of type User
      * @return UserResponseDto
