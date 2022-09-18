@@ -18,7 +18,7 @@ public class LoginAttemptService {
     public LoginAttemptService() {
         super();
         attemptsCache = CacheBuilder.newBuilder()
-                .expireAfterWrite(1, TimeUnit.DAYS).build(new CacheLoader<String, Integer>() {
+                .expireAfterWrite(1, TimeUnit.DAYS).build(new CacheLoader<>() {
                     public Integer load(String key) {
                         return 0;
                     }
@@ -31,7 +31,7 @@ public class LoginAttemptService {
     }
 
     public void loginFailed(String key) {
-        int attempts = 0;
+        int attempts;
         try {
             attempts = attemptsCache.get(key);
         } catch (ExecutionException e) {

@@ -155,7 +155,7 @@ public class UserServiceImpl implements UserService {
      * @param user
      * Reset user password and provide token to use while setting up new password.
      */
-    public User resetUserPassword(User user) {
+    public void resetUserPassword(User user) {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         log.info("Password for user: {} successfully reset", user.getUserName());
 
@@ -165,8 +165,6 @@ public class UserServiceImpl implements UserService {
         String token = String.valueOf(confirmationToken.getToken());
         String topic = "Home BudgetApp - Password has been reset";
         emailSender.send(user.getEmail(), getSetPasswordEmail(user.getUserName(), token), topic);
-
-        return user;
     }
 
     /**
