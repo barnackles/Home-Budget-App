@@ -16,13 +16,10 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 
 
@@ -74,7 +71,7 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
 
         @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
-                                            Authentication auth) throws IOException, ServletException {
+                                            Authentication auth) throws IOException {
         User user = (User) auth.getPrincipal();
 
             final String xfHeader = request.getHeader("X-Forwarded-For");
@@ -88,7 +85,7 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
     }
 
     @Override
-    protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException, ServletException {
+    protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException {
         final String xfHeader = request.getHeader("X-Forwarded-For");
         if (xfHeader == null) {
             loginAttemptService.loginFailed(request.getRemoteAddr());
@@ -96,8 +93,6 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
             loginAttemptService.loginFailed(xfHeader.split(",")[0]);
         }
 
-
-        Map<String, Object> body = new HashMap<>();
         String message;
 
         if (failed.getMessage().equalsIgnoreCase("blocked")) {
