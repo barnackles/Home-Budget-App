@@ -1,7 +1,7 @@
 package com.barnackles.ApplicationSecurity;
 
-import com.barnackles.filter.CustomAuthenticationFilter;
-import com.barnackles.filter.CustomAuthorizationFilter;
+import com.barnackles.ApplicationSecurity.filter.CustomAuthenticationFilter;
+import com.barnackles.ApplicationSecurity.filter.CustomAuthorizationFilter;
 import com.barnackles.user.SpringDataUserDetailsService;
 import com.barnackles.util.JwtUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -67,7 +67,7 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
 
 
         CustomAuthenticationFilter customAuthenticationFilter = new CustomAuthenticationFilter(authenticationManagerBean(),
-                new JwtUtil(secret, secret2), new ObjectMapper());
+                new JwtUtil(secret, secret2), new ObjectMapper(), new LoginAttemptService());
 
         http.requiresChannel()
                 .requestMatchers(r -> r.getHeader("X-Forwarded-Proto") != null)

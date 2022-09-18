@@ -6,7 +6,7 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import com.barnackles.ApplicationSecurity.IAuthenticationFacade;
 import com.barnackles.confirmationToken.ConfirmationToken;
 import com.barnackles.confirmationToken.ConfirmationTokenService;
-import com.barnackles.filter.CustomAuthorizationFilter;
+import com.barnackles.ApplicationSecurity.filter.CustomAuthorizationFilter;
 import com.barnackles.util.JwtUtil;
 import com.barnackles.validator.uuid.ValidUuidString;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -32,7 +32,7 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
-import static com.barnackles.filter.CustomAuthorizationFilter.TOKEN_PREFIX;
+import static com.barnackles.ApplicationSecurity.filter.CustomAuthorizationFilter.TOKEN_PREFIX;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @Controller
