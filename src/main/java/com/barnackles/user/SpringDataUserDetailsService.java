@@ -1,6 +1,8 @@
 package com.barnackles.user;
 
 import com.barnackles.role.Role;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -16,18 +18,19 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 @Service
+@RequiredArgsConstructor
+@Slf4j
 public class SpringDataUserDetailsService implements UserDetailsService {
     public static final Pattern PATTERN = Pattern.compile("^[a-zA-Z0-9_!#$%&'*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$");
     private UserService userService;
-
 
     @Autowired
     public void setUserRepository(UserServiceImpl userService) {
         this.userService = userService;
     }
-
     @Override
     public UserDetails loadUserByUsername(String login) throws UsernameNotFoundException {
+
         User user;
         if (LoginIsEmail(login)) {
             user = userService.findUserByEmail(login);
@@ -59,6 +62,7 @@ public class SpringDataUserDetailsService implements UserDetailsService {
     public boolean LoginIsEmail(String login) {
         return PATTERN.matcher(login).matches();
     }
+
 
 
 }

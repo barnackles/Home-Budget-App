@@ -1,4 +1,4 @@
-package com.barnackles.filter;
+package com.barnackles.ApplicationSecurity.filter;
 
 
 import com.auth0.jwt.JWT;
