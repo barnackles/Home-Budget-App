@@ -49,7 +49,7 @@ public class CategoryAdminRestController {
 
 
     @Secured("ROLE_ADMIN")
-    @GetMapping("/category/{id}")
+    @GetMapping("/category/id/{id}")
     public ResponseEntity<CategoryAdminResponseDto> findCategoryById(@PathVariable Long id) {
 
         Category category = categoryService.findCategoryByCategoryId(id);

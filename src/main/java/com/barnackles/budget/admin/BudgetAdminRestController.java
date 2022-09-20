@@ -55,12 +55,12 @@ public class BudgetAdminRestController {
     }
 
     @Secured("ROLE_ADMIN")
-    @GetMapping("/budget/{budgetId}")
+    @GetMapping("/budget/budget-id/{budgetId}")
     public ResponseEntity<BudgetAdminResponseDto> findBudgetById(@PathVariable Long budgetId) {
 
         Budget budget = budgetService.findBudgetByBudgetId(budgetId);
         BudgetAdminResponseDto budgetAdminResponseDto = new BudgetAdminResponseDto(); // convertToBudgetAdminResponseDto(budget);
-        String dateTime = "OperationDateTime";
+
         List<Operation> recentFiveOperationsByDate = budget.getOperations().stream()
                 .sorted(Comparator.comparing(Operation::getOperationDateTime)).toList();
 
@@ -75,7 +75,7 @@ public class BudgetAdminRestController {
     }
 
     @Secured("ROLE_ADMIN")
-    @PostMapping("/budget/{userId}")
+    @PostMapping("/budget/user-id/{userId}")
     public ResponseEntity<BudgetAdminResponseDto> createBudgetForUser(@Valid @RequestBody BudgetCreateDto budgetCreateDto,
                                                                       @PathVariable Long userId) {
         Budget budget = convertCreateDtoToBudget(budgetCreateDto);

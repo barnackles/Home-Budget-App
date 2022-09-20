@@ -88,7 +88,7 @@ public class OperationRestController {
     }
 
     @Secured("ROLE_USER")
-    @GetMapping("/operation/{operationUuid}")
+    @GetMapping("/operation/operation-uuid/{operationUuid}")
     public ResponseEntity<OperationResponseDto> findOperationByUuid(@NotBlank @ValidUuidString @PathVariable String operationUuid) {
         UUID uuidFromStr = UUIDUtil.uuid(operationUuid);
 
@@ -141,7 +141,7 @@ public class OperationRestController {
     }
 
     @Secured("ROLE_USER")
-    @PutMapping("/operation/{operationUuid}")
+    @PutMapping("/operation/operation-uuid/{operationUuid}")
     public ResponseEntity<OperationResponseDto> updateOperation(@Valid @RequestBody OperationCreateDto operationCreateDto,
                                                                 @NotBlank @ValidUuidString @PathVariable String operationUuid) {
 
@@ -175,7 +175,7 @@ public class OperationRestController {
     }
 
     @Secured("ROLE_USER")
-    @DeleteMapping("/operation/{operationUuid}")
+    @DeleteMapping("/operation/operation-uuid/{operationUuid}")
     public ResponseEntity<String> deleteOperation(@NotBlank @ValidUuidString @PathVariable String operationUuid) {
 
         UUID uuidFromStr = UUIDUtil.uuid(operationUuid);
