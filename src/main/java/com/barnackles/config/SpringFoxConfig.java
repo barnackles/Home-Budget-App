@@ -18,11 +18,13 @@ import java.util.List;
 import static java.util.Collections.singletonList;
 
 
-
 @Configuration
 //@Profile({"!prod && swagger"})
 @EnableSwagger2
 public class SpringFoxConfig {
+
+
+
     @Bean
     public Docket api() {
         return new Docket(DocumentationType.SWAGGER_2)
@@ -42,14 +44,12 @@ public class SpringFoxConfig {
     }
 
     private List<SecurityReference> createRef() {
-        AuthorizationScope authorizationScope = new AuthorizationScope(
-                "global", "accessEverything");
-        AuthorizationScope[] authorizationScopes = new AuthorizationScope[1];
-        authorizationScopes[0] = authorizationScope;
-        return singletonList(new SecurityReference("apiKey", authorizationScopes));
+        return List.of(new SecurityReference("apiKey", new AuthorizationScope[]{}));
     }
 
     private SecurityScheme createSchema() {
         return new ApiKey("apiKey", "Authorization", "header");
     }
+
+
 }
