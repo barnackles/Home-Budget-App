@@ -52,6 +52,7 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
         } else {
             String authorizationHeader = request.getHeader(AUTHORIZATION);
+            log.info("Authorization header: {}", authorizationHeader);
             if (authorizationHeader != null && authorizationHeader.startsWith(TOKEN_PREFIX)) {
                 try {
                     String token = authorizationHeader.substring(TOKEN_PREFIX.length());
@@ -66,6 +67,7 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
                                 = new UsernamePasswordAuthenticationToken(userName,
                                 null, authorities);
                         SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+                        log.info("User: {} authorized with valid token.", userName);
                     }
                     filterChain.doFilter(request, response);
                 } catch (Exception e) {

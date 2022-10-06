@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/role")
+@RequestMapping("/admin/role")
 public class RoleRestController {
 
     private final RoleService roleService;
