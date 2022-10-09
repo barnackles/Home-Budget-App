@@ -5,6 +5,7 @@ import com.barnackles.ApplicationSecurity.filter.CustomAuthorizationFilter;
 import com.barnackles.user.SpringDataUserDetailsService;
 import com.barnackles.util.JwtUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -25,6 +26,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(securedEnabled = true)
+@Slf4j
 public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
 
 
@@ -69,11 +71,12 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
         CustomAuthenticationFilter customAuthenticationFilter = new CustomAuthenticationFilter(authenticationManagerBean(),
                 new JwtUtil(secret, secret2), new ObjectMapper(), new LoginAttemptService());
 
-        http.requiresChannel()
-                .requestMatchers(r -> r.getHeader("X-Forwarded-Proto") != null)
-                .requiresSecure();
+//        http.requiresChannel()
+//                .requestMatchers(r -> r.getHeader("X-Forwarded-Proto") != null)
+//                .requiresSecure();
 
         http.csrf().disable();
+        http.cors().disable();
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
         http.authorizeRequests().antMatchers(
                 "/login",
@@ -89,6 +92,7 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
                 .anyRequest().authenticated();
 
         http.addFilter(customAuthenticationFilter);
+        log.info("go to auth filter.");
         http.addFilterBefore(new CustomAuthorizationFilter(new JwtUtil(secret, secret2)),
                 UsernamePasswordAuthenticationFilter.class);
 

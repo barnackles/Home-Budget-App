@@ -19,7 +19,6 @@ import static java.util.Collections.singletonList;
 
 
 @Configuration
-//@Profile({"!prod && swagger"})
 @EnableSwagger2
 public class SpringFoxConfig {
 
