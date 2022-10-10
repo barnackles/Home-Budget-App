@@ -23,6 +23,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @Data
 public class JwtUtil {
 
+    public static final String BEARER = "Bearer ";
     private final String secret;
     private final String secret2;
     private Algorithm algorithm;
@@ -53,8 +54,8 @@ public class JwtUtil {
                 .sign(algorithm2);
 
         Map<String, String> tokens = new HashMap<>();
-        tokens.put("access_token", access_token);
-        tokens.put("refresh_token", refresh_token);
+        tokens.put("access_token", BEARER + access_token);
+        tokens.put("refresh_token", BEARER + refresh_token);
         response.setContentType(APPLICATION_JSON_VALUE);
         return tokens;
     }
@@ -67,8 +68,8 @@ public class JwtUtil {
                         .stream().map(Role::getRole).collect(Collectors.toList()))
                 .sign(algorithm);
         Map<String, String> tokens = new HashMap<>();
-        tokens.put("access_token", access_token);
-        tokens.put("refresh_token", refresh_token);
+        tokens.put("access_token", BEARER + access_token);
+        tokens.put("refresh_token", BEARER + refresh_token);
         response.setContentType(APPLICATION_JSON_VALUE);
         return tokens;
     }
