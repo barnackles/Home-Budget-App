@@ -4,16 +4,15 @@ import com.barnackles.budget.Budget;
 import com.barnackles.user.User;
 import com.barnackles.user.UserCreateDto;
 import com.barnackles.user.UserServiceImpl;
-import com.barnackles.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.Valid;
 import java.text.ParseException;
@@ -25,12 +24,11 @@ import java.util.stream.Collectors;
 @Slf4j
 @RequestMapping("/admin/user")
 @RequiredArgsConstructor
+@ApiIgnore
 public class UserAdminRestController {
 
     private final UserServiceImpl userService;
     private final ModelMapper modelMapper;
-    private final PasswordEncoder passwordEncoder;
-    private final JwtUtil jwtUtil;
 
 
     /**
@@ -79,7 +77,7 @@ public class UserAdminRestController {
     }
 
     /**
-     * @param userCreateDto
+     * @param userCreateDto - Data transfer object representing created user.
      * @return ResponseEntity<UserResponseDto>
      */
     @Secured("ROLE_ADMIN")
@@ -99,7 +97,7 @@ public class UserAdminRestController {
     }
 
     /**
-     * @param userAdminUpdateDto
+     * @param userAdminUpdateDto - Data transfer object representing updated admin type user.
      * @return ResponseEntity<UserResponseDto>
      */
     @Secured("ROLE_ADMIN")
@@ -126,7 +124,7 @@ public class UserAdminRestController {
 
 
     /**
-     * @param id
+     * @param id - id value of type Long.
      * @return ResponseEntity<String>
      */
     //Admin only
@@ -144,17 +142,16 @@ public class UserAdminRestController {
 
 
     /**
-     * @param user
+     * @param user - User type object.
      * @return UserAdminResponseDto
      * Entity to DTO conversion
      */
     private UserAdminResponseDto convertToAdminResponseDto(User user) {
-        UserAdminResponseDto userAdminResponseDto = modelMapper.map(user, UserAdminResponseDto.class);
-        return userAdminResponseDto;
+        return modelMapper.map(user, UserAdminResponseDto.class);
     }
 
     /**
-     * @param userCreateDto
+     * @param userCreateDto - Data transfer object to represent created user.
      * @return User
      * CreateDTO to Entity conversion
      */
@@ -164,7 +161,7 @@ public class UserAdminRestController {
     }
 
     /**
-     * @param userAdminUpdateDto
+     * @param userAdminUpdateDto - Data transfer object representing updated Admin type user.
      * @return User
      * UpdateDTO to Entity conversion
      */

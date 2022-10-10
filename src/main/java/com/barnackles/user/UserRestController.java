@@ -4,9 +4,9 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.barnackles.ApplicationSecurity.IAuthenticationFacade;
+import com.barnackles.ApplicationSecurity.filter.CustomAuthorizationFilter;
 import com.barnackles.confirmationToken.ConfirmationToken;
 import com.barnackles.confirmationToken.ConfirmationTokenService;
-import com.barnackles.ApplicationSecurity.filter.CustomAuthorizationFilter;
 import com.barnackles.util.JwtUtil;
 import com.barnackles.validator.uuid.ValidUuidString;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -19,8 +19,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -35,7 +35,7 @@ import java.util.UUID;
 import static com.barnackles.ApplicationSecurity.filter.CustomAuthorizationFilter.TOKEN_PREFIX;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
-@Controller
+@RestController
 @Slf4j
 @RequestMapping("/user")
 @RequiredArgsConstructor
@@ -214,6 +214,7 @@ public class UserRestController {
      */
 
     @GetMapping("/confirm/registration/{token}")
+    @ApiIgnore
     public ResponseEntity<String> confirmUserRegistration(@PathVariable @ValidUuidString @NotBlank String token) {
         HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
         String message;
@@ -252,6 +253,7 @@ public class UserRestController {
      */
 
     @GetMapping("/confirm/deletion/{token}")
+    @ApiIgnore
     public ResponseEntity<String> confirmUserDeletion(@PathVariable @ValidUuidString @NotBlank String token) {
         HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
         String message;
@@ -291,6 +293,7 @@ public class UserRestController {
      */
 
     @GetMapping("/confirm/password-reset/{token}")
+    @ApiIgnore
     public ResponseEntity<String> confirmResetPassword(@PathVariable @ValidUuidString @NotBlank String token) {
         HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
         String message;

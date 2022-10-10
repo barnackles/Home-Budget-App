@@ -51,7 +51,6 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
         } else {
             String authorizationHeader = request.getHeader(AUTHORIZATION);
-            log.info("Authorization header: {}", authorizationHeader);
             if (authorizationHeader != null && authorizationHeader.startsWith(TOKEN_PREFIX)) {
                 try {
                     String token = authorizationHeader.substring(TOKEN_PREFIX.length());
@@ -78,7 +77,7 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
                     setResponseHeader(response, e);
                 }
             } else {
-                log.info("Authorization header is null or does not start with a prefix, header: {}.", request.getHeader(AUTHORIZATION));
+                log.info("Authorization header is null or does not start with a prefix, header.");
                 filterChain.doFilter(request, response);
             }
         }
