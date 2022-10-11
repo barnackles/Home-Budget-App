@@ -1,6 +1,7 @@
 package com.barnackles.user;
 
 import com.barnackles.budget.Budget;
+import com.barnackles.confirmationToken.ConfirmationToken;
 import com.barnackles.role.Role;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
@@ -55,6 +56,10 @@ public class User {
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "user", fetch = FetchType.LAZY)
     @ApiModelProperty(hidden = true)
     private List<Budget> budgets;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "user", fetch = FetchType.LAZY)
+    @ApiModelProperty(hidden = true)
+    private List<ConfirmationToken> confirmationTokens;
+
 
     @Override
     public String toString() {
