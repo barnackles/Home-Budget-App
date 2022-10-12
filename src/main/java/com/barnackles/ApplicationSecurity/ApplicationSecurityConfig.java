@@ -32,7 +32,7 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final String secret;
     private final String secret2;
-    private String token;
+
 
 
     public ApplicationSecurityConfig(@Value("${jwt.secret") String secret, @Value("${jwt.secret2") String secret2) {
@@ -71,12 +71,11 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
         CustomAuthenticationFilter customAuthenticationFilter = new CustomAuthenticationFilter(authenticationManagerBean(),
                 new JwtUtil(secret, secret2), new ObjectMapper(), new LoginAttemptService());
 
+        http.csrf().disable();
+//        http.cors().disable();
 //        http.requiresChannel()
 //                .requestMatchers(r -> r.getHeader("X-Forwarded-Proto") != null)
 //                .requiresSecure();
-
-        http.csrf().disable();
-        http.cors().disable();
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
         http.authorizeRequests().antMatchers(
                 "/login",
@@ -109,6 +108,7 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
     public ThreadPoolTaskScheduler threadPoolTaskScheduler() {
         return new ThreadPoolTaskScheduler();
     }
+
 
 }
 
