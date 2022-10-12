@@ -8,6 +8,7 @@ import com.barnackles.role.RoleRepository;
 import com.barnackles.task.DeleteUnconfirmedAccountTask;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -26,6 +27,7 @@ import java.util.*;
 @Transactional
 public class UserServiceImpl implements UserService {
 
+
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
 
@@ -35,6 +37,16 @@ public class UserServiceImpl implements UserService {
     private final EmailSender emailSender;
 
     private final ThreadPoolTaskScheduler scheduler;
+
+    @Value("${confirmation.link}")
+    private String confirmAccountLink;
+    @Value("${deleteaccount.link}")
+    private String deleteAccountLink;
+    @Value("${confirmpasswordreset.link}")
+    private String confirmPasswordResetLink;
+    @Value("${setnewpassword.link}")
+    private String setNewPasswordLink;
+
 
 
 
@@ -235,7 +247,7 @@ public class UserServiceImpl implements UserService {
                 <head>
                     <meta charset="UTF-8">
                     <title>Account activation</title>
-                    <p>Greetings %s! <br> In order to confirm registration of your account please click <a href="http://localhost:8080/api/user/confirm/registration/%s">here</a>.</p>
+                    <p>Greetings %s! <br> In order to confirm registration of your account please click <a href="%s%s">here</a>.</p>
                 <p>Link will only be valid for 15 minutes.</p>
                 <p>If you did not register your account please ignore this message.</p>
                 <p>Kind regards <br> Home BudgetApp Team</p>
@@ -243,7 +255,7 @@ public class UserServiceImpl implements UserService {
                 <body>
 
                 </body>
-                </html>""", userName, token);
+                </html>""", userName, confirmAccountLink, token );
     }
 
     public String getDeleteConfirmationEmail(String userName, String token) {
@@ -254,7 +266,7 @@ public class UserServiceImpl implements UserService {
                     <meta charset="UTF-8">
                     <title>Account Delete Confirmation</title>
                     <p>Greetings %s! <br> Are you sure you want to delete your account? </p>\s
-                <p> If you really want to delete your account please click this <a href="http://localhost:8080/api/user/confirm/deletion/%s">link</a>.</p>
+                <p> If you really want to delete your account please click this <a href="%s%s">link</a>.</p>
                 <p>Remember that operation is irreversible and you will lose all content.</p>
                 <p>Link will only be valid for 15 minutes.</p>
                 <p>If you did not try to delete your account please ignore this message.</p>
@@ -263,7 +275,7 @@ public class UserServiceImpl implements UserService {
                 <body>
 
                 </body>
-                </html>""", userName, token);
+                </html>""", userName, deleteAccountLink, token);
     }
 
     public String getPasswordResetEmail(String userName, String token) {
@@ -274,16 +286,16 @@ public class UserServiceImpl implements UserService {
                     <meta charset="UTF-8">
                     <title>Password Reset Link</title>
                     <p>Greetings %s!</p>\s
-                <p>Forgotten your password? If you would like to reset your password please 
-                click this <a href="http://localhost:8080/api/user/confirm/password-reset/%s">link</a>.</p>
-                <p>Link will only be valid for 15 minutes.</p>     
+                <p>Forgotten your password? If you would like to reset your password please
+                click this <a href="%s%s">link</a>.</p>
+                <p>Link will only be valid for 15 minutes.</p>
                 <p>If you did not request a password reset, please ignore this e-mail.</p>
                 <p>Kind regards <br> Home BudgetApp Team</p>
                 </head>
                 <body>
 
                 </body>
-                </html>""", userName, token);
+                </html>""", userName, confirmPasswordResetLink, token);
     }
 
     public String getSetPasswordEmail(String userName, String token) {
@@ -294,17 +306,17 @@ public class UserServiceImpl implements UserService {
                     <meta charset="UTF-8">
                     <title>Your password has been reset.</title>
                     <p>Greetings %s!</p>\s
-                <p>As per your request your password has been reset. 
+                <p>As per your request your password has been reset.
                 Please use this code: <br><b> %s </b><br>
-                to set your new password at <a href="">api/user/set-new-password</a>.</p>
-                <p>Link will only be valid for 15 minutes.</p>     
+                to set your new password at <a href="">%s</a>.</p>
+                <p>Link will only be valid for 15 minutes.</p>
                 
                 <p>Kind regards <br> Home BudgetApp Team</p>
                 </head>
                 <body>
 
                 </body>
-                </html>""", userName, token);
+                </html>""", userName, setNewPasswordLink, token);
     }
 
 
