@@ -1,11 +1,13 @@
-package com.barnackles.filter;
+package com.barnackles.ApplicationSecurity.filter;
 
+import com.barnackles.ApplicationSecurity.LoginAttemptService;
 import com.barnackles.login.LoginDetails;
 import com.barnackles.util.JwtUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -14,13 +16,10 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 
 
@@ -34,10 +33,21 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
 
     private final ObjectMapper objectMapper;
 
+    private final LoginAttemptService loginAttemptService;
+
 
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
+
+        String ip = getClientIP(request);
+        boolean isBlocked = loginAttemptService.isBlocked(ip);
+        log.info("User is blocked: {}", isBlocked);
+        if(isBlocked) {
+            throw new AuthenticationException("blocked") {
+            };
+        }
+
         try {
             BufferedReader reader = request.getReader();
             StringBuilder sb = new StringBuilder();
@@ -50,7 +60,7 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
                     authRequest.getUsername(), authRequest.getPassword()
             );
 
-            log.info("username is {}", authRequest.getUsername());
+            log.info("login is {}", authRequest.getUsername());
 
             return authenticationManager.authenticate(authenticationToken);
 
@@ -61,22 +71,48 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
 
         @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
-                                            Authentication auth) throws IOException, ServletException {
+                                            Authentication auth) throws IOException {
         User user = (User) auth.getPrincipal();
+
+            final String xfHeader = request.getHeader("X-Forwarded-For");
+            if (xfHeader == null) {
+                loginAttemptService.loginSucceeded(request.getRemoteAddr());
+            } else {
+                loginAttemptService.loginSucceeded(xfHeader.split(",")[0]);
+            }
 
         new ObjectMapper().writeValue(response.getOutputStream(), jwtUtil.generateTokens(user, request, response));
     }
 
     @Override
-    protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException, ServletException {
+    protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException {
+        final String xfHeader = request.getHeader("X-Forwarded-For");
+        if (xfHeader == null) {
+            loginAttemptService.loginFailed(request.getRemoteAddr());
+        } else {
+            loginAttemptService.loginFailed(xfHeader.split(",")[0]);
+        }
 
-        Map<String, Object> body = new HashMap<>();
-        String message = "Unable to authenticate";
-        body.put("message", message);
-        body.put("exception", failed.getMessage());
-        log.info("authentication unsuccessfully: {}", body);
-        response.setStatus(HttpStatus.UNAUTHORIZED.value());
+        String message;
 
+        if (failed.getMessage().equalsIgnoreCase("blocked")) {
+            message = "User blocked due to many failed login attempts.";
+            response.setStatus(HttpStatus.FORBIDDEN.value());
+        } else {
+            message = "Bad credentials.";
+            response.setStatus(HttpStatus.UNAUTHORIZED.value());
+        }
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        objectMapper.writeValue(response.getWriter(), message);
+        log.info("authentication unsuccessfull: {}", message);
 
+    }
+
+    private String getClientIP(HttpServletRequest request) {
+        String xfHeader = request.getHeader("X-Forwarded-For");
+        if (xfHeader == null){
+            return request.getRemoteAddr();
+        }
+        return xfHeader.split(",")[0];
     }
 }

@@ -2,7 +2,6 @@ package com.barnackles.operation.admin;
 
 import com.barnackles.budget.Budget;
 import com.barnackles.budget.BudgetService;
-import com.barnackles.category.CategoryService;
 import com.barnackles.operation.Operation;
 import com.barnackles.operation.OperationCreateDto;
 import com.barnackles.operation.OperationService;
@@ -12,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -19,13 +19,13 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/admin/operation")
+@ApiIgnore
 public class OperationAdminRestController {
 
     private final OperationService operationService;
     private final BudgetService budgetService;
     private final ModelMapper modelMapper;
 
-    private final CategoryService categoryService;
 
     @Secured("ROLE_ADMIN")
     @GetMapping("/operations/all")
@@ -54,7 +54,7 @@ public class OperationAdminRestController {
     }
 
     @Secured("ROLE_ADMIN")
-    @GetMapping("/operation/{operationId}")
+    @GetMapping("/operation/operation-id/{operationId}")
     public ResponseEntity<OperationAdminResponseDto> findOperationById(@PathVariable Long operationId) {
 
         Operation operation = operationService.findOperationByOperationId(operationId);
@@ -64,7 +64,7 @@ public class OperationAdminRestController {
     }
 
     @Secured("ROLE_ADMIN")
-    @PostMapping("/operation/{budgetId}")
+    @PostMapping("/operation/budget-id/{budgetId}")
     public ResponseEntity<OperationAdminResponseDto> createOperationForBudget(@Valid @RequestBody OperationCreateDto operationCreateDto,
                                                                               @PathVariable Long budgetId) {
         Budget budget = budgetService.findBudgetByBudgetId(budgetId);
@@ -84,7 +84,7 @@ public class OperationAdminRestController {
     }
 
     @Secured("ROLE_ADMIN")
-    @PutMapping("/operation/{operationId}")
+    @PutMapping("/operation/operation-id/{operationId}")
     public ResponseEntity<OperationAdminResponseDto> updateOperation(@Valid @RequestBody OperationCreateDto operationCreateDto,
                                                                      @PathVariable Long operationId) {
 
@@ -101,7 +101,7 @@ public class OperationAdminRestController {
     }
 
     @Secured("ROLE_ADMIN")
-    @DeleteMapping("/operation/{operationId}")
+    @DeleteMapping("/operation/operation-id/{operationId}")
     public ResponseEntity<String> deleteOperation(@PathVariable Long operationId) {
 
         String message = String.format("Operation of id: %d successfully deleted ", operationId);

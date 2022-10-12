@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Positive;
 import java.util.List;
 
 @RestController
@@ -36,7 +38,7 @@ public class CategoryRestController {
 
     @Secured("ROLE_USER")
     @GetMapping("/categories/all/{pageNumber}/{pageSize}")
-    public ResponseEntity<List<CategoryResponseDto>> findAll(@PathVariable int pageNumber, @PathVariable int pageSize) {
+    public ResponseEntity<List<CategoryResponseDto>> findAll(@NotBlank @Positive @PathVariable int pageNumber,@NotBlank @Positive @PathVariable int pageSize) {
         String sortBy = "name";
         List<Category> categories = categoryService.findAll(pageNumber, pageSize, sortBy);
         List<CategoryResponseDto> listOfCategoryResponseDtos = categories
@@ -48,7 +50,7 @@ public class CategoryRestController {
 
     @Secured("ROLE_USER")
     @GetMapping("/category/{categoryName}")
-    public ResponseEntity<CategoryResponseDto> findCategoryByName(@PathVariable String categoryName) {
+    public ResponseEntity<CategoryResponseDto> findCategoryByName(@NotBlank @PathVariable String categoryName) {
 
         Category category = categoryService.findCategoryByCategoryName(categoryName);
 

@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.persistence.EntityExistsException;
 import javax.validation.Valid;
@@ -21,6 +22,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/admin/budget")
+@ApiIgnore
 public class BudgetAdminRestController {
 
     private final BudgetService budgetService;
@@ -55,12 +57,12 @@ public class BudgetAdminRestController {
     }
 
     @Secured("ROLE_ADMIN")
-    @GetMapping("/budget/{budgetId}")
+    @GetMapping("/budget/budget-id/{budgetId}")
     public ResponseEntity<BudgetAdminResponseDto> findBudgetById(@PathVariable Long budgetId) {
 
         Budget budget = budgetService.findBudgetByBudgetId(budgetId);
         BudgetAdminResponseDto budgetAdminResponseDto = new BudgetAdminResponseDto(); // convertToBudgetAdminResponseDto(budget);
-        String dateTime = "OperationDateTime";
+
         List<Operation> recentFiveOperationsByDate = budget.getOperations().stream()
                 .sorted(Comparator.comparing(Operation::getOperationDateTime)).toList();
 
@@ -75,7 +77,7 @@ public class BudgetAdminRestController {
     }
 
     @Secured("ROLE_ADMIN")
-    @PostMapping("/budget/{userId}")
+    @PostMapping("/budget/user-id/{userId}")
     public ResponseEntity<BudgetAdminResponseDto> createBudgetForUser(@Valid @RequestBody BudgetCreateDto budgetCreateDto,
                                                                       @PathVariable Long userId) {
         Budget budget = convertCreateDtoToBudget(budgetCreateDto);

@@ -3,10 +3,12 @@ package com.barnackles.role;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/role")
+@RequestMapping("/admin/role")
+@ApiIgnore
 public class RoleRestController {
 
     private final RoleService roleService;

@@ -3,8 +3,10 @@ package com.barnackles.operation;
 import com.barnackles.ApplicationSecurity.IAuthenticationFacade;
 import com.barnackles.budget.Budget;
 import com.barnackles.budget.BudgetService;
+import com.barnackles.category.CategoryService;
 import com.barnackles.user.User;
 import com.barnackles.user.UserService;
+import com.barnackles.validator.uuid.ValidUuidString;
 import com.fasterxml.uuid.impl.UUIDUtil;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -16,6 +18,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Positive;
 import java.util.List;
 import java.util.UUID;
 
@@ -28,6 +32,7 @@ public class OperationRestController {
 
     private final UserService userService;
     private final BudgetService budgetService;
+    private final CategoryService categoryService;
     private final ModelMapper modelMapper;
 
     private final IAuthenticationFacade authenticationFacade;
@@ -36,7 +41,7 @@ public class OperationRestController {
     @Secured("ROLE_USER")
     @GetMapping("/operations/budget/all/{budgetName}")
     public ResponseEntity<List<OperationResponseDto>> findAllBudgetOperations(
-            @PathVariable String budgetName) {
+            @NotBlank @PathVariable String budgetName) {
 
         Authentication authentication = authenticationFacade.getAuthentication();
         User user = userService.findUserByUserName(authentication.getName());
@@ -59,8 +64,8 @@ public class OperationRestController {
     @Secured("ROLE_USER")
     @GetMapping("/operations/budget/all/{budgetName}/{pageNumber}/{pageSize}/{sortBy}")
     public ResponseEntity<List<OperationResponseDto>> findAllBudgetOperations(
-            @PathVariable String budgetName, @PathVariable int pageNumber, @PathVariable int pageSize,
-            @PathVariable String sortBy) {
+            @NotBlank @PathVariable String budgetName, @NotBlank @Positive @PathVariable int pageNumber, @NotBlank @Positive @PathVariable int pageSize,
+            @NotBlank @PathVariable String sortBy) {
 
         Authentication authentication = authenticationFacade.getAuthentication();
         User user = userService.findUserByUserName(authentication.getName());
@@ -83,8 +88,8 @@ public class OperationRestController {
     }
 
     @Secured("ROLE_USER")
-    @GetMapping("/operation/{operationUuid}")
-    public ResponseEntity<OperationResponseDto> findOperationByUuid(@PathVariable String operationUuid) {
+    @GetMapping("/operation/operation-uuid/{operationUuid}")
+    public ResponseEntity<OperationResponseDto> findOperationByUuid(@NotBlank @ValidUuidString @PathVariable String operationUuid) {
         UUID uuidFromStr = UUIDUtil.uuid(operationUuid);
 
         Authentication authentication = authenticationFacade.getAuthentication();
@@ -103,7 +108,7 @@ public class OperationRestController {
     @Secured("ROLE_USER")
     @PostMapping("/operation/{budgetName}")
     public ResponseEntity<OperationResponseDto> createOperationForBudget(@Valid @RequestBody OperationCreateDto operationCreateDto,
-                                                                         @PathVariable String budgetName) {
+                                                                         @NotBlank @PathVariable String budgetName) {
         Authentication authentication = authenticationFacade.getAuthentication();
         User user = userService.findUserByUserName(authentication.getName());
 
@@ -111,6 +116,12 @@ public class OperationRestController {
 
             Budget budget = budgetService.findBudgetByBudgetNameAndUserEquals(budgetName, user);
             Operation operation = convertCreateDtoToOperation(operationCreateDto);
+            //convert string types to enums
+            operation.setCategory(categoryService.findCategoryByCategoryName(operationCreateDto.getCategory()));
+            operation.setOperationType(OperationType.valueOf(operationCreateDto.getOperationType().toUpperCase()));
+            operation.setActualOrPlanned(ActualOrPlanned.valueOf(operationCreateDto.getActualOrPlanned().toUpperCase()));
+            operation.setFrequency(OperationFrequency.valueOf(operationCreateDto.getFrequency().toUpperCase()));
+
             operation.setBudget(budget);
             operationService.save(operation);
 
@@ -130,9 +141,9 @@ public class OperationRestController {
     }
 
     @Secured("ROLE_USER")
-    @PutMapping("/operation/{operationUuid}")
+    @PutMapping("/operation/operation-uuid/{operationUuid}")
     public ResponseEntity<OperationResponseDto> updateOperation(@Valid @RequestBody OperationCreateDto operationCreateDto,
-                                                                @PathVariable String operationUuid) {
+                                                                @NotBlank @ValidUuidString @PathVariable String operationUuid) {
 
         UUID uuidFromStr = UUIDUtil.uuid(operationUuid);
 
@@ -143,6 +154,12 @@ public class OperationRestController {
         if (budgetService.checkIfUserHasBudgetWithGivenName(persistentOperation.getBudget().getBudgetName(), user)) {
 
             Operation operation = convertCreateDtoToOperation(operationCreateDto);
+
+            operation.setCategory(categoryService.findCategoryByCategoryName(operationCreateDto.getCategory()));
+            operation.setOperationType(OperationType.valueOf(operationCreateDto.getOperationType().toUpperCase()));
+            operation.setActualOrPlanned(ActualOrPlanned.valueOf(operationCreateDto.getActualOrPlanned().toUpperCase()));
+            operation.setFrequency(OperationFrequency.valueOf(operationCreateDto.getFrequency().toUpperCase()));
+
             operation.setId(persistentOperation.getId());
             operation.setUuid(persistentOperation.getUuid());
             operation.setBudget(persistentOperation.getBudget());
@@ -158,8 +175,8 @@ public class OperationRestController {
     }
 
     @Secured("ROLE_USER")
-    @DeleteMapping("/operation/{operationUuid}")
-    public ResponseEntity<String> deleteOperation(@PathVariable String operationUuid) {
+    @DeleteMapping("/operation/operation-uuid/{operationUuid}")
+    public ResponseEntity<String> deleteOperation(@NotBlank @ValidUuidString @PathVariable String operationUuid) {
 
         UUID uuidFromStr = UUIDUtil.uuid(operationUuid);
         Authentication authentication = authenticationFacade.getAuthentication();

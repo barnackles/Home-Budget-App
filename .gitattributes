@@ -1,0 +1,6 @@
+application.properties filter=git-crypt diff=git-crypt
+docker-compose.yml filter=git-crypt diff=git-crypt
+Dockerfile filter=git-crypt diff=git-crypt
+skipper.yml filter=git-crypt diff=git-crypt
+
+.gitattributes !filter !diff

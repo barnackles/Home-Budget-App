@@ -1,6 +1,7 @@
 package com.barnackles.exception;
 
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -19,6 +20,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @ControllerAdvice
+@Slf4j
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @Override
@@ -41,19 +43,25 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(EntityNotFoundException.class)
     protected ResponseEntity<Object> handleEntityNotFound(EntityNotFoundException ex) {
-        Map<String, String> body = new HashMap<>();
-        String error = ex.getMessage();
-        body.put("error", error);
 
-        return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
+        log.error(ex.getMessage());
+        String message = "Not found.";
+
+        return new ResponseEntity<>(message, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(EntityExistsException.class)
     protected ResponseEntity<Object> handleEntityExists(EntityExistsException ex) {
-        Map<String, String> body = new HashMap<>();
-        String error = ex.getMessage();
-        body.put("error", error);
-        return new ResponseEntity<>(body, HttpStatus.CONFLICT);
+        log.error(ex.getMessage());
+        String message = "Already exist.";
+        return new ResponseEntity<>(message, HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    protected ResponseEntity<Object> handleIllegalEntityException(IllegalArgumentException ex) {
+        log.error(ex.getMessage());
+        String message = "Invalid input.";
+        return new ResponseEntity<>(message, HttpStatus.BAD_REQUEST);
     }
 
 
