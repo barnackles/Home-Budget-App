@@ -128,7 +128,7 @@ public class UserServiceImpl implements UserService {
         emailSender.send(user.getEmail(), getCreateConfirmationEmail(user.getUserName(), token), topic);
 
         Date fifteenMinutesInMilliseconds = new Date(System.currentTimeMillis() + 900000);
-        scheduler.schedule(new DeleteUnconfirmedAccountTask(userRepository, confirmationTokenService, user,
+        scheduler.schedule(new DeleteUnconfirmedAccountTask(userRepository, confirmationTokenService, user.getId(),
                         confirmationToken),
         fifteenMinutesInMilliseconds);
 
