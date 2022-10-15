@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
+import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 
@@ -19,7 +20,7 @@ public class DeleteUnconfirmedAccountTask implements Runnable {
 
     private final UserRepository userRepository;
     private final ConfirmationTokenService confirmationTokenService;
-    private User user;
+    private Long userId;
 
     private ConfirmationToken confirmationToken;
 
@@ -27,12 +28,18 @@ public class DeleteUnconfirmedAccountTask implements Runnable {
     @Override
     public void run() {
 
-        if (LocalDateTime.now().isAfter(confirmationToken.getExpirationTime()) && !user.getActive()) {
-            log.info("Unconfirmed user: {} deleted on: {}, with expiration time: {}", user.getUserName(), LocalDateTime.now(),
+        User userToVerify = userRepository.findUserById(userId).orElseThrow(() -> {
+            log.error("entity with id: {} not found", userId);
+            throw new EntityNotFoundException("entity not found");
+        });
+
+        if (LocalDateTime.now().isAfter(confirmationToken.getExpirationTime()) && (!userToVerify.getActive())) {
+            log.info("Unconfirmed user: {} deleted on: {}, with expiration time: {}", userToVerify.getUserName(), LocalDateTime.now(),
                     confirmationToken.getExpirationTime());
             confirmationTokenService.deleteConfirmationToken(confirmationToken);
-            userRepository.deleteUserById(user.getId());
+            userRepository.deleteUserById(userToVerify.getId());
         }
+
     }
 
 }
