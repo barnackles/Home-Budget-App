@@ -70,8 +70,7 @@ Below is the quick overview of requests.
 **How to use the app:**
 
 To test the application you should register an account using /register (creatUser) endpoint.
-After passing the request to the controller you will receive an e-mail requesting the confirmation of your email.
-
+After passing the request to the controller you will receive an e-mail requesting confirmation of your email.
 Clicking on the activation link will activate your account, otherwise your account will be deleted after 15 minutes.
 
 Access to all secured endpoints requires a validd token.
