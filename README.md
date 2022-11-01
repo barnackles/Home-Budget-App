@@ -1,41 +1,53 @@
-# Home BudgetApp
+# Home Budget App
  
 **About project**
 
-Repository contains simple web application for managing home budget.
+Repository contains web application for managing home budget(s). Application was built using Spring Boot and Spring Security. Application exposes REST API.
 
-Application was built using Spring Boot and Spring Security.
-Application exposes REST API.
+**Idea behind the project**
 
-RELEASE v0.1.0
+The idea was to create web application simplifying home finance management. Apart from the main goal, which was to build the app, project allowed me and still allows me to learn technologies and develop the neccessary skillset.  
+App is currently deployed on DigitalOcean droplet using Docker Compose with self-signed certificate.
+
+
+Current version: 0.2.0
+
 **Technologies:**
+
 - Java 17
 - Spring Boot v2.6.10
 - Spring Security
 - MySQL
 
-**List of dependencies:**
-- lombok
-- springfox swaggerUI v3.0.0
-- modelmapper v3.1.0
-- java jwt v3.19.2
-- java uuidgenerator v4.0.1
 
 **Features:**
 
 With this application you can:
-- create you profile
+- register your account
 - add budgets to your profile
-- manage your transactions
+- manage your financial operations
 - display total balance for budget and total income, expenses and savings,
-- display: total balance for budget and total income, expenses and savings for recent week, recent month, 
-recent year and custom range of dates
+- display total balance for budget and total income, expenses and savings for recent week, recent month, 
+recent year and custom range of dates.
+App contains full registration process as well as forgot password feature.
 
 
-**Rationale:**
-This project is a final programming bootcamp project.
-Its purpose is to demonstrate the ability to apply acquired programming knowledge
-as well as to gain new and strengthen already gained knowledge.
+**Features in development:**
+
+- migratiion to spring security 2.7+
+- introduction of OAuth 2.0 
+- loading operations from .csv file
+- test coverage
+
+**REST API Documentation**
+
+For the ease of use, due to the fact that app only exposes rest api, 
+deployed version comes with SwaggerUI.
+
+
+
+
+
 
 
 
