@@ -17,7 +17,7 @@ Current version: 0.2.0
 - Java 17
 - Spring Boot v2.6.10
 - Spring Security
-- MySQL
+- MySQL v8.0.30
 
 
 **Features:**
@@ -39,15 +39,46 @@ App contains full registration process as well as forgot password feature.
 - loading operations from .csv file
 - test coverage
 
-**REST API Documentation**
+**REST API Documentation:**
 
 For the ease of use, due to the fact that app only exposes rest api, 
 deployed version comes with SwaggerUI.
 
+Below is the quick overview of requests.
 
 
+**User Controller:**
 
+![user controller](https://github.com/barnackles/Home-Budget-App/blob/main/swaggerUiImages/userController.png?raw=true)
 
+**Login Controller:**
 
+![login controller](https://github.com/barnackles/Home-Budget-App/blob/main/swaggerUiImages/loginController.png?raw=true)
+
+**Budget Controller:**
+
+![budget controller](https://github.com/barnackles/Home-Budget-App/blob/main/swaggerUiImages/budgetController.png?raw=true)
+
+**Operation Controller:**
+
+![operation controller](https://github.com/barnackles/Home-Budget-App/blob/main/swaggerUiImages/operationController.png?raw=true)
+
+**Category Controller:**
+
+![category controller](https://github.com/barnackles/Home-Budget-App/blob/main/swaggerUiImages/categoryController.png?raw=true)
+
+**How to use the app:**
+
+To test the application you should register an account using /register (creatUser) endpoint.
+After passing the request to the controller you will receive an e-mail requesting confirmation of your email.
+Clicking on the activation link will activate your account, otherwise your account will be deleted after 15 minutes.
+
+Access to all secured endpoints requires a validd token.
+To sign in with created user use /login (login) endpoint and provide valid credentials. As a response you should receive valid JWT access and refresh tokens. Click on Authorize button and paste received value to "Value:" field.
+Now you should be able to send the requests to secured endpoints.
+
+Bearer token is valid for 10 minutes, afterwards you need to use refresh token on /refresh (refreshToken) endpoint passing received refresh token value via SwaggerUI's "Value:" field or use /login (login) endpoint again. Bear in mind that After five failed login attempts your IP will be locked out.
+
+Now you can add budgets and transactions and display them using provided endpoints.
 
 
