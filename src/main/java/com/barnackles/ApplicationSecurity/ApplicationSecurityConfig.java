@@ -1,45 +1,29 @@
 package com.barnackles.ApplicationSecurity;
 
-import com.barnackles.ApplicationSecurity.filter.CustomAuthenticationFilter;
-import com.barnackles.ApplicationSecurity.filter.CustomAuthorizationFilter;
 import com.barnackles.user.SpringDataUserDetailsService;
-import com.barnackles.util.JwtUtil;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.SecurityFilterChain;
 
 
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(securedEnabled = true)
 @Slf4j
-public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
+public class ApplicationSecurityConfig {
 
 
-    private final String secret;
-    private final String secret2;
-
-
-
-    public ApplicationSecurityConfig(@Value("${jwt.secret") String secret, @Value("${jwt.secret2") String secret2) {
-        this.secret = secret;
-        this.secret2 = secret2;
-
-    }
 
     @Bean
     public ModelMapper modelMapper() {
@@ -57,25 +41,20 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
 
     }
 
-    @Override
-    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth
-                .userDetailsService(userDetailsService())
-                .passwordEncoder(passwordEncoder());
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+        return authenticationConfiguration.getAuthenticationManager();
     }
 
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
+
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
 
-        CustomAuthenticationFilter customAuthenticationFilter = new CustomAuthenticationFilter(authenticationManagerBean(),
-                new JwtUtil(secret, secret2), new ObjectMapper(), new LoginAttemptService());
 
         http.csrf().disable();
-//        http.cors().disable();
-//        http.requiresChannel()
-//                .requestMatchers(r -> r.getHeader("X-Forwarded-Proto") != null)
-//                .requiresSecure();
+
+        http.requiresChannel().anyRequest().requiresSecure();
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
         http.authorizeRequests().antMatchers(
                 "/login",
@@ -90,19 +69,11 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
         http.authorizeRequests().antMatchers("/**").hasAnyRole("USER", "ADMIN")
                 .anyRequest().authenticated();
 
-        http.addFilter(customAuthenticationFilter);
-        log.info("go to auth filter.");
-        http.addFilterBefore(new CustomAuthorizationFilter(new JwtUtil(secret, secret2)),
-                UsernamePasswordAuthenticationFilter.class);
 
-
+        return http.build();
     }
 
-    @Bean
-    @Override
-    public AuthenticationManager authenticationManagerBean() throws Exception {
-        return super.authenticationManagerBean();
-    }
+
 
     @Bean
     public ThreadPoolTaskScheduler threadPoolTaskScheduler() {
