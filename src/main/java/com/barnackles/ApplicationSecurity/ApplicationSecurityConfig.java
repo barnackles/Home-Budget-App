@@ -76,6 +76,7 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
 //        http.requiresChannel()
 //                .requestMatchers(r -> r.getHeader("X-Forwarded-Proto") != null)
 //                .requiresSecure();
+        http.requiresChannel().anyRequest().requiresSecure();
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
         http.authorizeRequests().antMatchers(
                 "/login",
