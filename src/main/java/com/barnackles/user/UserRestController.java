@@ -1,15 +1,11 @@
 package com.barnackles.user;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.JWTVerifier;
-import com.auth0.jwt.interfaces.DecodedJWT;
+
 import com.barnackles.ApplicationSecurity.IAuthenticationFacade;
-import com.barnackles.ApplicationSecurity.filter.CustomAuthorizationFilter;
 import com.barnackles.confirmationToken.ConfirmationToken;
 import com.barnackles.confirmationToken.ConfirmationTokenService;
 import com.barnackles.util.JwtUtil;
 import com.barnackles.validator.uuid.ValidUuidString;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.uuid.Generators;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,9 +27,6 @@ import java.text.ParseException;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
-
-import static com.barnackles.ApplicationSecurity.filter.CustomAuthorizationFilter.TOKEN_PREFIX;
-import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @RestController
 @Slf4j
@@ -185,25 +178,25 @@ public class UserRestController {
     @GetMapping("/token/refresh")
     public void refreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
-        String authorizationHeader = request.getHeader(AUTHORIZATION);
-        if (authorizationHeader != null && authorizationHeader.startsWith(TOKEN_PREFIX)) {
-            try {
-                String refresh_token = authorizationHeader.substring(TOKEN_PREFIX.length());
-                JWTVerifier verifier = JWT.require(jwtUtil.getAlgorithm2()).build();
-                DecodedJWT decodedJWT = verifier.verify(refresh_token);
-                String userName = decodedJWT.getSubject();
-                User user = userService.findUserByUserName(userName);
-                if (user != null) {
-                    new ObjectMapper().writeValue(response.getOutputStream(),
-                            jwtUtil.generateTokenUponRefresh(user, request, response, refresh_token));
-                }
-            } catch (Exception e) {
-                log.error("Error: {}", "RefreshToken Error");
-                CustomAuthorizationFilter.setResponseHeader(response, e);
-            }
-        } else {
-            throw new RuntimeException("No refresh token");
-        }
+//        String authorizationHeader = request.getHeader(AUTHORIZATION);
+//        if (authorizationHeader != null && authorizationHeader.startsWith(TOKEN_PREFIX)) {
+//            try {
+//                String refresh_token = authorizationHeader.substring(TOKEN_PREFIX.length());
+//                JWTVerifier verifier = JWT.require(jwtUtil.getAlgorithm2()).build();
+//                DecodedJWT decodedJWT = verifier.verify(refresh_token);
+//                String userName = decodedJWT.getSubject();
+//                User user = userService.findUserByUserName(userName);
+//                if (user != null) {
+//                    new ObjectMapper().writeValue(response.getOutputStream(),
+//                            jwtUtil.generateTokenUponRefresh(user, request, response, refresh_token));
+//                }
+//            } catch (Exception e) {
+//                log.error("Error: {}", "RefreshToken Error");
+//                CustomAuthorizationFilter.setResponseHeader(response, e);
+//            }
+//        } else {
+//            throw new RuntimeException("No refresh token");
+//        }
 
     }
 
