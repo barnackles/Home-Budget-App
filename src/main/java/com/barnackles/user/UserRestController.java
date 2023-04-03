@@ -4,7 +4,6 @@ package com.barnackles.user;
 import com.barnackles.ApplicationSecurity.IAuthenticationFacade;
 import com.barnackles.confirmationToken.ConfirmationToken;
 import com.barnackles.confirmationToken.ConfirmationTokenService;
-import com.barnackles.util.JwtUtil;
 import com.barnackles.validator.uuid.ValidUuidString;
 import com.fasterxml.uuid.Generators;
 import lombok.RequiredArgsConstructor;
@@ -44,7 +43,7 @@ public class UserRestController {
 
 
 
-    private final JwtUtil jwtUtil;
+//    private final JwtUtil jwtUtil;
 
 
     /**
