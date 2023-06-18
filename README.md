@@ -7,7 +7,6 @@ Repository contains web application for managing home budget(s). Application was
 **Idea behind the project**
 
 The idea was to create web application simplifying home finance management. Apart from the main goal, which was to build the app, project allowed me and still allows me to learn technologies and develop the neccessary skillset.  
-App is currently deployed on DigitalOcean droplet using Docker Compose with self-signed certificate.
 
 
 Current version: 0.2.0
